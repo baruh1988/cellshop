@@ -6,7 +6,7 @@ const connection = new Sequelize(
     'Azx12345',
     {
         dialect: 'mysql',
-        hosr: 'localhost'
+        host: 'localhost'
     }
 );
 
