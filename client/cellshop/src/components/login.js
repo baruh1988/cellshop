@@ -13,7 +13,7 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-import bgImg from '../assets/phones.img';
+import bgImg from '../assets/phones.jpeg';
 
 const theme = createTheme();
 
