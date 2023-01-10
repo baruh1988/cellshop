@@ -13,34 +13,18 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-import bgImg from '../assets/phones.jpeg';
+import { useJwt }  from 'react-jwt';
 
-const dummyData = [
-    {
-        id: 0,
-        idNumber: 'admin',
-        userType: 0,
-        firstName: 'admin',
-        lastName: 'admin',
-        password: 'password',
-        address: '',
-        email: '',
-        phoneNumber: '',
-        userType: {
-            id: '0',
-            description: 'admin'
-        }
-    }
-];
+import bgImg from '../assets/phones.jpeg';
 
 const theme = createTheme();
 
-const Login = () => {
+export default function Login(){
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTraget);
         console.log({
-            username: data.get('username'),
+            idNumber: data.get('idNumber'),
             password: data.get('password')
         });
     };
@@ -83,10 +67,10 @@ const Login = () => {
                                 margin="normal"
                                 required
                                 fullWidth
-                                id="username"
-                                label="User Name"
-                                name="username"
-                                autoComplete="off"
+                                id="idNumber"
+                                label="ID Number"
+                                name="idNumber"
+                                //autoComplete="off"
                                 autoFocus
                             />
                             <TextField
@@ -97,7 +81,7 @@ const Login = () => {
                                 label="Password"
                                 type="password"
                                 id="password"
-                                autoComplete="off"
+                                //autoComplete="off"
                             />
                             <FormControlLabel
                                 control={<Checkbox value="remember" color="primary" />}
@@ -131,5 +115,3 @@ const Login = () => {
     );
 
 }
-
-export default Login;

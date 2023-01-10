@@ -10,10 +10,10 @@ const jwt = require('jsonwebtoken');
 
 router.post('/addUser', async(request, response) => {
     const idNumber = request.body.idNumber;
-    const userType = 3;
+    const userType = request.body.userType;
     const firstName = request.body.firstName;
     const lastName = request.body.lastName;
-    const password = request.password;
+    const password = request.body.password;
     const address = request.body.address;
     const email = request.body.email;
     const phoneNumber = request.body.phoneNumber;
@@ -36,7 +36,7 @@ router.post('/addUser', async(request, response) => {
                     userType: userType,
                     firstName: firstName,
                     lastName: lastName,
-                    password: password,
+                    password: hashedPassword,
                     address: address,
                     email: email,
                     phoneNumber: phoneNumber
@@ -51,14 +51,14 @@ router.post('/addUser', async(request, response) => {
                 .catch(saveToDbError => {
                     return response.status(500).json({
                         process: false,
-                        message: saveToDbError
+                        message: saveToDbError.message
                     })
                 })
             })
             .catch(hashError => {
                 return response.status(200).json({
                     process: false,
-                    message: hashError
+                    message: hashError.message
                 })
             })
         }   
@@ -66,16 +66,16 @@ router.post('/addUser', async(request, response) => {
     .catch(findOneError => {
         return response.status(500).json({
             process: false,
-            message: findOneError
+            message: findOneError.message
         })
     })
 })
 
 router.post('/login',(request,response,next) => {
-    const email = request.body.email
+    const idNumber = request.body.idNumber
     const password = request.body.password
 
-    User.findOne({where:{email:email}})
+    User.findOne({where:{idNumber:idNumber}})
     .then(account => {
         if(account){
             bcryptjs.compare(password,account.password)
@@ -83,6 +83,7 @@ router.post('/login',(request,response,next) => {
                 if(passwordVerified){
                     const dataForToken = {
                         id: account.id,
+                        idNumber: account.idNumber,
                         userType: account.userType,
                         firstName: account.firstName,
                         lastName: account.lastName,
@@ -123,7 +124,7 @@ router.post('/login',(request,response,next) => {
     .catch(findOneError => {
         return response.status(500).json({
             process: false,
-            message: findOneError
+            message: findOneError.message
         })
     })
 })
@@ -166,7 +167,7 @@ router.post('/findUser',(request,response,next) => {
     .catch(findAllError => {
         return response.status(500).json({
             process: false,
-            message: findAllError
+            message: findAllError.message
         })
     })
 })
