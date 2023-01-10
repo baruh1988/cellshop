@@ -15,6 +15,12 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import bgImg from '../assets/phones.jpeg';
 
+const dummyData = [
+    {
+
+    }
+];
+
 const theme = createTheme();
 
 const Login = () => {
@@ -65,10 +71,10 @@ const Login = () => {
                                 margin="normal"
                                 required
                                 fullWidth
-                                id="email"
-                                label="Email Address"
-                                name="email"
-                                autoComplete="email"
+                                id="username"
+                                label="User Name"
+                                name="username"
+                                autoComplete="off"
                                 autoFocus
                             />
                             <TextField
@@ -79,7 +85,7 @@ const Login = () => {
                                 label="Password"
                                 type="password"
                                 id="password"
-                                autoComplete="current-password"
+                                autoComplete="off"
                             />
                             <FormControlLabel
                                 control={<Checkbox value="remember" color="primary" />}
