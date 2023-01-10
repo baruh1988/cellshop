@@ -17,7 +17,19 @@ import bgImg from '../assets/phones.jpeg';
 
 const dummyData = [
     {
-
+        id: 0,
+        idNumber: 'admin',
+        userType: 0,
+        firstName: 'admin',
+        lastName: 'admin',
+        password: 'password',
+        address: '',
+        email: '',
+        phoneNumber: '',
+        userType: {
+            id: '0',
+            description: 'admin'
+        }
     }
 ];
 
@@ -28,7 +40,7 @@ const Login = () => {
         event.preventDefault();
         const data = new FormData(event.currentTraget);
         console.log({
-            email: data.get('email'),
+            username: data.get('username'),
             password: data.get('password')
         });
     };
