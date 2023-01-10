@@ -5,7 +5,7 @@ const bcryptjs = require('bcryptjs');
 const Sequelize = require('sequelize');
 // const { request } = require('express');
 const User = require('../models/user');
-const { Router } = require('express');
+const { Router, response } = require('express');
 const jwt = require('jsonwebtoken');
 
 router.post('/addUser', async(request, response) => {
@@ -86,7 +86,6 @@ router.post('/login',(request,response,next) => {
                         userType: account.userType,
                         firstName: account.firstName,
                         lastName: account.lastName,
-                        password: account.password,
                         address: account.address,
                         email: account.email,
                         phoneNumber: account.phoneNumber
@@ -125,6 +124,49 @@ router.post('/login',(request,response,next) => {
         return response.status(500).json({
             process: false,
             message: findOneError
+        })
+    })
+})
+
+router.post('/findUser',(request,response,next) => {
+    const idNumber = request.body.idNumber;
+    const userType = request.body.userType;
+    const firstName = request.body.firstName;
+    const lastName = request.body.lastName;
+    const address = request.body.address;
+    const email = request.body.email;
+    const phoneNumber = request.body.phoneNumber;
+    User.findAll({
+        where: {
+            [Op.iLike]: [
+                {idNumber: idNumber},
+                {userType: userType},
+                {firstName: firstName},
+                {lastName: lastName},
+                {address: address},
+                {email: email},
+                {phoneNumber: phoneNumber}
+            ]
+        }
+    })
+    .then(users => {
+        if(users){
+            return response.status(200).json({
+                process: true,
+                searchResult: users
+            })
+        }
+        else{
+            return response.status(200).json({
+                process: false,
+                message: 'No users matched the requested criteria'
+            })
+        }
+    })
+    .catch(findAllError => {
+        return response.status(500).json({
+            process: false,
+            message: findAllError
         })
     })
 })
