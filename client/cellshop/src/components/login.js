@@ -1,4 +1,5 @@
-import * as React from 'react';
+//import * as React from 'react';
+import React, { useState, useEffect } from 'react'; 
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -19,10 +20,14 @@ import bgImg from '../assets/phones.jpeg';
 
 const theme = createTheme();
 
-export default function Login(){
+const Login = () => {
+
+    const [idNumber, setIdNumber] = useState('');
+    const [password, setPassword] = useState('');
+
     const handleSubmit = (event) => {
         event.preventDefault();
-        const data = new FormData(event.currentTraget);
+        const data = new FormData(event.currentTarget);
         console.log({
             idNumber: data.get('idNumber'),
             password: data.get('password')
@@ -70,7 +75,7 @@ export default function Login(){
                                 id="idNumber"
                                 label="ID Number"
                                 name="idNumber"
-                                //autoComplete="off"
+                                autoComplete="off"
                                 autoFocus
                             />
                             <TextField
@@ -81,7 +86,7 @@ export default function Login(){
                                 label="Password"
                                 type="password"
                                 id="password"
-                                //autoComplete="off"
+                                autoComplete="off"
                             />
                             <FormControlLabel
                                 control={<Checkbox value="remember" color="primary" />}
@@ -115,3 +120,5 @@ export default function Login(){
     );
 
 }
+
+export default Login;
