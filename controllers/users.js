@@ -286,4 +286,38 @@ router.post('changePassword',(request,response,next) => {
     })
 })
 
+router.post('deleteUser',(request,response,next) => {
+    const idNumber = request.body.idNumber;
+    User.findOne({where:{idNumber: idNumber}})
+    .then(account => {
+        if(account){
+            account.destroy()
+            .then(() => {
+                return response.status(200).json({
+                    process: true,
+                    message: 'Account was deleted'
+                })
+            })
+            .catch(destroyError => {
+                return response.status(500).json({
+                    process: false,
+                    message: destroyError.message
+                })
+            })
+        }
+        else{
+            return response.status(200).json({
+                process: true,
+                message: 'Account not found'
+            })
+        }
+    })
+    .catch(findOneError => {
+        return response.status(500).json({
+            process: false,
+            message: findOneError.message
+        })
+    })
+})
+
 module.exports = router;
