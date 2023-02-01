@@ -1,22 +1,22 @@
-const { STRING } = require('sequelize');
-const Sequelize = require('sequelize');
-const connection = require('../middleware/connection');
+const { STRING } = require("sequelize");
+const Sequelize = require("sequelize");
+const connection = require("../middleware/connection");
 
-const User = connection.define('user', {
-    id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        allowNull: false,
-        primaryKey: true
-    },
-    idNumber: Sequelize.STRING,
-    userType: Sequelize.INTEGER,
-    firstName: Sequelize.STRING,
-    lastName: Sequelize.STRING,
-    password: Sequelize.STRING,
-    address: Sequelize.STRING,
-    email: Sequelize.STRING,
-    phoneNumber: Sequelize.STRING
+const User = connection.define("user", {
+  id: {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    allowNull: false,
+    primaryKey: true,
+  },
+  idNumber: Sequelize.STRING,
+  userType: Sequelize.INTEGER,
+  firstName: Sequelize.STRING,
+  lastName: Sequelize.STRING,
+  password: Sequelize.STRING,
+  address: Sequelize.STRING,
+  email: Sequelize.STRING,
+  phoneNumber: Sequelize.STRING,
 });
 
 module.exports = User;

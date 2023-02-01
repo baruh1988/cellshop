@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
-import Login from './components/login';
-import './App.css';
+import React, { useState, useEffect, useContext } from "react";
+import Login from "./components/login";
+import "./App.css";
 
 function App() {
-
-  const [user,setUser] = useState(null);
+  const [user, setUser] = useState(null);
 
   /*
   useEffect(() => {
@@ -12,15 +11,7 @@ function App() {
   },[]);
   */
 
-  return (
-    <>
-    {!user ? 
-      <Login /> 
-      : 
-      <></>
-    }
-    </>
-  );
+  return <>{!user ? <Login /> : <></>}</>;
 }
 
 export default App;
