@@ -6,10 +6,11 @@ import {
   Search,
   SettingsOutlined,
   ArrowDropDownOutlined,
+  LogoutOutlined,
 } from "@mui/icons-material";
 import FlexBetween from "./FlexBetween";
 import { useDispatch } from "react-redux";
-import { setMode } from "../state";
+import { setMode, setLogout } from "../state";
 import {
   AppBar,
   IconButton,
@@ -53,6 +54,9 @@ const Navbar = ({ isSideBarOpen, setIsSideBarOpen }) => {
           </IconButton>
           <IconButton>
             <SettingsOutlined sx={{ fontSize: "25px" }} />
+          </IconButton>
+          <IconButton onClick={() => dispatch(setLogout())}>
+            <LogoutOutlined sx={{ fontSize: "25px" }} />
           </IconButton>
         </FlexBetween>
       </Toolbar>

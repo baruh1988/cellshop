@@ -18,7 +18,7 @@ const loginInitialValues = {
 
 const Form = () => {
   const { palette } = useTheme();
-  const dispath = useDispatch();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const isNonMobile = useMediaQuery("(min-width: 600px)");
 
@@ -32,7 +32,7 @@ const Form = () => {
     onSubmitProps.resetForm();
     if (loggedIn) {
       const decoded = jwt_decode(loggedIn.token);
-      dispath(setLogin({ user: decoded.dataForToken }));
+      dispatch(setLogin({ user: decoded.dataForToken }));
       navigate("/home");
     }
   };
