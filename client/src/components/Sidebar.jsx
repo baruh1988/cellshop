@@ -27,10 +27,11 @@ import {
   AdminPanelSettingsOutlined,
   TrendingUpOutlined,
   PieChartOutlined,
+  PeopleAltOutlined,
 } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router-dom";
 import FlexBetween from "./FlexBetween";
-
+/*
 const navItems = [
   { text: "Dashboard", icon: <HomeOutlined /> },
   { text: "Client facing", icon: null },
@@ -45,6 +46,12 @@ const navItems = [
   { text: "Managment", icon: null },
   { text: "Admin", icon: <AdminPanelSettingsOutlined /> },
   { text: "Performance", icon: <TrendingUpOutlined /> },
+];
+*/
+const navItems = [
+  { text: "Dashboard", icon: <HomeOutlined /> },
+  { text: "Managment", icon: null },
+  { text: "Users", icon: <PeopleAltOutlined /> },
 ];
 
 const Sidebar = ({
