@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
 import LoginPage from "./scenes/loginPage";
 import Dashboard from "./scenes/dashboard";
+import Users from "./scenes/users";
 import Layout from "./scenes/layout";
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
@@ -29,6 +30,10 @@ function App() {
               <Route
                 path="/dashboard"
                 element={isLoggedIn ? <Dashboard /> : <Navigate to="/" />}
+              />
+              <Route
+                path="/users"
+                element={isLoggedIn ? <Users /> : <Navigate to="/" />}
               />
             </Route>
           </Routes>
