@@ -4,6 +4,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import SupervisorAccountOutlinedIcon from "@mui/icons-material/SupervisorAccountOutlined";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
+import Header from "../../components/Header";
 
 const Users = () => {
   const theme = useTheme();
@@ -49,7 +50,7 @@ const Users = () => {
         return (
           <Box
             width="60%"
-            m="0 auto"
+            m="1.5rem 2.5rem"
             p="5px"
             display="flex"
             justifyContent="center"
@@ -67,9 +68,14 @@ const Users = () => {
   ];
 
   return (
-    <Box m="20px">
-      <Box m="40px 0 0 0" height="75vh">
-        <DataGrid rows={data} columns={columns} />
+    <Box m="1.5rem 2.5rem">
+      <Header title="Users" subtitle="List of users" />
+      <Box mt="40px" height="75vh">
+        <DataGrid
+          getRowId={(row) => row.id}
+          rows={data || []}
+          columns={columns}
+        />
       </Box>
     </Box>
   );

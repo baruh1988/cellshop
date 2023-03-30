@@ -29,11 +29,9 @@ const Form = () => {
       body: JSON.stringify(values),
     });
     const loggedIn = await loggedInResponse.json();
-    console.log(loggedIn);
     onSubmitProps.resetForm();
     if (loggedIn) {
       const decoded = jwt_decode(loggedIn.token);
-      console.log(decoded);
       dispatch(setLogin({ user: decoded.dataForToken }));
       navigate("/home");
     }
