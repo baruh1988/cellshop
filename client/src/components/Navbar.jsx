@@ -10,7 +10,7 @@ import {
 } from "@mui/icons-material";
 import FlexBetween from "./FlexBetween";
 import { useDispatch } from "react-redux";
-import { setMode, setLogout, getUser } from "../state";
+import { setMode, setLogout } from "../state";
 import {
   AppBar,
   Button,
@@ -23,6 +23,7 @@ import {
   MenuItem,
   useTheme,
 } from "@mui/material";
+import { useSelector } from "react-redux";
 
 const Navbar = ({ isSideBarOpen, setIsSideBarOpen }) => {
   const dispatch = useDispatch();
@@ -32,10 +33,7 @@ const Navbar = ({ isSideBarOpen, setIsSideBarOpen }) => {
   const isOpen = Boolean(anchorEl);
   const handleClick = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
-
-  useEffect(() => {
-    console.log(getUser());
-  }, []);
+  const user = useSelector((state) => state.user);
 
   return (
     <AppBar sx={{ position: "static", background: "none", boxShadow: "none" }}>
@@ -86,13 +84,13 @@ const Navbar = ({ isSideBarOpen, setIsSideBarOpen }) => {
                   fontSize="0.85rem"
                   sx={{ color: theme.palette.secondary[100] }}
                 >
-                  {"test"}
+                  {user !== null ? user.firstName : ""}
                 </Typography>
                 <Typography
                   fontSize="0.75rem"
                   sx={{ color: theme.palette.secondary[200] }}
                 >
-                  {"test"}
+                  {user !== null ? user.userType : ""}
                 </Typography>
               </Box>
               <ArrowDropDownOutlined
