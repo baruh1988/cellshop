@@ -1,47 +1,111 @@
-import React, { useEffect, useState } from "react";
-import { Box, Typography, useTheme } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { Box, Typography, useTheme, Button } from "@mui/material";
+import {
+  DataGrid,
+  GridToolbar,
+  GridRowModes,
+  GridActionsCellItem,
+} from "@mui/x-data-grid";
+import { tokens } from "../../theme";
+import { users } from "../../data/users";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
-import SupervisorAccountOutlinedIcon from "@mui/icons-material/SupervisorAccountOutlined";
-import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
+import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
+import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
+import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
+import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import Header from "../../components/Header";
+import { useState } from "react";
 
 const Users = () => {
   const theme = useTheme();
-  const [data, setDate] = useState([
-    {
-      id: 0,
-      idNumber: "123456789",
-      firstName: "boris",
-      lastName: "gershkovich",
-      address: "some street some city",
-      email: "mail@gmail.com",
-      phoneNumber: "0502429584",
-      userType: 0,
-    },
-  ]);
+  const colors = tokens(theme.palette.mode);
+  const [rows, setRows] = useState(users);
+  const [rowModesModel, setRowModesModel] = useState({});
 
-  useEffect(() => {
-    console.log(data);
-  }, []);
+  const handleRowEditStart = (params, event) => {
+    event.defaultMuiPrevented = true;
+  };
+
+  const handleRowEditStop = (params, event) => {
+    event.defaultMuiPrevented = true;
+  };
+
+  const handleEditClick = (id) => () => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+  };
+
+  const handleSaveClick = (id) => () => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+  };
+
+  const handleDeleteClick = (id) => () => {
+    setRows(rows.filter((row) => row.id !== id));
+  };
+
+  const handleCancelClick = (id) => () => {
+    setRowModesModel({
+      ...rowModesModel,
+      [id]: { mode: GridRowModes.View, ignoreModifications: true },
+    });
+
+    const editedRow = rows.find((row) => row.id === id);
+    if (editedRow.isNew) {
+      setRows(rows.filter((row) => row.id !== id));
+    }
+  };
+
+  const processRowUpdate = (newRow) => {
+    const updatedRow = { ...newRow, isNew: false };
+    setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
+    return updatedRow;
+  };
+
+  const handleRowModesModelChange = (newRowModesModel) => {
+    setRowModesModel(newRowModesModel);
+  };
 
   const columns = [
-    { field: "idNumber", headerName: "ID" },
+    { field: "id", headerName: "ID" },
+    {
+      field: "idNumber",
+      headerName: "ID Number",
+      flex: 1,
+      cellClassName: "idNumber-column--cell",
+      editable: true,
+    },
     {
       field: "firstName",
       headerName: "First Name",
       flex: 1,
-      cellClassName: "first-name-column-cell",
+      cellClassName: "firstName-column--cell",
+      editable: true,
     },
     {
       field: "lastName",
       headerName: "Last Name",
       flex: 1,
-      cellClassName: "last-name-column-cell",
+      cellClassName: "lastName-column--cell",
+      editable: true,
     },
-    { field: "phoneNumber", headerName: "Phone Number", flex: 1 },
-    { field: "email", headerName: "Email", flex: 1 },
-    { field: "address", headerName: "Address", flex: 1 },
+    {
+      field: "address",
+      headerName: "Address",
+      flex: 1,
+      editable: true,
+    },
+    {
+      field: "email",
+      headerName: "Email",
+      flex: 1,
+      editable: true,
+    },
+    {
+      field: "phoneNumber",
+      headerName: "Phone Number",
+      flex: 1,
+      editable: true,
+    },
     {
       field: "userType",
       headerName: "Access Level",
@@ -50,31 +114,119 @@ const Users = () => {
         return (
           <Box
             width="60%"
-            m="1.5rem 2.5rem"
+            m="0 auto"
             p="5px"
             display="flex"
             justifyContent="center"
-            backgroundColor="green"
+            backgroundColor={
+              userType === 0 ? colors.greenAccent[600] : colors.greenAccent[700]
+            }
             borderRadius="4px"
           >
             {userType === 0 && <AdminPanelSettingsOutlinedIcon />}
-            {userType === 1 && <SupervisorAccountOutlinedIcon />}
-            {userType === 2 && <PersonOutlineOutlinedIcon />}
-            <Typography sx={{ ml: "5px" }}>{userType}</Typography>
+            {userType === 1 && <SecurityOutlinedIcon />}
+            {userType === 2 && <LockOpenOutlinedIcon />}
+            <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
+              {userType === 0
+                ? "Admin"
+                : userType === 1
+                ? "Manager"
+                : "Employee"}
+            </Typography>
           </Box>
         );
+      },
+    },
+    {
+      field: "actions",
+      type: "actions",
+      headerName: "Actions",
+      width: 100,
+      cellClassName: "actions",
+      getActions: ({ id }) => {
+        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+
+        if (isInEditMode) {
+          return [
+            <GridActionsCellItem
+              icon={<SaveOutlinedIcon />}
+              label="Save"
+              onClick={handleSaveClick(id)}
+            />,
+            <GridActionsCellItem
+              icon={<CloseOutlinedIcon />}
+              label="Cancel"
+              className="textPrimary"
+              onClick={handleCancelClick(id)}
+              color="inherit"
+            />,
+          ];
+        }
+
+        return [
+          <GridActionsCellItem
+            icon={<EditOutlinedIcon />}
+            label="Edit"
+            className="textPrimary"
+            onClick={handleEditClick(id)}
+            color="inherit"
+          />,
+          <GridActionsCellItem
+            icon={<DeleteForeverOutlinedIcon />}
+            label="Delete"
+            onClick={handleDeleteClick(id)}
+            color="inherit"
+          />,
+        ];
       },
     },
   ];
 
   return (
-    <Box m="1.5rem 2.5rem">
-      <Header title="Users" subtitle="List of users" />
-      <Box mt="40px" height="75vh">
+    <Box m="20px">
+      <Header title="USERS" subtitle="Managing users" />
+      <Box
+        m="40px 0 0 0"
+        height="75vh"
+        sx={{
+          "& .MuiDataGrid-root": {
+            border: "none",
+          },
+          "& .MuiDataGrid-cell": {
+            borderBottom: "none",
+          },
+          "& .name-column--cell": {
+            color: colors.greenAccent[300],
+          },
+          "& .MuiDataGrid-columnHeaders": {
+            backgroundColor: colors.blueAccent[700],
+            borderBottom: "none",
+          },
+          "& .MuiDataGrid-virtualScroller": {
+            backgroundColor: colors.primary[400],
+          },
+          "& .MuiDataGrid-footerContainer": {
+            borderTop: "none",
+            backgroundColor: colors.blueAccent[700],
+          },
+          "& .MuiCheckbox-root": {
+            color: `${colors.greenAccent[200]} !important`,
+          },
+          "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
+            color: `${colors.grey[100]} !important`,
+          },
+        }}
+      >
         <DataGrid
-          getRowId={(row) => row.id}
-          rows={data || []}
+          rows={rows}
           columns={columns}
+          components={{ Toolbar: GridToolbar }}
+          editMode="row"
+          rowModesModel={rowModesModel}
+          onRowModesModelChange={handleRowModesModelChange}
+          onRowEditStart={handleRowEditStart}
+          onRowEditStop={handleRowEditStop}
+          processRowUpdate={processRowUpdate}
         />
       </Box>
     </Box>

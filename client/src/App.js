@@ -1,45 +1,42 @@
-import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
-import LoginPage from "./scenes/loginPage";
+import { useState } from "react";
+import { Routes, Route } from "react-router-dom";
+import Topbar from "./scenes/global/Topbar";
+import Sidebar from "./scenes/global/Sidebar";
 import Dashboard from "./scenes/dashboard";
 import Users from "./scenes/users";
-import Layout from "./scenes/layout";
-import { useMemo } from "react";
-import { useSelector } from "react-redux";
+//import Invoices from "./scenes/invoices";
+//import Contacts from "./scenes/contacts";
+//import Bar from "./scenes/bar";
+//import Form from "./scenes/form";
+//import Line from "./scenes/line";
+//import Pie from "./scenes/pie";
+//import FAQ from "./scenes/faq";
+//import Geography from "./scenes/geography";
+//import Calendar from "./scenes/calendar/calendar";
 import { CssBaseline, ThemeProvider } from "@mui/material";
-import { createTheme } from "@mui/material/styles";
-import { themeSettings } from "./theme";
+import { ColorModeContext, useMode } from "./theme";
 
 function App() {
-  const mode = useSelector((state) => state.mode);
-  const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);
-  const isLoggedIn = Boolean(useSelector((state) => state.user));
+  const [theme, colorMode] = useMode();
+  const [isSidebar, setIsSidebar] = useState(true);
+  const [userType, setUserType] = useState(0);
 
   return (
-    <div className="app">
-      <BrowserRouter>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <Routes>
-            <Route
-              path="/"
-              element={
-                isLoggedIn ? <Navigate to="/dashboard" /> : <LoginPage />
-              }
-            />
-            <Route element={<Layout />}>
-              <Route
-                path="/dashboard"
-                element={isLoggedIn ? <Dashboard /> : <Navigate to="/" />}
-              />
-              <Route
-                path="/users"
-                element={isLoggedIn ? <Users /> : <Navigate to="/" />}
-              />
-            </Route>
-          </Routes>
-        </ThemeProvider>
-      </BrowserRouter>
-    </div>
+    <ColorModeContext.Provider value={colorMode}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <div className="app">
+          <Sidebar />
+          <main className="content">
+            <Topbar />
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/users" element={<Users />} />
+            </Routes>
+          </main>
+        </div>
+      </ThemeProvider>
+    </ColorModeContext.Provider>
   );
 }
 
