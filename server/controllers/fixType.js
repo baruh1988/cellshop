@@ -179,3 +179,5 @@ router.post("/deleteFixType", (request,response,next) => {
         })
     })
 })
+
+module.exports = router;

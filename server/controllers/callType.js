@@ -183,3 +183,5 @@ router.post("/deleteCallType", (request,response,next) => {
         })
     })
 })
+
+module.exports = router;

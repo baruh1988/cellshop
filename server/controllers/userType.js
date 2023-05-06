@@ -179,3 +179,5 @@ router.post("/deleteUserType", (request,response,next) => {
         })
     })
 })
+
+module.exports = router;

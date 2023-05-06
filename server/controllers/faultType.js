@@ -179,3 +179,5 @@ router.post("/deleteFaultType", (request,response,next) => {
         })
     })
 })
+
+module.exports = router;
