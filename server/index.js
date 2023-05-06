@@ -42,6 +42,27 @@ app.use(
 const usersRoute = require("./controllers/users");
 app.use("/users", usersRoute);
 
+const inventoryRoute = require("./controllers/inventory");
+app.use("/inventory", inventoryRoute);
+
+const callTypeRoute = require("./controllers/callType");
+app.use("/callType", callTypeRoute);
+
+const faultTypeRoute = require("./controllers/faultType");
+app.use("/faultType", faultTypeRoute);
+
+const fixTypeRoute = require("./controllers/fixType");
+app.use("/fixType", fixTypeRoute);
+
+const userTypeRoute = require("./controllers/userType");
+app.use("/userType", userTypeRoute);
+
+const manufacturerRoute = require("./controllers/manufacturer");
+app.use("/manufacturer", manufacturerRoute);
+
+const modelRoute = require("./controllers/model");
+app.use("/model", modelRoute);
+
 // Connection
 const port = 3789;
 connection
