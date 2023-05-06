@@ -178,6 +178,22 @@ router.post("/findUser", (request, response, next) => {
   });
 });
 
+router.get("/getAllUsers", (request,response,next) => {
+  User.findAll()
+  .then((findAllUsersResult) => {
+    return response.status(200).json({
+      process: true,
+      message: `Found ${findAllUsersResult.length} users`
+    })
+  })
+  .catch((findAllUsersError) => {
+    return response.status(500).json({
+      process: false,
+      message: findAllUsersError.message
+    })
+  })
+})
+
 router.post("/editUser", (request, response, next) => {
   const idNumber = request.body.idNumber;
   const userType = request.body.userType;
