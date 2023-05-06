@@ -13,6 +13,7 @@ const ServiceCallDetail = connection.define("serviceCallDetail", {
   fixed: Sequelize.BOOLEAN,
   fixTypeId: Sequelize.INTEGER,
   inventoryId: Sequelize.INTEGER,
+  notes: Sequelize.STRING
 });
 
 module.exports = ServiceCallDetail;
