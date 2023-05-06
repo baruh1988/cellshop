@@ -1,10 +1,13 @@
-import { Box, Typography, useTheme, Button } from "@mui/material";
 import {
-  DataGrid,
-  GridToolbar,
-  GridRowModes,
-  GridActionsCellItem,
-} from "@mui/x-data-grid";
+  Box,
+  Typography,
+  useTheme,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogActions,
+} from "@mui/material";
+import { DataGrid, GridToolbar, GridActionsCellItem } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import { users } from "../../data/users";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
@@ -12,61 +15,60 @@ import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
-import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import Header from "../../components/Header";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import UserForm from "../userform";
 
 const Users = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [rows, setRows] = useState(users);
-  const [rowModesModel, setRowModesModel] = useState({});
+  const [open, setOpen] = useState(false);
+  const [formType, setFormType] = useState("addUser");
+  const [initialValues, setInitialValues] = useState(null);
 
-  const handleRowEditStart = (params, event) => {
-    event.defaultMuiPrevented = true;
+  const handleClickOpen = () => {
+    setOpen(true);
   };
 
-  const handleRowEditStop = (params, event) => {
-    event.defaultMuiPrevented = true;
+  const handleInitialValues = (values) => {
+    setInitialValues(values);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  useEffect(() => {}, []);
+
+  const getUsersData = async () => {
+    const fetchResponse = await fetch();
   };
 
   const handleEditClick = (id) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
-  };
-
-  const handleSaveClick = (id) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+    setFormType("editUser");
+    const values = rows.find((obj) => obj.idNumber === id);
+    setInitialValues({
+      idNumber: values.idNumber,
+      userType: values.userType,
+      firstName: values.firstName,
+      lastName: values.lastName,
+      password: "",
+      rePassword: "",
+      address: values.address,
+      email: values.email,
+      phoneNumber: values.phoneNumber,
+    });
+    handleClickOpen();
   };
 
   const handleDeleteClick = (id) => () => {
-    setRows(rows.filter((row) => row.id !== id));
-  };
-
-  const handleCancelClick = (id) => () => {
-    setRowModesModel({
-      ...rowModesModel,
-      [id]: { mode: GridRowModes.View, ignoreModifications: true },
-    });
-
-    const editedRow = rows.find((row) => row.id === id);
-    if (editedRow.isNew) {
-      setRows(rows.filter((row) => row.id !== id));
-    }
-  };
-
-  const processRowUpdate = (newRow) => {
-    const updatedRow = { ...newRow, isNew: false };
-    setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
-    return updatedRow;
-  };
-
-  const handleRowModesModelChange = (newRowModesModel) => {
-    setRowModesModel(newRowModesModel);
+    console.log(rows.find((obj) => obj.idNumber === id));
+    setRows(rows.filter((row) => row.idNumber !== id));
   };
 
   const columns = [
-    { field: "id", headerName: "ID" },
+    //{ field: "id", headerName: "ID" },
     {
       field: "idNumber",
       headerName: "ID Number",
@@ -144,25 +146,6 @@ const Users = () => {
       width: 100,
       cellClassName: "actions",
       getActions: ({ id }) => {
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
-
-        if (isInEditMode) {
-          return [
-            <GridActionsCellItem
-              icon={<SaveOutlinedIcon />}
-              label="Save"
-              onClick={handleSaveClick(id)}
-            />,
-            <GridActionsCellItem
-              icon={<CloseOutlinedIcon />}
-              label="Cancel"
-              className="textPrimary"
-              onClick={handleCancelClick(id)}
-              color="inherit"
-            />,
-          ];
-        }
-
         return [
           <GridActionsCellItem
             icon={<EditOutlinedIcon />}
@@ -185,6 +168,39 @@ const Users = () => {
   return (
     <Box m="20px">
       <Header title="USERS" subtitle="Managing users" />
+      <Button
+        onClick={() => {
+          setFormType("addUser");
+          handleInitialValues({
+            idNumber: "",
+            userType: 0,
+            firstName: "",
+            lastName: "",
+            password: "",
+            address: "",
+            email: "",
+            phoneNumber: "",
+          });
+          handleClickOpen();
+        }}
+        color="secondary"
+        variant="contained"
+      >
+        Add new user
+      </Button>
+      <Dialog open={open} onClose={handleClose}>
+        <DialogContent>
+          <UserForm
+            formType={formType}
+            initialValues={initialValues}
+            formCloseControl={setOpen}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={handleClose}>Ok</Button>
+        </DialogActions>
+      </Dialog>
       <Box
         m="40px 0 0 0"
         height="75vh"
@@ -221,12 +237,7 @@ const Users = () => {
           rows={rows}
           columns={columns}
           components={{ Toolbar: GridToolbar }}
-          editMode="row"
-          rowModesModel={rowModesModel}
-          onRowModesModelChange={handleRowModesModelChange}
-          onRowEditStart={handleRowEditStart}
-          onRowEditStop={handleRowEditStop}
-          processRowUpdate={processRowUpdate}
+          getRowId={(row) => row.idNumber}
         />
       </Box>
     </Box>

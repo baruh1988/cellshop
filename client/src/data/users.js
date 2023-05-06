@@ -1,6 +1,6 @@
 export const users = [
   {
-    id: 1,
+    //id: 1,
     idNumber: "admin",
     userType: 0,
     firstName: "admin",
@@ -11,7 +11,7 @@ export const users = [
     phoneNumber: "",
   },
   {
-    id: 2,
+    //id: 2,
     idNumber: "123456789",
     userType: 1,
     firstName: "manager",
@@ -22,7 +22,7 @@ export const users = [
     phoneNumber: "",
   },
   {
-    id: 3,
+    //id: 3,
     idNumber: "employee",
     userType: 2,
     firstName: "employee",
