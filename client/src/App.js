@@ -6,7 +6,6 @@ import Dashboard from "./scenes/dashboard";
 import Users from "./scenes/users";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
-import UserForm from "./scenes/userform";
 
 function App() {
   const [theme, colorMode] = useMode();
