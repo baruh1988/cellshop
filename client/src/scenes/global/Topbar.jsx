@@ -9,11 +9,14 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import SearchIcon from "@mui/icons-material/Search";
+import { useDispatch } from "react-redux";
+import { setLogout } from "../../state";
 
 const Topbar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
+  const dispatch = useDispatch();
 
   return (
     <Box display="flex" justifyContent="space-between" p={2}>
@@ -46,7 +49,7 @@ const Topbar = () => {
         <IconButton>
           <PersonOutlinedIcon />
         </IconButton>
-        <IconButton>
+        <IconButton onClick={() => dispatch(setLogout())}>
           <LogoutOutlinedIcon />
         </IconButton>
       </Box>
