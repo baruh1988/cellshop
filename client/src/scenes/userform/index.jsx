@@ -94,6 +94,7 @@ const UserForm = (props) => {
       body: JSON.stringify(values),
     });
     //console.log(response);
+    //props.usersPageRefreshControl(true);
     props.formCloseControl(false);
   };
 

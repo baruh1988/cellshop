@@ -9,7 +9,6 @@ import {
 } from "@mui/material";
 import { DataGrid, GridToolbar, GridActionsCellItem } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
-import { users } from "../../data/users";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
@@ -18,14 +17,16 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import Header from "../../components/Header";
 import { useEffect, useState } from "react";
 import UserForm from "../userform";
+import { useSelector } from "react-redux";
 
 const Users = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [rows, setRows] = useState(users);
+  const [rows, setRows] = useState([]);
   const [open, setOpen] = useState(false);
   const [formType, setFormType] = useState("addUser");
   const [initialValues, setInitialValues] = useState(null);
+  const loggedInUser = useSelector((state) => state.user);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -39,10 +40,22 @@ const Users = () => {
     setOpen(false);
   };
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    getUsersData();
+  }, [open, rows]);
 
   const getUsersData = async () => {
-    const fetchResponse = await fetch();
+    const response = await fetch("http://localhost:3789/users/getAllUsers");
+    const responseJson = await response.json();
+
+    //console.log(responseJson);
+    if (responseJson.process) {
+      const users = responseJson.data.filter(
+        (user) =>
+          user.idNumber !== "admin" && user.idNumber !== loggedInUser.idNumber
+      );
+      setRows(users);
+    }
   };
 
   const handleEditClick = (id) => () => {
@@ -63,8 +76,20 @@ const Users = () => {
   };
 
   const handleDeleteClick = (id) => () => {
-    console.log(rows.find((obj) => obj.idNumber === id));
+    const userToDelete = rows.find((obj) => obj.idNumber === id);
+    //console.log(userToDelete);
     setRows(rows.filter((row) => row.idNumber !== id));
+    deleteUser(userToDelete);
+  };
+
+  const deleteUser = async (userToDelete) => {
+    const response = await fetch("http://localhost:3789/users/deleteUser", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userToDelete),
+    });
   };
 
   const columns = [
@@ -196,10 +221,12 @@ const Users = () => {
             formCloseControl={setOpen}
           />
         </DialogContent>
+        {/*
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
           <Button onClick={handleClose}>Ok</Button>
         </DialogActions>
+        */}
       </Dialog>
       <Box
         m="40px 0 0 0"

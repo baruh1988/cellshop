@@ -1,33 +1,31 @@
-import { useState } from "react";
-import { Routes, Route } from "react-router-dom";
-import Topbar from "./scenes/global/Topbar";
-import Sidebar from "./scenes/global/Sidebar";
-import Dashboard from "./scenes/dashboard";
-import Users from "./scenes/users";
+import { Routes, Route, BrowserRouter, Navigate } from "react-router-dom";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
-import UserForm from "./scenes/userform";
+import { useSelector } from "react-redux";
+import Home from "./scenes/home";
+import Login from "./scenes/login";
 
 function App() {
   const [theme, colorMode] = useMode();
-  const [isSidebar, setIsSidebar] = useState(true);
-  const [userType, setUserType] = useState(0);
+  const isLoggedIn = Boolean(useSelector((state) => state.user));
 
   return (
     <ColorModeContext.Provider value={colorMode}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <div className="app">
-          <Sidebar isSidebar={isSidebar} />
-          <main className="content">
-            <Topbar setIsSidebar={setIsSidebar} />
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/users" element={<Users />} />
-            </Routes>
-          </main>
-        </div>
-      </ThemeProvider>
+      <BrowserRouter>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Routes>
+            <Route
+              path="/login"
+              element={isLoggedIn ? <Navigate to="/" /> : <Login />}
+            />
+            <Route
+              path="*"
+              element={isLoggedIn ? <Home /> : <Navigate to="/login" />}
+            />
+          </Routes>
+        </ThemeProvider>
+      </BrowserRouter>
     </ColorModeContext.Provider>
   );
 }
