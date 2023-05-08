@@ -183,7 +183,8 @@ router.get("/getAllUsers", (request,response,next) => {
   .then((findAllUsersResult) => {
     return response.status(200).json({
       process: true,
-      message: `Found ${findAllUsersResult.length} users`
+      message: `Found ${findAllUsersResult.length} users`,
+      data: findAllUsersResult
     })
   })
   .catch((findAllUsersError) => {
@@ -244,7 +245,7 @@ router.post("/editUser", (request, response, next) => {
   });
 });
 
-router.post("changePassword", (request, response, next) => {
+router.post("/changePassword", (request, response, next) => {
   const idNumber = request.body.idNumber;
   const currentPasword = request.body.currentPassword;
   const newPassword = request.body.newPassword;
@@ -305,7 +306,7 @@ router.post("changePassword", (request, response, next) => {
   });
 });
 
-router.post('deleteUser',(request,response,next) => {
+router.post('/deleteUser',(request,response,next) => {
     const idNumber = request.body.idNumber;
     User.findOne({where:{idNumber: idNumber}})
     .then(account => {
@@ -337,6 +338,68 @@ router.post('deleteUser',(request,response,next) => {
             message: findOneError.message
         })
     })
+})
+
+router.post("/changePasswordByAdmin", (request,response,next) => {
+  const id = request.body.id;
+  const newPassword = request.body.newPassword;
+  User.findOne({where: {id:id}})
+  .then((findOneUserResult) => {
+    if(findOneUserResult){
+      bcryptjs.compare(newPassword, findOneUserResult.password)
+      .then((compareResult) => {
+        if(compareResult){
+          return response.status(200).json({
+            process: true,
+            message: "New password must be different from current password"
+          })
+        }
+        else{
+          bcryptjs.hash(newPassword, 10)
+          .then((hashedPassword) => {
+            findOneUserResult.password = hashedPassword
+            findOneUserResult.save()
+            .then(() => {
+              return response.status(200).json({
+                process: true,
+                message: "Password changed succefully"
+              })
+            })
+            .catch((saveError) => {
+              return response.status(500).json({
+                process: false,
+                message: saveError.message
+              })
+            })
+          })
+          .catch((hashError) => {
+            return response.status(500).json({
+              process: false,
+              message: hashError.message
+            })
+          })
+        }
+      })
+      .catch((compareError) => {
+        return response.status(500).json({
+          process: false,
+          message: compareError.message
+        })
+      })
+    }
+    else{
+      return response.status(200).json({
+        process: true,
+        message: "User not found"
+      })
+    }
+  })
+  .catch((findOneUserError) => {
+    return response.status(500).json({
+      process: false,
+      message: findOneUserError.message
+    })
+  })
 })
 
 module.exports = router;
