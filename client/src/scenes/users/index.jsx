@@ -26,6 +26,7 @@ const Users = () => {
   const [open, setOpen] = useState(false);
   const [formType, setFormType] = useState("addUser");
   const [initialValues, setInitialValues] = useState(null);
+  const [userId, setUserId] = useState(-1);
   const loggedInUser = useSelector((state) => state.user);
 
   const handleClickOpen = () => {
@@ -45,9 +46,8 @@ const Users = () => {
   }, [open, rows]);
 
   const getUsersData = async () => {
-    const response = await fetch("http://localhost:3789/users/getAllUsers");
+    const response = await fetch("http://localhost:3789/user/getAllUsers");
     const responseJson = await response.json();
-
     //console.log(responseJson);
     if (responseJson.process) {
       const users = responseJson.data.filter(
@@ -60,7 +60,8 @@ const Users = () => {
 
   const handleEditClick = (id) => () => {
     setFormType("editUser");
-    const values = rows.find((obj) => obj.idNumber === id);
+    setUserId(id);
+    const values = rows.find((obj) => obj.id === id);
     setInitialValues({
       idNumber: values.idNumber,
       userType: values.userType,
@@ -76,14 +77,13 @@ const Users = () => {
   };
 
   const handleDeleteClick = (id) => () => {
-    const userToDelete = rows.find((obj) => obj.idNumber === id);
-    //console.log(userToDelete);
-    setRows(rows.filter((row) => row.idNumber !== id));
+    const userToDelete = rows.find((obj) => obj.id === id);
+    setRows(rows.filter((row) => row.id !== id));
     deleteUser(userToDelete);
   };
 
   const deleteUser = async (userToDelete) => {
-    const response = await fetch("http://localhost:3789/users/deleteUser", {
+    const response = await fetch("http://localhost:3789/user/deleteUser", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -93,7 +93,7 @@ const Users = () => {
   };
 
   const columns = [
-    //{ field: "id", headerName: "ID" },
+    { field: "id", headerName: "ID", hide: true },
     {
       field: "idNumber",
       headerName: "ID Number",
@@ -196,6 +196,7 @@ const Users = () => {
       <Button
         onClick={() => {
           setFormType("addUser");
+          setUserId(-1);
           handleInitialValues({
             idNumber: "",
             userType: 0,
@@ -219,6 +220,7 @@ const Users = () => {
             formType={formType}
             initialValues={initialValues}
             formCloseControl={setOpen}
+            userId={userId}
           />
         </DialogContent>
         {/*
@@ -264,7 +266,7 @@ const Users = () => {
           rows={rows}
           columns={columns}
           components={{ Toolbar: GridToolbar }}
-          getRowId={(row) => row.idNumber}
+          getRowId={(row) => row.id}
         />
       </Box>
     </Box>

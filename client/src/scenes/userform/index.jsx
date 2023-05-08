@@ -81,11 +81,13 @@ const UserForm = (props) => {
         });
 
   const handleFormSubmit = async (values) => {
+    //console.log(props.userId);
     if (props.formType === "editUser") {
       delete values.password;
+      values = { id: props.userId, ...values };
     }
     //console.log(values);
-    const url = `http://localhost:3789/users/${props.formType}`;
+    const url = `http://localhost:3789/user/${props.formType}`;
     const response = await fetch(url, {
       method: "POST",
       headers: {
