@@ -194,6 +194,7 @@ router.get("/getAllUsers", (request, response, next) => {
         message: findAllUsersError.message,
       });
     });
+  })
 });
 
 router.post("/editUser", (request, response, next) => {
