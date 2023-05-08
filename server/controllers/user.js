@@ -136,9 +136,9 @@ router.post("/login", (request, response, next) => {
   });
 });
 
-router.post("/getUserBuId", (request, response, next) => {
+router.post("/getUserById", (request, response, next) => {
   const id = request.body.id;
-  User.findOne({where: {}})
+  User.findOne({where: {id:id}})
   .then((findOneUserResult) => {
     if (findOneUserResult) {
       return response.status(200).json({
