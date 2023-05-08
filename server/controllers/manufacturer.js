@@ -10,11 +10,7 @@ const { response, request } = require("express");
 
 router.post("/addManufacturer", (request,response,next) => {
     const manufacturerName = request.body.manufacturerName;
-    Manufacturer.findOne({
-        where: {
-            [Op.iLike]: [{name: manufacturerName}]
-        }
-    })
+    Manufacturer.findOne({where: {name:manufacturerName}})
     .then((findOneManufacturerResult) => {
         if(findOneManufacturerResult) {
             return response.status(200).json({
@@ -44,7 +40,7 @@ router.post("/addManufacturer", (request,response,next) => {
     .catch((findOneManufacturerError) => {
         return response.status(500).json({
             process: false,
-            message: findOneManufacturerError.message
+            message: `findOneManufacturerError ${findOneManufacturerError.message}`
         })
     })
 })
@@ -101,59 +97,63 @@ router.get('/getManufacturerById', (request,response,next) => {
 })
 
 router.post("/editManufacturer", (request,response,next) => {
-    const manufacturerName = request.body.manufacturerName;
+    const id = request.body.id;
     const newManufacturerName = request.body.newManufacturerName;
-    Manufacturer.findOne({where: {name: manufacturerName}})
+    Manufacturer.findOne({where: {id: id}})
     .then((findOneManufacturerResult) => {
         if(findOneManufacturerResult){
-            Manufacturer.findOne({
-                where: {
-                    [Op.iLike]: [{name: manufacturerName}]
-                }
-            })
-            .then((findOneNewManufacturerResult) => {
-                if(findOneNewManufacturerResult){
-                    return response.status(200).json({
-                        process: true,
-                        message: "Manfuacturer name already exist"
-                    })
-                }
-                else{
-                    findOneManufacturerResult.name = newManufacturerName;
-                    findOneManufacturerResult.save()
-                    .then((saveToDbResult) => {
+            if(findOneManufacturerResult.name == newManufacturerName){
+                return response.status(200).json({
+                    process: true,
+                    message: "New name matches old name"
+                })
+            }
+            else{
+                Manufacturer.findOne({where: {name:newManufacturerName}})
+                .then((findOneNewManufacturerResult) => {
+                    if(findOneNewManufacturerResult){
                         return response.status(200).json({
                             process: true,
-                            message: "Manufacturer name change was saved",
-                            data: saveToDbResult
+                            message: "Manfuacturer name already exist"
                         })
-                    })
-                    .catch((saveToDbError) => {
-                        return response.status(500).json({
-                            process: false,
-                            message: saveToDbError.message
+                    }
+                    else{
+                        findOneManufacturerResult.name = newManufacturerName;
+                        findOneManufacturerResult.save()
+                        .then((saveToDbResult) => {
+                            return response.status(200).json({
+                                process: true,
+                                message: "Manufacturer name change was saved",
+                                data: saveToDbResult
+                            })
                         })
-                    })
-                }
-            })
-            .catch((findOneNewManufacturerError) => {
-                return response.status(500).json({
-                    process: false,
-                    message: findOneNewManufacturerError.message
+                        .catch((saveToDbError) => {
+                            return response.status(500).json({
+                                process: false,
+                                message: `saveToDbError: ${saveToDbError.message}`
+                            })
+                        })
+                    }
                 })
-            })
+                .catch((findOneNewManufacturerError) => {
+                    return response.status(500).json({
+                        process: false,
+                        message: `findOneNewManufacturerError: ${findOneNewManufacturerError.message}`
+                    })
+                })
+            }
         }
         else{
             return response.status(200).json({
                 process: true,
-                message: "Manufacturer name was not found"
+                message: "Manufacturer not found"
             })
         }
     })
     .catch((findOneManufacturerError) => {
         return response.status(500).json({
             process: false,
-            message: findOneManufacturerError.message
+            message: `findOneManufacturerError: ${findOneManufacturerError.message}`
         })
     })
 })
