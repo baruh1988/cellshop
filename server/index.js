@@ -39,8 +39,8 @@ app.use(
 );
 
 // Routes
-const usersRoute = require("./controllers/users");
-app.use("/users", usersRoute);
+const userRoute = require("./controllers/user");
+app.use("/user", userRoute);
 
 const inventoryRoute = require("./controllers/inventory");
 app.use("/inventory", inventoryRoute);
