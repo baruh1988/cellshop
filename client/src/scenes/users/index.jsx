@@ -7,7 +7,16 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import { DataGrid, GridToolbar, GridActionsCellItem } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridToolbar,
+  GridActionsCellItem,
+  GridToolbarContainer,
+  GridToolbarColumnsButton,
+  GridToolbarFilterButton,
+  GridToolbarDensitySelector,
+  GridToolbarExport,
+} from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
@@ -18,6 +27,21 @@ import Header from "../../components/Header";
 import { useEffect, useState } from "react";
 import UserForm from "../userform";
 import { useSelector } from "react-redux";
+import AddIcon from "@mui/icons-material/Add";
+
+const CustomToolBar = (props) => {
+  return (
+    <GridToolbarContainer>
+      <Button color="primary" startIcon={<AddIcon />}>
+        Add record
+      </Button>
+      <GridToolbarColumnsButton />
+      <GridToolbarFilterButton />
+      <GridToolbarDensitySelector />
+      <GridToolbarExport />
+    </GridToolbarContainer>
+  );
+};
 
 const Users = () => {
   const theme = useTheme();
@@ -48,7 +72,6 @@ const Users = () => {
   const getUsersData = async () => {
     const response = await fetch("http://localhost:3789/user/getAllUsers");
     const responseJson = await response.json();
-    //console.log(responseJson);
     if (responseJson.process) {
       const users = responseJson.data.filter(
         (user) =>
@@ -265,7 +288,7 @@ const Users = () => {
         <DataGrid
           rows={rows}
           columns={columns}
-          components={{ Toolbar: GridToolbar }}
+          components={{ Toolbar: CustomToolBar }}
           getRowId={(row) => row.id}
         />
       </Box>
