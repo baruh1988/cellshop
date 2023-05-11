@@ -8,11 +8,7 @@ const { response, request } = require("express");
 
 router.post("/createFixType", (request,response,next) => {
     const fixTypeDescription = request.body.fixTypeDescription;
-    FixType.findOne({
-        where: {
-            [Op.iLike]: [{description:fixTypeDescription}]
-        }
-    })
+    FixType.findOne({where: {description:fixTypeDescription}})
     .then((findOneFixTypeResult) => {
         if(findOneFixTypeResult){
             return response.status(200).json({
