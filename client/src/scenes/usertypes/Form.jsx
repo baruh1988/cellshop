@@ -9,7 +9,7 @@ const Form = (props) => {
 
   const checkoutSchema = yup
     .object()
-    .shape({ userTypeDescription: yup.string().required("required") });
+    .shape({ description: yup.string().required("required") });
 
   const handleFormSubmit = async (values) => {
     if (props.formType === "edit") {
@@ -38,7 +38,7 @@ const Form = (props) => {
           props.formType === "create" ? "CREATE USER TYPE" : "EDIT USER TYPE"
         }
         subtitle={
-          props.formType === "add"
+          props.formType === "create"
             ? "Create a New User Type"
             : "Edit an Existing User Type"
         }
@@ -81,7 +81,7 @@ const Form = (props) => {
             </Box>
             <Box display="flex" justifyContent="end" mt="20px">
               <Button type="submit" color="secondary" variant="contained">
-                {props.formType === "add" ? "Add" : "Save"}
+                {props.formType === "create" ? "Add" : "Save"}
               </Button>
             </Box>
           </form>
