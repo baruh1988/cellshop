@@ -159,15 +159,15 @@ router.post("/editManufacturer", (request,response,next) => {
 })
 
 router.post("/deleteManufacturer", (request,response,next) => {
-    const manufacturerName = request.body.manufacturerName;
-    Manufacturer.findOne({where: {name: manufacturerName}})
+    const id = request.body.id;
+    Manufacturer.findOne({where: {id:id}})
     .then((findOneManufacturerResult) => {
         if(findOneManufacturerResult){
             findOneManufacturerResult.destroy()
             .then(() => {
                 return response.status(200).json({
                     process: true,
-                    message: "Manufacturer name was deleted"
+                    message: "Manufacturer deleted"
                 })
             })
             .catch((destroyError) => {
@@ -180,7 +180,7 @@ router.post("/deleteManufacturer", (request,response,next) => {
         else{
             return response.status(200).json({
                 process: true,
-                message: "Manufacturer name was not found"
+                message: "Manufacturer not found"
             })
         }
     })
