@@ -77,11 +77,10 @@ const UserTypes = () => {
   const handleDeleteClick = (id) => () => {
     const toDelete = rows.find((obj) => obj.id === id);
     setRows(rows.filter((row) => row.id !== id));
-    deleteManufacturer(toDelete);
+    deleteUserType(toDelete);
   };
 
-  const deleteManufacturer = async (toDelete) => {
-    toDelete["manufacturerName"] = toDelete["name"];
+  const deleteUserType = async (toDelete) => {
     const response = await fetch(
       "http://localhost:3789/userType/deleteUserType",
       {
@@ -152,7 +151,7 @@ const UserTypes = () => {
             formType={formType}
             initialValues={initialValues}
             formCloseControl={setOpen}
-            manufacturerId={userTypeId}
+            userTypeId={userTypeId}
           />
         </DialogContent>
         {/*

@@ -25,7 +25,7 @@ import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import Header from "../../components/Header";
 import { useEffect, useState } from "react";
-import UserForm from "../userform";
+import Form from "./Form";
 import { useSelector } from "react-redux";
 import AddIcon from "@mui/icons-material/Add";
 
@@ -239,7 +239,7 @@ const Users = () => {
       </Button>
       <Dialog open={open} onClose={handleClose}>
         <DialogContent>
-          <UserForm
+          <Form
             formType={formType}
             initialValues={initialValues}
             formCloseControl={setOpen}

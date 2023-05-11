@@ -13,12 +13,12 @@ const Form = (props) => {
 
   const handleFormSubmit = async (values) => {
     if (props.formType === "edit") {
-      values["newUserTypeDescription"] = values["description"];
-      values = { id: props.userTypeId, ...values };
+      values["newFaultTypeDescription"] = values["description"];
+      values = { id: props.faultTypeId, ...values };
     } else {
-      values["userTypeDescription"] = values["description"];
+      values["faultTypeDescription"] = values["description"];
     }
-    const url = `http://localhost:3789/userType/${props.formType}UserType`;
+    const url = `http://localhost:3789/faultType/${props.formType}FaultType`;
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -35,12 +35,12 @@ const Form = (props) => {
     <Box m="20px">
       <Header
         title={
-          props.formType === "create" ? "CREATE USER TYPE" : "EDIT USER TYPE"
+          props.formType === "create" ? "CREATE FAULT TYPE" : "EDIT FAULT TYPE"
         }
         subtitle={
           props.formType === "create"
-            ? "Create a New User Type"
-            : "Edit an Existing User Type"
+            ? "Create a New Fault Type"
+            : "Edit an Existing Fault Type"
         }
       />
       <Formik
@@ -69,7 +69,7 @@ const Form = (props) => {
                 fullWidth
                 variant="filled"
                 type="text"
-                label="User Type"
+                label="Fault Type"
                 onBlur={handleBlur}
                 onChange={handleChange}
                 value={values.description}
