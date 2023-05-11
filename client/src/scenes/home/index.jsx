@@ -13,7 +13,6 @@ import Manufacturers from "../manufacturers";
 import Models from "../models";
 import FaultTypes from "../faulttypes";
 import FixTypes from "../fixtypes";
-import TestScene from "../testscene";
 
 function Home() {
   const [theme, colorMode] = useMode();
