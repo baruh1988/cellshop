@@ -8,11 +8,7 @@ const { response, request } = require("express");
 
 router.post("/createUserType", (request, response, next) => {
   const userTypeDescription = request.body.userTypeDescription;
-  UserType.findOne({
-    where: {
-      [Op.iLike]: [{ description: userTypeDescription }],
-    },
-  })
+  UserType.findOne({ where: { description: userTypeDescription } })
     .then((findOneUserTypeResult) => {
       if (findOneUserTypeResult) {
         return response.status(200).json({
