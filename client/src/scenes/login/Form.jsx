@@ -25,7 +25,7 @@ const Form = () => {
   const isNonMobile = useMediaQuery("(min-width: 600px)");
 
   const login = async (values, onSubmitProps) => {
-    const loggedInResponse = await fetch("http://localhost:3789/users/login", {
+    const loggedInResponse = await fetch("http://localhost:3789/user/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(values),
@@ -34,6 +34,7 @@ const Form = () => {
     onSubmitProps.resetForm();
     if (loggedIn) {
       const decoded = jwt_decode(loggedIn.token);
+      console.log(decoded);
       dispatch(setLogin({ user: decoded.dataForToken }));
       navigate("/home");
     }

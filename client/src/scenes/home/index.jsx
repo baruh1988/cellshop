@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import Topbar from "../global/Topbar";
 import Sidebar from "../global/Sidebar";
@@ -13,6 +13,7 @@ import Manufacturers from "../manufacturers";
 import Models from "../models";
 import FaultTypes from "../faulttypes";
 import FixTypes from "../fixtypes";
+import TestScene from "../testscene";
 
 function Home() {
   const [theme, colorMode] = useMode();
