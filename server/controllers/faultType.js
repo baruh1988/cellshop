@@ -8,11 +8,7 @@ const { response, request } = require("express");
 
 router.post("/createFaultType", (request,response,next) => {
     const faultTypeDescription = request.body.faultTypeDescription;
-    FaultType.findOne({
-        where: {
-            [Op.iLike]: [{description:faultTypeDescription}]
-        }
-    })
+    FaultType.findOne({where: {description:faultTypeDescription}})
     .then((findOneFaultTypeResult) => {
         if(findOneFaultTypeResult){
             return response.status(200).json({
