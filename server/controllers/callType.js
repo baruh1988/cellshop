@@ -9,11 +9,7 @@ const { response, request } = require("express");
 router.post("/createCallType", (request,response,next) => {
     const callTypeName = request.body.callTypeName;
     const callTypeDescription = request.body.callTypeDescription;
-    CallType.findOne({
-        where: {
-            [Op.iLike]: [{name:callTypeName}]
-        }
-    })
+    CallType.findOne({where: {name:callTypeName}})
     .then((findOneCallTypeResult) => {
         if(findOneCallTypeResult){
             return response.status(200).json({
