@@ -7,18 +7,21 @@ import Header from "../../components/Header";
 const Form = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
-  const checkoutSchema = yup
-    .object()
-    .shape({ description: yup.string().required("required") });
+  const checkoutSchema = yup.object().shape({
+    name: yup.string().required("required"),
+    description: yup.string().required("required"),
+  });
 
   const handleFormSubmit = async (values) => {
     if (props.formType === "edit") {
-      values["newUserTypeDescription"] = values["description"];
-      values = { id: props.userTypeId, ...values };
+      values["newCallTypeName"] = values["name"];
+      values["newCallTypeDescription"] = values["description"];
+      values = { id: props.callTypeId, ...values };
     } else {
-      values["userTypeDescription"] = values["description"];
+      values["callTypeName"] = values["name"];
+      values["callTypeDescription"] = values["description"];
     }
-    const url = `http://localhost:3789/userType/${props.formType}UserType`;
+    const url = `http://localhost:3789/callType/${props.formType}CallType`;
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -26,6 +29,9 @@ const Form = (props) => {
       },
       body: JSON.stringify(values),
     });
+
+    //const decodedResponse = await response.json();
+    //console.log(decodedResponse);
     props.formCloseControl(false);
   };
 
@@ -33,12 +39,12 @@ const Form = (props) => {
     <Box m="20px">
       <Header
         title={
-          props.formType === "create" ? "CREATE USER TYPE" : "EDIT USER TYPE"
+          props.formType === "create" ? "CREATE CALL TYPE" : "EDIT CALL TYPE"
         }
         subtitle={
           props.formType === "create"
-            ? "Create a New User Type"
-            : "Edit an Existing User Type"
+            ? "Create a New Call Type"
+            : "Edit an Existing Call Type"
         }
       />
       <Formik
@@ -67,7 +73,20 @@ const Form = (props) => {
                 fullWidth
                 variant="filled"
                 type="text"
-                label="User Type"
+                label="Name"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.name}
+                name="name"
+                error={!!touched.name && !!errors.name}
+                helperText={touched.name && errors.name}
+                sx={{ gridColumn: "span 4" }}
+              />
+              <TextField
+                fullWidth
+                variant="filled"
+                type="text"
+                label="Description"
                 onBlur={handleBlur}
                 onChange={handleChange}
                 value={values.description}
