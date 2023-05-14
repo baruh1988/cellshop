@@ -10,7 +10,7 @@ const Model = connection.define("model", {
     primaryKey: true,
   },
   manufacturerId: Sequelize.INTEGER,
-  name: Sequelize.INTEGER,
+  name: Sequelize.STRING
 });
 
 module.exports = Model;
