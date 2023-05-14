@@ -8,7 +8,7 @@ const Model = require("../models/model");
 const Inventory = require("../models/inventory");
 const { response, request } = require("express");
 
-router.post("/addManufacturer", (request,response,next) => {
+router.post("/createManufacturer", (request,response,next) => {
     const manufacturerName = request.body.manufacturerName;
     Manufacturer.findOne({where: {name:manufacturerName}})
     .then((findOneManufacturerResult) => {
