@@ -8,16 +8,16 @@ const Model = require("../models/model");
 const Inventory = require("../models/inventory");
 const { response, request } = require("express");
 
-router.post("/addModel", (request,response,next) => {
-    const manufacturerName = request.body.manufacturerName;
+router.post("/createModel", (request,response,next) => {
+    const manufacturerId = request.body.manufacturerId;
     const modelName = request.body.modelName;
-    Manufacturer.findOne({where: {name: manufacturerName}})
+    Manufacturer.findOne({where: {id:manufacturerId}})
     .then((findOneManufacturerResult) => {
         if(findOneManufacturerResult){
             Model.findOne({
                 where: {
-                    manufacturerId: findOneManufacturerResult.id,
-                    [Op.iLike]: [{name: modelName}]
+                    manufacturerId: manufacturerId,
+                    name: modelName
                 }
             })
             .then((findOneModelResult) => {
@@ -29,7 +29,7 @@ router.post("/addModel", (request,response,next) => {
                 }
                 else{
                     Model.create({
-                        manufacturerId: findOneManufacturerResult.id,
+                        manufacturerId: manufacturerId,
                         name: modelName
                     })
                     .then((newModelEntry) => {
@@ -42,7 +42,8 @@ router.post("/addModel", (request,response,next) => {
                     .catch((saveToDbError) => {
                         return response.status(500).json({
                             process: false,
-                            message: saveToDbError.message
+                            message: saveToDbError.message,
+                            level: 3
                         })
                     })
                 }
@@ -50,21 +51,23 @@ router.post("/addModel", (request,response,next) => {
             .catch((findOneModelError) => {
                 return response.status(500).json({
                     process: false,
-                    message: findOneModelError.message
+                    message: findOneModelError.message,
+                    level: 2
                 })
             })
         }
         else{
             return response.status(200).json({
                 process: true,
-                message: "Manufacturer name does not exist"
+                message: "Manufacturer not found"
             })
         }
     })
     .catch((findOneManufacturerError) => {
         return response.status(500).json({
             process: false,
-            message: findOneManufacturerError.message
+            message: findOneManufacturerError.message,
+            level: 1
         })
     })
 })
@@ -121,134 +124,110 @@ router.get("/getModelById", (request,response,next) => {
 })
 
 router.post("/editModel", (request,response,next) => {
-    const manufacturerName = request.body.manufacturerName;
-    const modelName = request.body.modelName;
-    const modelNewName = request.body.modelNewName;
-    Manufacturer.findOne({where: {name: manufacturerName}})
-    .then((findOneManufacturerResult) => {
-        if(findOneManufacturerResult){
-            Model.findOne({where: {
-                manufacturerId: findOneManufacturerResult.id,
-                name: modelName
-            }})
-            .then((findOneModelResult) => {
-                if(findOneModelResult){
-                    Model.findOne({where: {
-                        manufacturerId: findOneManufacturerResult.id,
-                        [Op.iLike]: [{name: modelNewName}]
-                    }})
-                    .then((findOneNewModelResult) => {
-                        if(findOneNewModelResult){
+    const id = request.body.id;
+    const newManufacturerId = request.body.newManufacturerId;
+    const newModelName = request.body.newModelName;
+    Model.findOne({where: {id:id}})
+    .then((findOneModelResult) => {
+        if(findOneModelResult){
+            console.log(`${newManufacturerId}->${findOneModelResult.manufacturerId}`)
+            console.log(`${newModelName}->${findOneModelResult.name}`)
+            if(newManufacturerId == findOneModelResult.manufacturerId && newModelName.toLowerCase() == findOneModelResult.name.toLowerCase()){
+                return response.status(200).json({
+                    process: true,
+                    message: "New model details are the same as current details"
+                })
+            }
+            else{
+                Manufacturer.findOne({where: {id:newManufacturerId}})
+                .then((findOneManufacturerResult) => {
+                    if(findOneManufacturerResult){
+                        console.log(findOneModelResult)
+                        console.log(newManufacturerId)
+                        console.log(newModelName)
+                        findOneModelResult.set({
+                            manufacturerId: newManufacturerId,
+                            name: newModelName
+                        });
+                        console.log(findOneModelResult)
+                        findOneModelResult.save()
+                        .then((saveResult) => {
                             return response.status(200).json({
                                 process: true,
-                                message: "Model name already exist"
+                                message: "Model updated",
+                                data: saveResult
                             })
-                        }
-                        else{
-                            findOneModelResult.name = modelNewName;
-                            findOneModelResult.save()
-                            .then((saveToDbResult) => {
-                                return response.status(200).json({
-                                    process: true,
-                                    message: "Model name change was saved",
-                                    data: saveToDbResult
-                                })
-                            })
-                            .catch((saveToDbError) => {
-                                return response.status(500).json({
-                                    process: false,
-                                    message: saveToDbError.message
-                                })
-                            })
-                        }
-                    })
-                    .catch((findOneNewModelError) => {
-                        return response.status(500).json({
-                            process: false,
-                            message: findOneNewModelError.message
                         })
-                    })
-                }
-                else{
-                    return response.status(200).json({
-                        process: true,
-                        message: "Model name was not found"
-                    })
-                }
-            })
-            .catch((findOneModelError) => {
-                return response.status(500).json({
-                    process: false,
-                    message: findOneModelError.message
+                        .catch((saveError) => {
+                            return response.status(500).json({
+                                process: false,
+                                message: saveError.message,
+                                level: 3
+                            })
+                        })
+                    }
+                    else{
+                        return response.status(200).json({
+                            process: true,
+                            message: "New manufaturer not found"
+                        })
+                    }
                 })
-            })
+                .catch((findOneManufacturerError) => {
+                    return response.status(500).json({
+                        process: false,
+                        message: findOneManufacturerError.message,
+                        level: 2
+                    })
+                })
+            }
         }
         else{
             return response.status(200).json({
                 process: true,
-                message: "Manufacturer name was not found"
+                message: "Model not found"
             })
         }
     })
-    .catch((findOneManufacturerError) => {
+    .catch((findOneModelError) => {
         return response.status(500).json({
             process: false,
-            message: findOneManufacturerError.message
+            message: findOneModelError.message,
+            level: 1
         })
     })
 })
 
 router.post("/deleteModel", (request,response,next) => {
-    const manufacturerName = request.body.manufacturerName;
-    const modelName = request.body.modelName;
-    Manufacturer.findO({where: {name: manufacturerName}})
-    .then((findOneManufacturerResult) => {
-        if(findOneManufacturerResult){
-            Model.findOne({where: {
-                manufacturerId: findOneManufacturerResult.id,
-                name: modelName
-            }})
-            .then((findOneModelResult) => {
-                if(findOneModelResult){
-                    findOneModelResult.destroy()
-                    .then(() => {
-                        return response.status(200).json({
-                            process: true,
-                            message: "Model name was deleted"
-                        })
-                    })
-                    .catch((destroyError) => {
-                        return response.status(500).json({
-                            process: false,
-                            message: destroyError.message
-                        })
-                    })
-                }
-                else{
-                    return response.status(200).json({
-                        process: true,
-                        message: "Model name was not found"
-                    })
-                }
+    const id = request.body.id;
+    Model.findOne({where: {id:id}})
+    .then((findOneModelResult) => {
+        if(findOneModelResult){
+            findOneModelResult.destroy()
+            .then(() => {
+                return response.status(200).json({
+                    process: true,
+                    message: "Model deleted"
+                })
             })
-            .catch((findOneModelError) => {
+            .catch((destroyError) => {
                 return response.status(500).json({
                     process: false,
-                    message: findOneModelError.message
+                    message: destroyError.message
                 })
             })
         }
         else{
             return response.status(200).json({
                 process: true,
-                message: "Manufactrer name was not found"
+                message: "Model not found"
             })
         }
     })
-    .catch((findOneManufacturerError) => {
+    .catch((findOneModelError) => {
         return response.status(500).json({
             process: false,
-            message: findOneManufacturerError.message
+            message: findOneModelError.message
         })
     })
 })
