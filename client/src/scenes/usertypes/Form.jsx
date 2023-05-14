@@ -26,8 +26,6 @@ const Form = (props) => {
       },
       body: JSON.stringify(values),
     });
-    //const decodedResponse = await response.json();
-    //console.log(decodedResponse);
     props.formCloseControl(false);
   };
 
