@@ -8,7 +8,7 @@ const Model = require("../models/model");
 const Inventory = require("../models/inventory");
 const { response, request } = require("express");
 
-router.post("/addInventoryItem", (request,response,next) => {
+router.post("/createInventoryItem", (request,response,next) => {
     const modelId = request.body.modelId;
     const description = request.body.description;
     const serialNumber = request.body.serialNumber;
@@ -62,7 +62,7 @@ router.post("/addInventoryItem", (request,response,next) => {
         else{
             return response.status(200).json({
                 process: true,
-                message: "Model id was not found"
+                message: "Model not found"
             })
         }
     })
@@ -113,7 +113,7 @@ router.post('/editInventoryItem', (request,response,next) => {
         else{
             return response.status(200).json({
                 process: true,
-                message: "Inventory item ID not exist"
+                message: "Inventory item not exist"
             })
         }
     })
@@ -180,7 +180,7 @@ router.get('/getInventoryItemById', (request,response,next) => {
 })
 
 router.post('/deleteInventoryItem', (request,response,next) => {
-    const id = request.response.id;
+    const id = request.body.id;
     Inventory.findOne({where: {id:id}})
     .then((findOneInventoryItemResult) => {
         if(findOneInventoryItemResult){
@@ -188,7 +188,7 @@ router.post('/deleteInventoryItem', (request,response,next) => {
             .then(() => {
                 return response.status(200).json({
                     process: true,
-                    message: "Inventory item was deleted"
+                    message: "Inventory item deleted"
                 })
             })
             .catch((destroyError) => {
@@ -201,7 +201,7 @@ router.post('/deleteInventoryItem', (request,response,next) => {
         else{
             return response.status(200).json({
                 process: true,
-                message: "inventory item ID not exist"
+                message: "Inventory item not found"
             })
         }
     })
