@@ -9,7 +9,7 @@ const { Router, response, request } = require("express");
 const jwt = require("jsonwebtoken");
 const { HostNotReachableError } = require("sequelize");
 
-router.post("/addUser", async (request, response) => {
+router.post("/createUser", async (request, response) => {
   const idNumber = request.body.idNumber;
   const userType = request.body.userType;
   const firstName = request.body.firstName;
@@ -19,7 +19,7 @@ router.post("/addUser", async (request, response) => {
   const email = request.body.email;
   const phoneNumber = request.body.phoneNumber;
 
-  User.findOne({ where: { idNumber: idNumber } })
+  User.findOne({where: {idNumber: idNumber}})
     .then((findOneUserResult) => {
       if (findOneUserResult) {
         return response.status(200).json({
@@ -118,12 +118,13 @@ router.post("/login", (request, response, next) => {
         return response.status(500).json({
           process: false,
           message: compareError.message,
+          level: 2
         });
       });
     }
     else{
       return response.status(200).json({
-        process: false,
+        process: true,
         message: "User not found",
       });
     }
@@ -132,11 +133,12 @@ router.post("/login", (request, response, next) => {
     return response.status(500).json({
       process: false,
       message: findOneUserError.message,
+      level: 1
     });
   });
 });
 
-router.post("/getUserById", (request, response, next) => {
+router.get("/getUserById", (request, response, next) => {
   const id = request.body.id;
   User.findOne({where: {id:id}})
   .then((findOneUserResult) => {
@@ -179,39 +181,56 @@ router.get("/getAllUsers", (request, response, next) => {
 
 router.post("/editUser", (request, response, next) => {
   const id = request.body.id;
-  const idNumber = request.body.idNumber;
-  const userType = request.body.userType;
-  const firstName = request.body.firstName;
-  const lastName = request.body.lastName;
-  const address = request.body.address;
-  const email = request.body.email;
-  const phoneNumber = request.body.phoneNumber;
+  const newIdNumber = request.body.newIdNumber;
+  const newUserType = request.body.newUserType;
+  const newFirstName = request.body.newFirstName;
+  const newLastName = request.body.newLastName;
+  const newAddress = request.body.newAddress;
+  const newEmail = request.body.newEmail;
+  const newPhoneNumber = request.body.newPhoneNumber;
   User.findOne({where: {id:id}})
   .then((findOneUserResult) => {
     if(findOneUserResult){
-      findOneUserResult.set({
-        idNumber: idNumber,
-        userType: userType,
-        firstName: firstName,
-        lastName: lastName,
-        address: address,
-        email: email,
-        phoneNumber: phoneNumber,
-      });
-      findOneUserResult.save()
-      .then((saveResult) => {
-        return response.status(200).json({
-          process: true,
-          message: "User updated",
-          data: saveResult,
-        });
+      User.findOne({where: {idNumber:newIdNumber}})
+      .then((findExistingUserResult) => {
+        if(findExistingUserResult != null  && findExistingUserResult.id != findOneUserResult.id){
+          return response.status(200).json({
+            process: true,
+            message: "User already exist"
+          })
+        }
+        else{
+          findOneUserResult.set({
+            idNumber: newIdNumber,
+            userType: newUserType,
+            firstName: newFirstName,
+            lastName: newLastName,
+            address: newAddress,
+            email: newEmail,
+            phoneNumber: newPhoneNumber,
+          });
+          findOneUserResult.save()
+          .then((saveResult) => {
+            return response.status(200).json({
+              process: true,
+              message: "User updated",
+              data: saveResult,
+            });
+          })
+          .catch((saveError) => {
+            return response.status(500).json({
+              process: false,
+              message: saveError.message,
+            });
+          });
+        }
       })
-      .catch((saveError) => {
+      .catch((findExistingUserError) => {
         return response.status(500).json({
           process: false,
-          message: saveError.message,
-        });
-      });
+          message: findExistingUserError.message
+        })
+      })
     }
     else{
       return response.status(200).json({
@@ -235,33 +254,44 @@ router.post("/changePassword", (request, response, next) => {
   User.findOne({where: {id:id}})
   .then((findOneUserResult) => {
     if(findOneUserResult){
-      bcryptjs.compare(currentPasword, account.password)
+      bcryptjs.compare(currentPasword, findOneUserResult.password)
       .then((compareResult) => {
         if(compareResult){
-          bcryptjs.hash(newPassword, 10)
-          .then((hashedPassword) => {
-            findOneUserResult.password = hashedPassword;
-            findOneUserResult.save()
-            .then(() => {
-              return response.status(200).json({
-                process: true,
-                message: "Password changed successfuly",
+          if(currentPasword == newPassword){
+            return response.status(200).json({
+              process: true,
+              message: "New password must be different from current password"
+            })
+          }
+          else{
+            bcryptjs.hash(newPassword, 10)
+            .then((hashedPassword) => {
+              findOneUserResult.password = hashedPassword;
+              findOneUserResult.save()
+              .then(() => {
+                return response.status(200).json({
+                  process: true,
+                  message: "Password changed successfuly",
+                });
+              })
+              .catch((saveError) => {
+                return response.status(500).json({
+                  process: false,
+                  message: saveError.message,
+                  level: 4
+                });
               });
             })
-            .catch((saveError) => {
+            .catch((hashError) => {
               return response.status(500).json({
                 process: false,
-                message: saveError.message,
+                message: hashError.message,
+                level: 3
               });
             });
-          })
-          .catch((hashError) => {
-            return response.status(500).json({
-              process: false,
-              message: hashError.message,
-            });
-          });
-        } else {
+          }
+        }
+        else{
           return response.status(200).json({
             process: true,
             message: "Incorrect password",
@@ -272,6 +302,7 @@ router.post("/changePassword", (request, response, next) => {
         return response.status(500).json({
           process: false,
           message: compareError.message,
+          level: 2
         });
       });
     } else {
@@ -285,6 +316,7 @@ router.post("/changePassword", (request, response, next) => {
     return response.status(500).json({
       process: false,
       message: findOneUserError.message,
+      level: 1
     });
   });
 });
