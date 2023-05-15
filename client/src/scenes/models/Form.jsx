@@ -51,11 +51,11 @@ const Form = (props) => {
 
   const handleFormSubmit = async (values) => {
     if (props.formType === "edit") {
-      values["manufacturerName"] = props.options[values.manufacturerId];
-      values["modelName"] = props.initialValues.name;
-      values["modelNewName"] = values.name;
+      values["id"] = props.modelId;
+      values["newManufacturerId"] = parseInt(values.manufacturerId);
+      values["newModelName"] = values.name;
     } else {
-      values["manufacturerName"] = props.options[values.manufacturerId];
+      //values["manufacturerName"] = props.options[values.manufacturerId];
       values["modelName"] = values.name;
     }
     console.log(values);
@@ -73,9 +73,9 @@ const Form = (props) => {
   return (
     <Box m="20px">
       <Header
-        title={props.formType === "add" ? "CREATE MODEL" : "EDIT MODEL"}
+        title={props.formType === "create" ? "CREATE MODEL" : "EDIT MODEL"}
         subtitle={
-          props.formType === "add"
+          props.formType === "create"
             ? "Create a New Model"
             : "Edit an Existing Model"
         }
@@ -124,7 +124,7 @@ const Form = (props) => {
             </Box>
             <Box display="flex" justifyContent="end" mt="20px">
               <Button type="submit" color="secondary" variant="contained">
-                {props.formType === "add" ? "Add" : "Save"}
+                {props.formType === "create" ? "Add" : "Save"}
               </Button>
             </Box>
           </form>
