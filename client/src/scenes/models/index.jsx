@@ -31,7 +31,7 @@ const CustomToolBar = (props) => {
   //const { setRows, setRowModesModel } = props;
 
   const handleClick = () => {
-    props.setFormType("add");
+    props.setFormType("create");
     props.setModelId(-1);
     props.handleInitialValues({
       manufacturerId: Math.min(...Object.keys(props.manufacturers)),
@@ -58,7 +58,7 @@ const Models = () => {
   const colors = tokens(theme.palette.mode);
   const [rows, setRows] = useState([]);
   const [open, setOpen] = useState(false);
-  const [formType, setFormType] = useState("add");
+  const [formType, setFormType] = useState("create");
   const [initialValues, setInitialValues] = useState(null);
   const [modelId, setModelId] = useState(-1);
   const [manufacturers, setManufacturers] = useState({});
@@ -111,10 +111,7 @@ const Models = () => {
   };
 
   const deleteModel = async (toDelete) => {
-    toDelete["manufacturerName"] = manufacturers[toDelete.manufacturerId];
-    toDelete["modelName"] = toDelete.name;
     console.log(toDelete);
-    /*
     const response = await fetch("http://localhost:3789/model/deleteModel", {
       method: "POST",
       headers: {
@@ -122,7 +119,6 @@ const Models = () => {
       },
       body: JSON.stringify(toDelete),
     });
-    */
   };
 
   const handleEditClick = (id) => () => {
