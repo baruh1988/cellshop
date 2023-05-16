@@ -10,7 +10,6 @@ const Customer = connection.define("customer", {
     primaryKey: true,
   },
   idNumber: Sequelize.STRING,
-  userType: Sequelize.INTEGER,
   firstName: Sequelize.STRING,
   lastName: Sequelize.STRING,
   //password: Sequelize.STRING,
