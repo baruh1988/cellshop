@@ -69,6 +69,9 @@ app.use("/customer", customerRoute);
 const supplierRoute = require("./controllers/supplier");
 app.use("/supplier", supplierRoute);
 
+const supplierOrderRoute = require("./controllers/supplierOrder");
+app.use("/supplierOrder", supplierOrderRoute);
+
 // Connection
 const port = 3789;
 connection
