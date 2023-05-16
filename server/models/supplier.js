@@ -9,6 +9,7 @@ const Supplier = connection.define("supplier", {
     allowNull: false,
     primaryKey: true,
   },
+  idNumber: Sequelize.STRING,
   name: Sequelize.STRING,
   email: Sequelize.STRING,
   phoneNumber: Sequelize.STRING,
