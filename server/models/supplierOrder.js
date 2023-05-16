@@ -11,7 +11,6 @@ const SupplierOrder = connection.define("supplierOrder", {
   },
   supplierId: Sequelize.INTEGER,
   userId: Sequelize.INTEGER,
-  firstName: Sequelize.INTEGER,
   isOpen: Sequelize.BOOLEAN,
 });
 
