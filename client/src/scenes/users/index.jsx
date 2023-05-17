@@ -48,7 +48,7 @@ const Users = () => {
   const colors = tokens(theme.palette.mode);
   const [rows, setRows] = useState([]);
   const [open, setOpen] = useState(false);
-  const [formType, setFormType] = useState("addUser");
+  const [formType, setFormType] = useState("create");
   const [initialValues, setInitialValues] = useState(null);
   const [userId, setUserId] = useState(-1);
   const loggedInUser = useSelector((state) => state.user);
@@ -82,7 +82,7 @@ const Users = () => {
   };
 
   const handleEditClick = (id) => () => {
-    setFormType("editUser");
+    setFormType("edit");
     setUserId(id);
     const values = rows.find((obj) => obj.id === id);
     setInitialValues({
@@ -218,7 +218,7 @@ const Users = () => {
       <Header title="USERS" subtitle="Managing users" />
       <Button
         onClick={() => {
-          setFormType("addUser");
+          setFormType("create");
           setUserId(-1);
           handleInitialValues({
             idNumber: "",
