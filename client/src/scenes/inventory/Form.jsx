@@ -72,7 +72,10 @@ const Form = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [rows, setRows] = useState([]);
-  const [modelId, setModelId] = useState(-1);
+  const [modelId, setModelId] = useState(props.initialValues.modelId);
+  const [rowSelectionModel, setRowSelectionModel] = useState([
+    props.initialValues.modelId,
+  ]);
 
   useEffect(() => {
     //setIsLoading(true);
@@ -94,13 +97,16 @@ const Form = (props) => {
     modelId: yup.number().required("required!"),
     description: yup.string().required("required!"),
     serialNumber: yup.string().required("required!"),
-    quantity: yup.number().required("required!"),
-    price: yup.number().required("required!"),
-    quantityThreshold: yup.number().required("required!"),
+    quantity: yup.number().min(0).required("required!"),
+    price: yup.number().min(0).required("required!"),
+    quantityThreshold: yup.number().min(0).required("required!"),
     //image: yup.string().required("required!"),
   });
 
   const handleFormSubmit = async (values) => {
+    // test create inventory item
+    values["modelId"] = modelId;
+    console.log(values);
     /*
     if (props.formType === "edit") {
       values["manufacturerName"] = props.options[values.manufacturerId];
@@ -226,6 +232,8 @@ const Form = (props) => {
                   components={{ Toolbar: CustomToolBar }}
                   //componentsProps={{toolbar: {handleClickOpen,handleInitialValues,setFormType,setInventoryId,models}}}
                   getRowId={(row) => row.id}
+                  //selectionModel={[rowSelectionModel]}
+                  onSelectionModelChange={(ids) => setModelId(...ids)}
                 />
               </Box>
               {/*
@@ -240,7 +248,7 @@ const Form = (props) => {
                 variant="filled"
                 multiline
                 rows={10}
-                maxRows={10}
+                //maxRows={10}
                 label="Description"
                 onBlur={handleBlur}
                 onChange={handleChange}
@@ -276,6 +284,9 @@ const Form = (props) => {
                 fullWidth
                 variant="filled"
                 type="number"
+                inputProps={{
+                  min: 0,
+                }}
                 label="Quantity"
                 onBlur={handleBlur}
                 onChange={handleChange}
@@ -289,6 +300,9 @@ const Form = (props) => {
                 fullWidth
                 variant="filled"
                 type="number"
+                inputProps={{
+                  min: 0,
+                }}
                 label="Quantity Threshold"
                 onBlur={handleBlur}
                 onChange={handleChange}
