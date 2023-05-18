@@ -24,6 +24,7 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import Header from "../../components/Header";
 import { useCallback, useEffect, useState } from "react";
 import Form from "./Form";
+import TestForm from "./TestForm";
 import { useSelector } from "react-redux";
 import AddIcon from "@mui/icons-material/Add";
 
@@ -223,12 +224,18 @@ const Inventory = () => {
         <>
           <Dialog open={open} onClose={handleClose}>
             <DialogContent>
+              {/*
               <Form
                 formType={formType}
                 initialValues={initialValues}
                 formCloseControl={setOpen}
                 options={models}
                 inventoryId={inventoryId}
+              />
+      */}
+              <TestForm
+                initialValues={initialValues}
+                formCloseControl={setOpen}
               />
             </DialogContent>
             {/*
