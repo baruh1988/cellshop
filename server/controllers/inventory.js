@@ -5,71 +5,108 @@ const bcryptjs = require("bcryptjs");
 const Sequelize = require("sequelize");
 const Manufacturer = require("../models/manufacturer");
 const Model = require("../models/model");
+const InventoryItemType = require("../models/inventoryItemType");
 const Inventory = require("../models/inventory");
 const { response, request } = require("express");
 
 router.post("/createInventoryItem", (request,response,next) => {
     const modelId = request.body.modelId;
-    const description = request.body.description;
+    const inventoryItemTypeId = request.body.inventoryItemTypeId;
+    let description = request.body.description;
     const serialNumber = request.body.serialNumber;
     const quantity = request.body.quantity;
     const price = request.body.price;
     const quantityThreshold = request.body.quantityThreshold;
     const image = request.body.image;
-    Model.findOne({where: {id: modelId}})
-    .then((findOneModelResult) => {
-        if(findOneModelResult){
-            Inventory.findOne({where: {modelId: modelId}})
-            .then((findOneInventoryItemResult) => {
-                if(findOneInventoryItemResult){
-                    return response.status(200).json({
-                        process: true,
-                        message: "Inventory item already exist"
+    InventoryItemType.findOne({where: {id:inventoryItemTypeId}})
+    .then((findOneInventoryItemTypeResult) => {
+        if(findOneInventoryItemTypeResult){
+            if(findOneInventoryItemTypeResult.name.toLowerCase() == "device"){
+                description = "Device";
+            }
+            else if(description.toLowerCase() == "device"){
+                return response.status(200).json({
+                    process: true,
+                    message: "`Device` is a reserved name for devices only"
+                })
+            }
+            Model.findOne({where: {id: modelId}})
+            .then((findOneModelResult) => {
+                if(findOneModelResult){
+                    Inventory.findOne({where: {
+                        modelId: modelId,
+                        inventoryItemTypeId: inventoryItemTypeId,
+                        description: description
+                    }})
+                    .then((findOneInventoryItemResult) => {
+                        if(findOneInventoryItemResult){
+                            return response.status(200).json({
+                                process: true,
+                                message: "Inventory item already exist"
+                            })
+                        }
+                        else{
+                            Inventory.create({
+                                modelId: modelId,
+                                inventoryItemTypeId: inventoryItemTypeId,
+                                description: description,
+                                serialNumber: serialNumber,
+                                quantity: quantity,
+                                price: price,
+                                quantityThreshold: quantityThreshold,
+                                image: image
+                            })
+                            .then((createInventoryItemEntryResult) => {
+                                return response.status(200).json({
+                                    process: true,
+                                    message: "New inventory item was created",
+                                    data: createInventoryItemEntryResult
+                                })
+                            })
+                            .catch((createInventoryItemEntryError) => {
+                                return response.status(500).json({
+                                    process: false,
+                                    message: createInventoryItemEntryError.message,
+                                    level: 4
+                                })
+                            })
+                        }
+                    })
+                    .catch((findOneInventoryItemError) => {
+                        return response.status(500).json({
+                            process: false,
+                            message: findOneInventoryItemError.message,
+                            level: 3
+                        })
                     })
                 }
                 else{
-                    Inventory.create({
-                        modelId: modelId,
-                        description: description,
-                        serialNumber: serialNumber,
-                        quantity: quantity,
-                        price: price,
-                        quantityThreshold: quantityThreshold,
-                        image: image
-                    })
-                    .then((createInventoryItemEntryResult) => {
-                        return response.status(200).json({
-                            process: true,
-                            message: "New inventory item was created",
-                            data: createInventoryItemEntryResult
-                        })
-                    })
-                    .catch((createInventoryItemEntryError) => {
-                        return response.status(500).json({
-                            process: false,
-                            message: createInventoryItemEntryError.message
-                        })
+                    return response.status(200).json({
+                        process: true,
+                        message: "Model not found"
                     })
                 }
             })
-            .catch((findOneInventoryItemError) => {
+            .catch((findOneModelError) => {
                 return response.status(500).json({
                     process: false,
-                    message: findOneInventoryItemError.message
+                    message: findOneModelError.message,
+                    level: 2
                 })
             })
         }
         else{
             return response.status(200).json({
                 process: true,
-                message: "Model not found"
+                message: "Inventory item type not found"
             })
         }
     })
-    .catch((findOneModelError) => {
+    .catch((findOneInventoryItemTypeError) => {
         return response.status(500).json({
             process: false,
-            message: findOneModelError.message
+            message: findOneInventoryItemTypeError.message,
+            level: 1
         })
     })
 })
@@ -77,50 +114,121 @@ router.post("/createInventoryItem", (request,response,next) => {
 router.post('/editInventoryItem', (request,response,next) => {
     const id = request.body.id;
     const newModelId = request.body.newModelId;
-    const newDescription = request.body.newDescription;
+    const newInventoryItemTypeId = request.body.newInventoryItemTypeId
+    let newDescription = request.body.newDescription;
     const newSerialNumber = request.body.newSerialNumber;
     const newQunatity = request.body.newQunatity;
     const newPrice = request.body.newPrice;
     const newQunatityThreshold = request.body.newQunatityThreshold;
     const newImage = request.body.newImage;
-    Inventory.findOne({where: {id:id}})
-    .then((findOneInventoryItemResult) => {
-        if(findOneInventoryItemResult){
-            findOneInventoryItemResult.set({
-                modelId: newModelId,
-                description: newDescription,
-                serialNumber: newSerialNumber,
-                quantity: newQunatity,
-                price: newPrice,
-                quantityThreshold: newQunatityThreshold,
-                image: newImage
-            });
-            findOneInventoryItemResult.save()
-            .then((updatedInventoryItem) => {
+    InventoryItemType.findOne({where: {id:newInventoryItemTypeId}})
+    .then((findOneInventoryItemTypeResult) => {
+        if(findOneInventoryItemTypeResult){
+            if(findOneInventoryItemTypeResult.name.toLowerCase() == "device"){
+                newDescription = "Device";
+            }
+            else if(newDescription.toLowerCase() == "device"){
                 return response.status(200).json({
                     process: true,
-                    message: "Inventory item was updated",
-                    data: updatedInventoryItem
+                    message: `"Device" is a reserved name for devices only`
                 })
+            }
+            Inventory.findOne({where: {id:id}})
+            .then((findOneInventoryItemResult) => {
+                if(findOneInventoryItemResult){
+                    Model.findOne({where: {id:newModelId}})
+                    .then((findOneModelResult) => {
+                        if(findOneModelResult){
+                            Inventory.findOne({where: {
+                                modelId:newModelId,
+                                inventoryItemTypeId: newInventoryItemTypeId,
+                                description: newDescription
+                            }})
+                            .then((findOneExistingInventoryItemResult) => {
+                                if(findOneExistingInventoryItemResult != null && id != findOneExistingInventoryItemResult.id){
+                                    return response.status(200).json({
+                                        process: true,
+                                        message: "Inventory item already exist"
+                                    })
+                                }
+                                else{
+                                    findOneInventoryItemResult.set({
+                                        modelId: newModelId,
+                                        inventoryItemTypeId: newInventoryItemTypeId,
+                                        description: newDescription,
+                                        serialNumber: newSerialNumber,
+                                        quantity: newQunatity,
+                                        price: newPrice,
+                                        quantityThreshold: newQunatityThreshold,
+                                        image: newImage
+                                    });
+                                    findOneInventoryItemResult.save()
+                                    .then((saveResult) => {
+                                        return response.status(200).json({
+                                            process: true,
+                                            message: "Inventory item was updated",
+                                            data: saveResult
+                                        })
+                                    })
+                                    .catch((saveError) => {
+                                        return response.status(500).json({
+                                            process: false,
+                                            message: saveError.message,
+                                            level: 5
+                                        })
+                                    })
+                                }
+                            })
+                            .catch((findOneExistingInventoryItemError) => {
+                                return response.status(500).json({
+                                    process: false,
+                                    message: findOneExistingInventoryItemError.message,
+                                    level: 4
+                                })
+                            })
+                        }
+                        else{
+                            return response.status(200).json({
+                                process: true,
+                                message: "Model not found"
+                            }) 
+                        }
+                    })
+                    .catch((findOneModelError) => {
+                        return response.status(500).json({
+                            process: false,
+                            message: findOneModelError.message,
+                            level: 3
+                        })
+                    })
+                }
+                else{
+                    return response.status(200).json({
+                        process: true,
+                        message: "Inventory item not found"
+                    })
+                }
             })
-            .catch((saveError) => {
+            .catch((findOneInventoryItemError) => {
                 return response.status(500).json({
                     process: false,
-                    message: saveError.message
+                    message: findOneInventoryItemError.message,
+                    level: 2
                 })
             })
         }
         else{
             return response.status(200).json({
                 process: true,
-                message: "Inventory item not exist"
-            })
+                message: "Inventory item type not found"
+            }) 
         }
     })
-    .catch((findOneInventoryItemError) => {
+    .catch((findOneInventoryItemTypeError) => {
         return response.status(500).json({
             process: false,
-            message: findOneInventoryItemError.message
+            message: findOneInventoryItemTypeError.message,
+            level: 1
         })
     })
 })
