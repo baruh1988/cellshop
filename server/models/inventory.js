@@ -10,6 +10,7 @@ const Inventory = connection.define("inventory", {
     primaryKey: true,
   },
   modelId: Sequelize.INTEGER,
+  inventoryItemTypeId: Sequelize.INTEGER,
   description: Sequelize.TEXT,
   serialNumber: Sequelize.STRING,
   quantity: Sequelize.INTEGER,
