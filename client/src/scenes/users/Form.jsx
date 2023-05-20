@@ -81,11 +81,24 @@ const UserForm = (props) => {
         });
 
   const handleFormSubmit = async (values) => {
-    if (props.formType === "editUser") {
+    if (props.formType === "edit") {
       delete values.password;
-      values = { id: props.userId, ...values };
+      //values = { id: props.userId, ...values };
+      values = {
+        id: props.userId,
+        newIdNumber: values.idNumber,
+        newUserType: values.idNumber,
+        newUserType: values.userType,
+        newFirstName: values.firstName,
+        newLastName: values.lastName,
+        newAddress: values.address,
+        newEmail: values.email,
+        newPhoneNumber: values.phoneNumber,
+        //...values,
+      };
     }
-    const url = `http://localhost:3789/user/${props.formType}`;
+    console.log(values);
+    const url = `http://localhost:3789/user/${props.formType}User`;
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -99,9 +112,9 @@ const UserForm = (props) => {
   return (
     <Box m="20px">
       <Header
-        title={props.formType === "addUser" ? "CREATE USER" : "EDIT USER"}
+        title={props.formType === "craete" ? "CREATE USER" : "EDIT USER"}
         subtitle={
-          props.formType === "addUser"
+          props.formType === "create"
             ? "Create a New User Profile"
             : "Edit an Existing User Profile"
         }
@@ -147,7 +160,7 @@ const UserForm = (props) => {
                 label="Access Level"
                 options={{ 0: "Admin", 1: "Manager", 2: "Employee" }}
               />
-              {props.formType === "addUser" ? (
+              {props.formType === "create" ? (
                 <>
                   <TextField
                     fullWidth
@@ -234,7 +247,7 @@ const UserForm = (props) => {
             </Box>
             <Box display="flex" justifyContent="end" mt="20px">
               <Button type="submit" color="secondary" variant="contained">
-                {props.formType === "addUser" ? "Add New User" : "Save Changes"}
+                {props.formType === "create" ? "Add" : "Save"}
               </Button>
             </Box>
           </form>

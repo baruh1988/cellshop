@@ -1,9 +1,35 @@
-import { Box, Button, TextField, MenuItem } from "@mui/material";
+import {
+  Box,
+  Button,
+  TextField,
+  MenuItem,
+  InputAdornment,
+  useTheme,
+} from "@mui/material";
 import { Formik, useField, useFormikContext } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
 import { useEffect, useState } from "react";
+import { tokens } from "../../theme";
+import {
+  DataGrid,
+  GridToolbar,
+  GridToolbarColumnsButton,
+  GridToolbarContainer,
+  GridToolbarDensitySelector,
+  GridToolbarFilterButton,
+} from "@mui/x-data-grid";
+
+const CustomToolBar = () => {
+  return (
+    <GridToolbarContainer>
+      <GridToolbarColumnsButton />
+      <GridToolbarFilterButton />
+      <GridToolbarDensitySelector />
+    </GridToolbarContainer>
+  );
+};
 
 const SelectWrapper = ({ name, options, ...otherProps }) => {
   const { setFieldValue } = useFormikContext();
@@ -43,18 +69,44 @@ const SelectWrapper = ({ name, options, ...otherProps }) => {
 
 const Form = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  const [rows, setRows] = useState([]);
+  const [modelId, setModelId] = useState(props.initialValues.modelId);
+  const [rowSelectionModel, setRowSelectionModel] = useState([
+    props.initialValues.modelId,
+  ]);
+
+  useEffect(() => {
+    //setIsLoading(true);
+    getModelsData();
+    //getManufacturerData();
+    //setIsLoading(false);
+  }, []);
+
+  const getModelsData = async () => {
+    const response = await fetch("http://localhost:3789/model/getAllModels");
+    const responseJson = await response.json();
+    if (responseJson.process) {
+      const modelsData = responseJson.data;
+      setRows(modelsData);
+    }
+  };
 
   const checkoutSchema = yup.object().shape({
     modelId: yup.number().required("required!"),
     description: yup.string().required("required!"),
     serialNumber: yup.string().required("required!"),
-    quantity: yup.number().required("required!"),
-    price: yup.number().required("required!"),
-    quantityThreshold: yup.number().required("required!"),
+    quantity: yup.number().min(0).required("required!"),
+    price: yup.number().min(0).required("required!"),
+    quantityThreshold: yup.number().min(0).required("required!"),
     //image: yup.string().required("required!"),
   });
 
   const handleFormSubmit = async (values) => {
+    // test create inventory item
+    values["modelId"] = modelId;
+    console.log(values);
     /*
     if (props.formType === "edit") {
       values["manufacturerName"] = props.options[values.manufacturerId];
@@ -77,16 +129,30 @@ const Form = (props) => {
     props.formCloseControl(false);
   };
 
+  const columns = [
+    { field: "id", headerName: "ID", hide: true },
+    {
+      field: "name",
+      headerName: "Model",
+      flex: 1,
+    },
+    {
+      field: "manufacturerId",
+      headerName: "Manufacturer",
+      flex: 1,
+    },
+  ];
+
   return (
     <Box m="20px">
       <Header
         title={
-          props.formType === "add"
+          props.formType === "create"
             ? "CREATE INVENTORY ITEM"
             : "EDIT INVENTORY ITEM"
         }
         subtitle={
-          props.formType === "add"
+          props.formType === "create"
             ? "Create a New Item"
             : "Edit an Existing Item"
         }
@@ -125,18 +191,64 @@ const Form = (props) => {
                 name="serialNumber"
                 error={!!touched.serialNumber && !!errors.serialNumber}
                 helperText={touched.serialNumber && errors.serialNumber}
-                sx={{ gridColumn: "span 3" }}
+                sx={{ gridColumn: "span 4" }}
               />
+              <Box
+                //m="40px 0 0 0"
+                height="25vh"
+                sx={{
+                  "& .MuiDataGrid-root": {
+                    border: "none",
+                  },
+                  "& .MuiDataGrid-cell": {
+                    borderBottom: "none",
+                  },
+                  "& .name-column--cell": {
+                    color: colors.greenAccent[300],
+                  },
+                  "& .MuiDataGrid-columnHeaders": {
+                    backgroundColor: colors.blueAccent[700],
+                    borderBottom: "none",
+                  },
+                  "& .MuiDataGrid-virtualScroller": {
+                    backgroundColor: colors.primary[400],
+                  },
+                  "& .MuiDataGrid-footerContainer": {
+                    borderTop: "none",
+                    backgroundColor: colors.blueAccent[700],
+                  },
+                  "& .MuiCheckbox-root": {
+                    color: `${colors.greenAccent[200]} !important`,
+                  },
+                  "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
+                    color: `${colors.grey[100]} !important`,
+                  },
+                  gridColumn: "span 4",
+                }}
+              >
+                <DataGrid
+                  rows={rows}
+                  columns={columns}
+                  components={{ Toolbar: CustomToolBar }}
+                  //componentsProps={{toolbar: {handleClickOpen,handleInitialValues,setFormType,setInventoryId,models}}}
+                  getRowId={(row) => row.id}
+                  //selectionModel={[rowSelectionModel]}
+                  onSelectionModelChange={(ids) => setModelId(...ids)}
+                />
+              </Box>
+              {/*
               <SelectWrapper
-                name="manufacturerId"
-                label="Manufacturer"
+                name="modelId"
+                label="Model"
                 options={props.options}
                 sx={{ gridColumn: "span 1" }}
-              />
+              />*/}
               <TextField
                 fullWidth
                 variant="filled"
-                type="text"
+                multiline
+                rows={10}
+                //maxRows={10}
                 label="Description"
                 onBlur={handleBlur}
                 onChange={handleChange}
@@ -144,13 +256,21 @@ const Form = (props) => {
                 name="description"
                 error={!!touched.description && !!errors.description}
                 helperText={touched.description && errors.description}
-                sx={{ gridColumn: "span 3" }}
+                sx={{ gridColumn: "span 4" }}
               />
               <TextField
                 fullWidth
                 variant="filled"
                 type="number"
-                step={0.01}
+                inputProps={{
+                  step: 0.01,
+                  min: 0.0,
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">₪</InputAdornment>
+                  ),
+                }}
                 label="Price"
                 onBlur={handleBlur}
                 onChange={handleChange}
@@ -158,25 +278,31 @@ const Form = (props) => {
                 name="price"
                 error={!!touched.price && !!errors.price}
                 helperText={touched.price && errors.price}
-                sx={{ gridColumn: "span 1" }}
-              />
-              <TextField
-                fullWidth
-                variant="filled"
-                type="number"
-                label="Quantity"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.quantity}
-                name="Quantity"
-                error={!!touched.quantity && !!errors.quantity}
-                helperText={touched.quantity && errors.quantity}
                 sx={{ gridColumn: "span 2" }}
               />
               <TextField
                 fullWidth
                 variant="filled"
                 type="number"
+                inputProps={{
+                  min: 0,
+                }}
+                label="Quantity"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.quantity}
+                name="quantity"
+                error={!!touched.quantity && !!errors.quantity}
+                helperText={touched.quantity && errors.quantity}
+                sx={{ gridColumn: "span 1" }}
+              />
+              <TextField
+                fullWidth
+                variant="filled"
+                type="number"
+                inputProps={{
+                  min: 0,
+                }}
                 label="Quantity Threshold"
                 onBlur={handleBlur}
                 onChange={handleChange}
@@ -188,7 +314,7 @@ const Form = (props) => {
                 helperText={
                   touched.quantityThreshold && errors.quantityThreshold
                 }
-                sx={{ gridColumn: "span 2" }}
+                sx={{ gridColumn: "span 1" }}
               />
               <TextField
                 fullWidth
@@ -206,7 +332,7 @@ const Form = (props) => {
             </Box>
             <Box display="flex" justifyContent="end" mt="20px">
               <Button type="submit" color="secondary" variant="contained">
-                {props.formType === "add" ? "Add" : "Save"}
+                {props.formType === "create" ? "Add" : "Save"}
               </Button>
             </Box>
           </form>

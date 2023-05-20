@@ -24,6 +24,7 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import Header from "../../components/Header";
 import { useCallback, useEffect, useState } from "react";
 import Form from "./Form";
+import TestForm from "./TestForm";
 import { useSelector } from "react-redux";
 import AddIcon from "@mui/icons-material/Add";
 
@@ -31,11 +32,11 @@ const CustomToolBar = (props) => {
   //const { setRows, setRowModesModel } = props;
 
   const handleClick = () => {
-    props.setFormType("add");
+    props.setFormType("create");
     props.setInventoryId(-1);
     props.handleInitialValues({
-      //manufacturerId: Math.min(...Object.keys(props.manufacturers)),
-      modelId: 0,
+      modelId: Math.min(...Object.keys(props.models)),
+      //modelId: 0,
       description: "",
       serialNumber: "",
       quantity: 0,
@@ -64,18 +65,32 @@ const Inventory = () => {
   const colors = tokens(theme.palette.mode);
   const [rows, setRows] = useState([]);
   const [open, setOpen] = useState(false);
-  const [formType, setFormType] = useState("add");
+  const [formType, setFormType] = useState("create");
   const [initialValues, setInitialValues] = useState(null);
   const [inventoryId, setInventoryId] = useState(-1);
+  const [models, setModels] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const loggedInUser = useSelector((state) => state.user);
 
   useEffect(() => {
     setIsLoading(true);
-    //getModelsData();
-    //getManufacturerData();
+    //getInventoryData();
+    getModelsData();
     setIsLoading(false);
   }, [open]);
+
+  const getModelsData = async () => {
+    const response = await fetch("http://localhost:3789/model/getAllModels");
+    const responseJson = await response.json();
+    if (responseJson.process) {
+      const modelsData = responseJson.data;
+      let opts = {};
+      modelsData.forEach((el) => {
+        opts[el.id] = el.name;
+      });
+      setModels(opts);
+    }
+  };
 
   const getInventoryData = async () => {
     const response = await fetch(
@@ -122,13 +137,13 @@ const Inventory = () => {
     //setModelId(id);
     const values = rows.find((obj) => obj.id === id);
     setInitialValues({
-      modelId: 0,
-      description: "",
-      serialNumber: "",
-      quantity: 0,
-      price: 0,
-      quantityThreshold: 0,
-      image: "",
+      modelId: values.modelId,
+      description: values.description,
+      serialNumber: values.serialNumber,
+      quantity: values.quantity,
+      price: values.price,
+      quantityThreshold: values.quantityThreshold,
+      image: values.image,
     });
     handleClickOpen();
   };
@@ -209,12 +224,18 @@ const Inventory = () => {
         <>
           <Dialog open={open} onClose={handleClose}>
             <DialogContent>
+              {/*
               <Form
                 formType={formType}
                 initialValues={initialValues}
                 formCloseControl={setOpen}
-                options={{}}
-                modelId={{}}
+                options={models}
+                inventoryId={inventoryId}
+              />
+      */}
+              <TestForm
+                initialValues={initialValues}
+                formCloseControl={setOpen}
               />
             </DialogContent>
             {/*
@@ -266,6 +287,7 @@ const Inventory = () => {
                   handleInitialValues,
                   setFormType,
                   setInventoryId,
+                  models,
                 },
               }}
               getRowId={(row) => row.id}
