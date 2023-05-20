@@ -75,6 +75,15 @@ app.use("/supplierOrder", supplierOrderRoute);
 const supplierOrderDetailRoute = require("./controllers/supplierOrderDetail");
 app.use("/supplierOrderDetail", supplierOrderDetailRoute)
 
+const inventoryItemTypeRoute = require("./controllers/inventoryItemType");
+app.use("/inventoryItemType", inventoryItemTypeRoute);
+
+const newDeviceRoute = require("./controllers/newDevice");
+app.use("/newDevice", newDeviceRoute);
+
+const fixDeviceRoute = require("./controllers/fixDevice");
+app.use("/fixDevice", fixDeviceRoute);
+
 // Connection
 const port = 3789;
 connection
