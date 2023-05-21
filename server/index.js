@@ -84,6 +84,9 @@ app.use("/newDevice", newDeviceRoute);
 const fixDeviceRoute = require("./controllers/fixDevice");
 app.use("/fixDevice", fixDeviceRoute);
 
+const shiftRoute = require("./controllers/shift");
+app.use("/shift", shiftRoute);
+
 // Connection
 const port = 3789;
 connection
