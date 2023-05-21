@@ -87,6 +87,9 @@ app.use("/fixDevice", fixDeviceRoute);
 const shiftRoute = require("./controllers/shift");
 app.use("/shift", shiftRoute);
 
+const workScheduleRoute = require("./controllers/workSchedule");
+app.use("/workSchedule", workScheduleRoute);
+
 // Connection
 const port = 3789;
 connection
