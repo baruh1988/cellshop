@@ -10,7 +10,6 @@ import {
 } from "@mui/material";
 import {
   DataGrid,
-  GridToolbar,
   GridActionsCellItem,
   GridToolbarContainer,
   GridToolbarColumnsButton,
@@ -22,14 +21,11 @@ import { tokens } from "../../theme";
 import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import Header from "../../components/Header";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Form from "./Form";
-import { useSelector } from "react-redux";
 import AddIcon from "@mui/icons-material/Add";
 
 const CustomToolBar = (props) => {
-  //const { setRows, setRowModesModel } = props;
-
   const handleClick = () => {
     props.setFormType("create");
     props.setModelId(-1);
@@ -63,7 +59,6 @@ const Models = () => {
   const [modelId, setModelId] = useState(-1);
   const [manufacturers, setManufacturers] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const loggedInUser = useSelector((state) => state.user);
 
   useEffect(() => {
     setIsLoading(true);
@@ -147,6 +142,9 @@ const Models = () => {
       field: "manufacturerId",
       headerName: "Manufacturer",
       flex: 1,
+      valueGetter: ({ row }) => {
+        return manufacturers[row.manufacturerId];
+      },
     },
     {
       field: "actions",

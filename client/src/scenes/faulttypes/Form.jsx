@@ -1,11 +1,18 @@
-import { Box, Button, TextField, MenuItem } from "@mui/material";
-import { Formik, useField, useFormikContext } from "formik";
+import { Box, Button, TextField } from "@mui/material";
+import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
+import {
+  useAddFaultTypeMutation,
+  useEditFaultTypeMutation,
+} from "../../api/apiSlice";
 
 const Form = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
+
+  const [addFaultType] = useAddFaultTypeMutation();
+  const [editFaultType] = useEditFaultTypeMutation();
 
   const checkoutSchema = yup
     .object()
@@ -15,19 +22,11 @@ const Form = (props) => {
     if (props.formType === "edit") {
       values["newFaultTypeDescription"] = values["description"];
       values = { id: props.faultTypeId, ...values };
+      editFaultType(values);
     } else {
       values["faultTypeDescription"] = values["description"];
+      addFaultType(values);
     }
-    const url = `http://localhost:3789/faultType/${props.formType}FaultType`;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(values),
-    });
-    //const decodedResponse = await response.json();
-    //console.log(decodedResponse);
     props.formCloseControl(false);
   };
 

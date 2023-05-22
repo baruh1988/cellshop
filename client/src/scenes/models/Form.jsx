@@ -3,7 +3,6 @@ import { Formik, useField, useFormikContext } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
-import { useEffect, useState } from "react";
 
 const SelectWrapper = ({ name, options, ...otherProps }) => {
   const { setFieldValue } = useFormikContext();
@@ -50,12 +49,12 @@ const Form = (props) => {
   });
 
   const handleFormSubmit = async (values) => {
+    values.manufacturerId = parseInt(values.manufacturerId);
     if (props.formType === "edit") {
       values["id"] = props.modelId;
-      values["newManufacturerId"] = parseInt(values.manufacturerId);
+      values["newManufacturerId"] = values.manufacturerId;
       values["newModelName"] = values.name;
     } else {
-      //values["manufacturerName"] = props.options[values.manufacturerId];
       values["modelName"] = values.name;
     }
     console.log(values);

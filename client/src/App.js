@@ -7,7 +7,7 @@ import Login from "./scenes/login";
 
 function App() {
   const [theme, colorMode] = useMode();
-  const isLoggedIn = Boolean(useSelector((state) => state.user));
+  const isLoggedIn = Boolean(useSelector((state) => state.global.user));
 
   return (
     <ColorModeContext.Provider value={colorMode}>

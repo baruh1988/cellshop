@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import { setLogin } from "../../state";
 import jwt_decode from "jwt-decode";
 import { tokens } from "../../theme";
+import { useLoginMutation } from "../../api/apiSlice";
 
 const loginSchema = yup.object().shape({
   idNumber: yup.string().required("required"),
@@ -17,31 +18,33 @@ const loginInitialValues = {
   password: "",
 };
 
-const Form = () => {
+const Form = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isNonMobile = useMediaQuery("(min-width: 600px)");
-
-  const login = async (values, onSubmitProps) => {
-    const loggedInResponse = await fetch("http://localhost:3789/user/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
-    });
-    const loggedIn = await loggedInResponse.json();
-    onSubmitProps.resetForm();
-    if (loggedIn) {
-      const decoded = jwt_decode(loggedIn.token);
-      console.log(decoded);
-      dispatch(setLogin({ user: decoded.dataForToken }));
-      navigate("/home");
-    }
-  };
+  const [login] = useLoginMutation();
 
   const handleFormSubmit = async (values, onSubmitProps) => {
-    await login(values, onSubmitProps);
+    login(values)
+      .unwrap()
+      .then((result) => {
+        onSubmitProps.resetForm();
+        if (result.process && result.token) {
+          const decoded = jwt_decode(result.token);
+          dispatch(setLogin({ user: decoded.dataForToken }));
+          navigate("/home");
+        } else {
+          props.setErrorMsg(result.message);
+          props.setOpen(true);
+        }
+      })
+      .catch((error) => {
+        onSubmitProps.resetForm();
+        props.setErrorMsg(error.error);
+        props.setOpen(true);
+      });
   };
 
   return (

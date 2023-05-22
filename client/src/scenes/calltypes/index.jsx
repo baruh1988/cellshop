@@ -1,6 +1,6 @@
 import {
   Box,
-  Typography,
+  CircularProgress,
   useTheme,
   Button,
   Dialog,
@@ -17,16 +17,17 @@ import {
 } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import Form from "./Form";
+import {
+  useDeleteCallTypeMutation,
+  useGetCallTypesQuery,
+} from "../../api/apiSlice";
 
 const CustomToolBar = (props) => {
-  //const { setRows, setRowModesModel } = props;
-
   const handleClick = () => {
     props.setFormType("create");
     props.setCallTypeId(-1);
@@ -40,7 +41,7 @@ const CustomToolBar = (props) => {
   return (
     <GridToolbarContainer>
       <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
-        Add record
+        Add call type
       </Button>
       <GridToolbarColumnsButton />
       <GridToolbarFilterButton />
@@ -53,45 +54,23 @@ const CustomToolBar = (props) => {
 const CallTypes = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [rows, setRows] = useState([]);
   const [open, setOpen] = useState(false);
   const [formType, setFormType] = useState("create");
   const [initialValues, setInitialValues] = useState(null);
   const [callTypeId, setCallTypeId] = useState(-1);
-  const loggedInUser = useSelector((state) => state.user);
 
-  useEffect(() => {
-    getUserTypesData();
-  }, [open, rows]);
-
-  const getUserTypesData = async () => {
-    const response = await fetch(
-      "http://localhost:3789/callType/getAllCallType"
-    );
-    const responseJson = await response.json();
-    if (responseJson.process) {
-      const userTypes = responseJson.data;
-      setRows(userTypes);
-    }
-  };
+  const {
+    data: callTypes,
+    isLoading,
+    isSuccess,
+    isError,
+    error,
+  } = useGetCallTypesQuery();
+  const [deleteCallType] = useDeleteCallTypeMutation();
 
   const handleDeleteClick = (id) => () => {
-    const toDelete = rows.find((obj) => obj.id === id);
-    setRows(rows.filter((row) => row.id !== id));
+    const toDelete = callTypes.data.find((obj) => obj.id === id);
     deleteCallType(toDelete);
-  };
-
-  const deleteCallType = async (toDelete) => {
-    const response = await fetch(
-      "http://localhost:3789/callType/deleteCallType",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(toDelete),
-      }
-    );
   };
 
   const handleClickOpen = () => {
@@ -109,7 +88,7 @@ const CallTypes = () => {
   const handleEditClick = (id) => () => {
     setFormType("edit");
     setCallTypeId(id);
-    const values = rows.find((obj) => obj.id === id);
+    const values = callTypes.data.find((obj) => obj.id === id);
     setInitialValues({ name: values.name, description: values.description });
     handleClickOpen();
   };
@@ -147,69 +126,77 @@ const CallTypes = () => {
   return (
     <Box m="20px">
       <Header title="CALL TYPES" subtitle="Managing Call Types" />
-      <Dialog open={open} onClose={handleClose}>
-        <DialogContent>
-          <Form
-            formType={formType}
-            initialValues={initialValues}
-            formCloseControl={setOpen}
-            callTypeId={callTypeId}
-          />
-        </DialogContent>
-        {/*
+      {isLoading ? (
+        <>
+          <CircularProgress />
+        </>
+      ) : (
+        <>
+          <Dialog open={open} onClose={handleClose}>
+            <DialogContent>
+              <Form
+                formType={formType}
+                initialValues={initialValues}
+                formCloseControl={setOpen}
+                callTypeId={callTypeId}
+              />
+            </DialogContent>
+            {/*
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
           <Button onClick={handleClose}>Ok</Button>
         </DialogActions>
         */}
-      </Dialog>
-      <Box
-        m="40px 0 0 0"
-        height="75vh"
-        sx={{
-          "& .MuiDataGrid-root": {
-            border: "none",
-          },
-          "& .MuiDataGrid-cell": {
-            borderBottom: "none",
-          },
-          "& .name-column--cell": {
-            color: colors.greenAccent[300],
-          },
-          "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: colors.blueAccent[700],
-            borderBottom: "none",
-          },
-          "& .MuiDataGrid-virtualScroller": {
-            backgroundColor: colors.primary[400],
-          },
-          "& .MuiDataGrid-footerContainer": {
-            borderTop: "none",
-            backgroundColor: colors.blueAccent[700],
-          },
-          "& .MuiCheckbox-root": {
-            color: `${colors.greenAccent[200]} !important`,
-          },
-          "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-            color: `${colors.grey[100]} !important`,
-          },
-        }}
-      >
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          components={{ Toolbar: CustomToolBar }}
-          componentsProps={{
-            toolbar: {
-              handleClickOpen,
-              handleInitialValues,
-              setFormType,
-              setCallTypeId,
-            },
-          }}
-          getRowId={(row) => row.id}
-        />
-      </Box>
+          </Dialog>
+          <Box
+            m="40px 0 0 0"
+            height="75vh"
+            sx={{
+              "& .MuiDataGrid-root": {
+                border: "none",
+              },
+              "& .MuiDataGrid-cell": {
+                borderBottom: "none",
+              },
+              "& .name-column--cell": {
+                color: colors.greenAccent[300],
+              },
+              "& .MuiDataGrid-columnHeaders": {
+                backgroundColor: colors.blueAccent[700],
+                borderBottom: "none",
+              },
+              "& .MuiDataGrid-virtualScroller": {
+                backgroundColor: colors.primary[400],
+              },
+              "& .MuiDataGrid-footerContainer": {
+                borderTop: "none",
+                backgroundColor: colors.blueAccent[700],
+              },
+              "& .MuiCheckbox-root": {
+                color: `${colors.greenAccent[200]} !important`,
+              },
+              "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
+                color: `${colors.grey[100]} !important`,
+              },
+            }}
+          >
+            <DataGrid
+              rows={callTypes.data}
+              columns={columns}
+              components={{ Toolbar: CustomToolBar }}
+              componentsProps={{
+                toolbar: {
+                  handleClickOpen,
+                  handleInitialValues,
+                  setFormType,
+                  setCallTypeId,
+                },
+              }}
+              getRowId={(row) => row.id}
+            />
+          </Box>
+        </>
+      )}
     </Box>
   );
 };

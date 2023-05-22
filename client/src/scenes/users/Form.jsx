@@ -3,6 +3,8 @@ import { Formik, useField, useFormikContext } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
+import { useAddUserMutation, useEditUserMutation } from "../../api/apiSlice";
+import { useState } from "react";
 
 const SelectWrapper = ({ name, options, ...otherProps }) => {
   const { setFieldValue } = useFormikContext();
@@ -40,8 +42,12 @@ const SelectWrapper = ({ name, options, ...otherProps }) => {
   );
 };
 
-const UserForm = (props) => {
+const Form = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
+
+  const [addUser] = useAddUserMutation();
+  const [editUser] = useEditUserMutation();
+  const [options, setOptions] = useState(props.getOptions());
 
   const phoneRegExp =
     /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
@@ -80,10 +86,10 @@ const UserForm = (props) => {
             .required("required"),
         });
 
-  const handleFormSubmit = async (values) => {
+  const handleFormSubmit = (values) => {
+    values.userType = parseInt(values.userType);
     if (props.formType === "edit") {
       delete values.password;
-      //values = { id: props.userId, ...values };
       values = {
         id: props.userId,
         newIdNumber: values.idNumber,
@@ -94,18 +100,11 @@ const UserForm = (props) => {
         newAddress: values.address,
         newEmail: values.email,
         newPhoneNumber: values.phoneNumber,
-        //...values,
       };
+      editUser(values);
+    } else {
+      addUser(values);
     }
-    console.log(values);
-    const url = `http://localhost:3789/user/${props.formType}User`;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(values),
-    });
     props.formCloseControl(false);
   };
 
@@ -119,7 +118,6 @@ const UserForm = (props) => {
             : "Edit an Existing User Profile"
         }
       />
-
       <Formik
         onSubmit={handleFormSubmit}
         initialValues={props.initialValues}
@@ -158,7 +156,8 @@ const UserForm = (props) => {
               <SelectWrapper
                 name="userType"
                 label="Access Level"
-                options={{ 0: "Admin", 1: "Manager", 2: "Employee" }}
+                options={options}
+                sx={{ gridColumn: "span 1" }}
               />
               {props.formType === "create" ? (
                 <>
@@ -257,4 +256,4 @@ const UserForm = (props) => {
   );
 };
 
-export default UserForm;
+export default Form;

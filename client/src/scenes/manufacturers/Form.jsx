@@ -1,11 +1,18 @@
-import { Box, Button, TextField, MenuItem } from "@mui/material";
-import { Formik, useField, useFormikContext } from "formik";
+import { Box, Button, TextField } from "@mui/material";
+import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
+import {
+  useAddManufacturerMutation,
+  useEditManufacturerMutation,
+} from "../../api/apiSlice";
 
 const Form = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
+
+  const [addManufacturer] = useAddManufacturerMutation();
+  const [editManufacturer] = useEditManufacturerMutation();
 
   const checkoutSchema = yup
     .object()
@@ -15,19 +22,11 @@ const Form = (props) => {
     if (props.formType === "edit") {
       values["newManufacturerName"] = values["name"];
       values = { id: props.manufacturerId, ...values };
+      editManufacturer(values);
     } else {
       values["manufacturerName"] = values["name"];
+      addManufacturer(values);
     }
-    const url = `http://localhost:3789/manufacturer/${props.formType}Manufacturer`;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(values),
-    });
-    //const decodedResponse = await response.json();
-    //console.log(decodedResponse);
     props.formCloseControl(false);
   };
 
@@ -35,10 +34,12 @@ const Form = (props) => {
     <Box m="20px">
       <Header
         title={
-          props.formType === "add" ? "CREATE MANUFACTURER" : "EDIT MANUFACTURER"
+          props.formType === "create"
+            ? "CREATE MANUFACTURER"
+            : "EDIT MANUFACTURER"
         }
         subtitle={
-          props.formType === "add"
+          props.formType === "create"
             ? "Create a New Manufacturer"
             : "Edit an Existing Manufacturer"
         }
@@ -81,7 +82,7 @@ const Form = (props) => {
             </Box>
             <Box display="flex" justifyContent="end" mt="20px">
               <Button type="submit" color="secondary" variant="contained">
-                {props.formType === "add" ? "Add" : "Save"}
+                {props.formType === "create" ? "Add" : "Save"}
               </Button>
             </Box>
           </form>
