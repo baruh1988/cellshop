@@ -80,12 +80,11 @@ const Users = () => {
     isError,
     error,
   } = useGetUsersQuery();
-  const { data: userTypes, refetch } = useGetUserTypesQuery();
+  const { data: userTypes } = useGetUserTypesQuery();
   const [deleteUser] = useDeleteUserMutation();
 
   const getOptions = () => {
     let opts = {};
-    //refetch();
     userTypes.data.forEach((el) => {
       opts[el.id] = el.description;
     });

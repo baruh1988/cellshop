@@ -201,6 +201,34 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ["CallTypes"],
     }),
+    getModels: builder.query({
+      query: () => "/model/getAllModels",
+      providesTags: ["Models"],
+    }),
+    addModel: builder.mutation({
+      query: (data) => ({
+        url: "/model/createModel",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Models"],
+    }),
+    editModel: builder.mutation({
+      query: (data) => ({
+        url: "/model/editModel",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Models"],
+    }),
+    deleteModel: builder.mutation({
+      query: (data) => ({
+        url: "/model/deleteModel",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Models"],
+    }),
   }),
 });
 
@@ -232,4 +260,8 @@ export const {
   useDeleteCallTypeMutation,
   useEditCallTypeMutation,
   useGetCallTypesQuery,
+  useAddModelMutation,
+  useDeleteModelMutation,
+  useEditModelMutation,
+  useGetModelsQuery,
 } = apiSlice;
