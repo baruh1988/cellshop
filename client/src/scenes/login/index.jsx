@@ -1,9 +1,26 @@
-import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  Typography,
+  useTheme,
+  useMediaQuery,
+  Snackbar,
+  Alert,
+} from "@mui/material";
 import Form from "./Form";
+import { useState } from "react";
 
 const Login = () => {
   const theme = useTheme();
   const isNonMobile = useMediaQuery("(min-width: 1000px)");
+  const [open, setOpen] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
+  };
 
   return (
     <Box>
@@ -27,7 +44,17 @@ const Login = () => {
         <Typography fontWeight="500" variant="h3" sx={{ mb: "1.5rem" }}>
           Login
         </Typography>
-        <Form />
+        <Form setOpen={setOpen} setErrorMsg={setErrorMsg} />
+        <Snackbar
+          open={open}
+          autoHideDuration={5000}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        >
+          <Alert onClose={handleClose} severity="error" sx={{ width: "100%" }}>
+            {errorMsg}
+          </Alert>
+        </Snackbar>
       </Box>
     </Box>
   );

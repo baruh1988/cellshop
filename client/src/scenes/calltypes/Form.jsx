@@ -1,11 +1,18 @@
-import { Box, Button, TextField, MenuItem } from "@mui/material";
-import { Formik, useField, useFormikContext } from "formik";
+import { Box, Button, TextField } from "@mui/material";
+import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
+import {
+  useAddCallTypeMutation,
+  useEditCallTypeMutation,
+} from "../../api/apiSlice";
 
 const Form = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
+
+  const [addCallType] = useAddCallTypeMutation();
+  const [editCallType] = useEditCallTypeMutation();
 
   const checkoutSchema = yup.object().shape({
     name: yup.string().required("required"),
@@ -17,21 +24,12 @@ const Form = (props) => {
       values["newCallTypeName"] = values["name"];
       values["newCallTypeDescription"] = values["description"];
       values = { id: props.callTypeId, ...values };
+      editCallType(values);
     } else {
       values["callTypeName"] = values["name"];
       values["callTypeDescription"] = values["description"];
+      addCallType(values);
     }
-    const url = `http://localhost:3789/callType/${props.formType}CallType`;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(values),
-    });
-
-    //const decodedResponse = await response.json();
-    //console.log(decodedResponse);
     props.formCloseControl(false);
   };
 

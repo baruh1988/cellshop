@@ -6,10 +6,10 @@ import {
   Dialog,
   DialogContent,
   DialogActions,
+  CircularProgress,
 } from "@mui/material";
 import {
   DataGrid,
-  GridToolbar,
   GridActionsCellItem,
   GridToolbarContainer,
   GridToolbarColumnsButton,
@@ -18,22 +18,43 @@ import {
   GridToolbarExport,
 } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
+import {
+  useGetUsersQuery,
+  useDeleteUserMutation,
+  useGetUserTypesQuery,
+} from "../../api/apiSlice";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import Header from "../../components/Header";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Form from "./Form";
 import { useSelector } from "react-redux";
 import AddIcon from "@mui/icons-material/Add";
 
 const CustomToolBar = (props) => {
+  const handleClick = () => {
+    props.setFormType("create");
+    props.setUserId(-1);
+    props.handleInitialValues({
+      idNumber: "",
+      userType: 1,
+      firstName: "",
+      lastName: "",
+      password: "",
+      address: "",
+      email: "",
+      phoneNumber: "",
+    });
+    props.handleClickOpen();
+  };
+
   return (
     <GridToolbarContainer>
-      <Button color="primary" startIcon={<AddIcon />}>
-        Add record
+      <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
+        Add user
       </Button>
       <GridToolbarColumnsButton />
       <GridToolbarFilterButton />
@@ -46,45 +67,46 @@ const CustomToolBar = (props) => {
 const Users = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [rows, setRows] = useState([]);
   const [open, setOpen] = useState(false);
   const [formType, setFormType] = useState("create");
   const [initialValues, setInitialValues] = useState(null);
   const [userId, setUserId] = useState(-1);
-  const loggedInUser = useSelector((state) => state.user);
+  const loggedInUser = useSelector((state) => state.global.user);
 
-  const handleClickOpen = () => {
-    setOpen(true);
+  const {
+    data: users,
+    isLoading,
+    isSuccess,
+    isError,
+    error,
+  } = useGetUsersQuery();
+  const { data: userTypes } = useGetUserTypesQuery();
+  const [deleteUser] = useDeleteUserMutation();
+
+  const getOptions = () => {
+    let opts = {};
+    userTypes.data.forEach((el) => {
+      opts[el.id] = el.description;
+    });
+    return opts;
   };
 
   const handleInitialValues = (values) => {
     setInitialValues(values);
   };
 
-  const handleClose = () => {
-    setOpen(false);
+  const handleClickOpen = () => {
+    setOpen(true);
   };
 
-  useEffect(() => {
-    getUsersData();
-  }, [open, rows]);
-
-  const getUsersData = async () => {
-    const response = await fetch("http://localhost:3789/user/getAllUsers");
-    const responseJson = await response.json();
-    if (responseJson.process) {
-      const users = responseJson.data.filter(
-        (user) =>
-          user.idNumber !== "admin" && user.idNumber !== loggedInUser.idNumber
-      );
-      setRows(users);
-    }
+  const handleClose = () => {
+    setOpen(false);
   };
 
   const handleEditClick = (id) => () => {
     setFormType("edit");
     setUserId(id);
-    const values = rows.find((obj) => obj.id === id);
+    const values = users.data.find((obj) => obj.id === id);
     setInitialValues({
       idNumber: values.idNumber,
       userType: values.userType,
@@ -100,19 +122,8 @@ const Users = () => {
   };
 
   const handleDeleteClick = (id) => () => {
-    const userToDelete = rows.find((obj) => obj.id === id);
-    setRows(rows.filter((row) => row.id !== id));
+    const userToDelete = users.data.find((obj) => obj.id === id);
     deleteUser(userToDelete);
-  };
-
-  const deleteUser = async (userToDelete) => {
-    const response = await fetch("http://localhost:3789/user/deleteUser", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(userToDelete),
-    });
   };
 
   const columns = [
@@ -122,39 +133,33 @@ const Users = () => {
       headerName: "ID Number",
       flex: 1,
       cellClassName: "idNumber-column--cell",
-      editable: true,
     },
     {
       field: "firstName",
       headerName: "First Name",
       flex: 1,
       cellClassName: "firstName-column--cell",
-      editable: true,
     },
     {
       field: "lastName",
       headerName: "Last Name",
       flex: 1,
       cellClassName: "lastName-column--cell",
-      editable: true,
     },
     {
       field: "address",
       headerName: "Address",
       flex: 1,
-      editable: true,
     },
     {
       field: "email",
       headerName: "Email",
       flex: 1,
-      editable: true,
     },
     {
       field: "phoneNumber",
       headerName: "Phone Number",
       flex: 1,
-      editable: true,
     },
     {
       field: "userType",
@@ -169,17 +174,17 @@ const Users = () => {
             display="flex"
             justifyContent="center"
             backgroundColor={
-              userType === 0 ? colors.greenAccent[600] : colors.greenAccent[700]
+              userType === 1 ? colors.greenAccent[600] : colors.greenAccent[700]
             }
             borderRadius="4px"
           >
-            {userType === 0 && <AdminPanelSettingsOutlinedIcon />}
-            {userType === 1 && <SecurityOutlinedIcon />}
-            {userType === 2 && <LockOpenOutlinedIcon />}
+            {userType === 1 && <AdminPanelSettingsOutlinedIcon />}
+            {userType === 2 && <SecurityOutlinedIcon />}
+            {userType === 3 && <LockOpenOutlinedIcon />}
             <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-              {userType === 0
+              {userType === 1
                 ? "Admin"
-                : userType === 1
+                : userType === 2
                 ? "Manager"
                 : "Employee"}
             </Typography>
@@ -216,82 +221,82 @@ const Users = () => {
   return (
     <Box m="20px">
       <Header title="USERS" subtitle="Managing users" />
-      <Button
-        onClick={() => {
-          setFormType("create");
-          setUserId(-1);
-          handleInitialValues({
-            idNumber: "",
-            userType: 0,
-            firstName: "",
-            lastName: "",
-            password: "",
-            address: "",
-            email: "",
-            phoneNumber: "",
-          });
-          handleClickOpen();
-        }}
-        color="secondary"
-        variant="contained"
-      >
-        Add new user
-      </Button>
-      <Dialog open={open} onClose={handleClose}>
-        <DialogContent>
-          <Form
-            formType={formType}
-            initialValues={initialValues}
-            formCloseControl={setOpen}
-            userId={userId}
-          />
-        </DialogContent>
-        {/*
+      {isLoading ? (
+        <>
+          <CircularProgress />
+        </>
+      ) : (
+        <>
+          <Dialog open={open} onClose={handleClose}>
+            <DialogContent>
+              <Form
+                formType={formType}
+                initialValues={initialValues}
+                formCloseControl={setOpen}
+                userId={userId}
+                getOptions={getOptions}
+              />
+            </DialogContent>
+            {/*
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
           <Button onClick={handleClose}>Ok</Button>
         </DialogActions>
         */}
-      </Dialog>
-      <Box
-        m="40px 0 0 0"
-        height="75vh"
-        sx={{
-          "& .MuiDataGrid-root": {
-            border: "none",
-          },
-          "& .MuiDataGrid-cell": {
-            borderBottom: "none",
-          },
-          "& .name-column--cell": {
-            color: colors.greenAccent[300],
-          },
-          "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: colors.blueAccent[700],
-            borderBottom: "none",
-          },
-          "& .MuiDataGrid-virtualScroller": {
-            backgroundColor: colors.primary[400],
-          },
-          "& .MuiDataGrid-footerContainer": {
-            borderTop: "none",
-            backgroundColor: colors.blueAccent[700],
-          },
-          "& .MuiCheckbox-root": {
-            color: `${colors.greenAccent[200]} !important`,
-          },
-          "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-            color: `${colors.grey[100]} !important`,
-          },
-        }}
-      >
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          components={{ Toolbar: CustomToolBar }}
-          getRowId={(row) => row.id}
-        />
-      </Box>
+          </Dialog>
+          <Box
+            m="40px 0 0 0"
+            height="75vh"
+            sx={{
+              "& .MuiDataGrid-root": {
+                border: "none",
+              },
+              "& .MuiDataGrid-cell": {
+                borderBottom: "none",
+              },
+              "& .name-column--cell": {
+                color: colors.greenAccent[300],
+              },
+              "& .MuiDataGrid-columnHeaders": {
+                backgroundColor: colors.blueAccent[700],
+                borderBottom: "none",
+              },
+              "& .MuiDataGrid-virtualScroller": {
+                backgroundColor: colors.primary[400],
+              },
+              "& .MuiDataGrid-footerContainer": {
+                borderTop: "none",
+                backgroundColor: colors.blueAccent[700],
+              },
+              "& .MuiCheckbox-root": {
+                color: `${colors.greenAccent[200]} !important`,
+              },
+              "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
+                color: `${colors.grey[100]} !important`,
+              },
+            }}
+          >
+            <DataGrid
+              rows={users.data.filter(
+                (user) =>
+                  user.idNumber !== "admin" &&
+                  user.idNumber !== loggedInUser.idNumber
+              )}
+              columns={columns}
+              components={{ Toolbar: CustomToolBar }}
+              componentsProps={{
+                toolbar: {
+                  handleClickOpen,
+                  handleInitialValues,
+                  setFormType,
+                  setUserId,
+                },
+              }}
+              getRowId={(row) => row.id}
+            />
+          </Box>
+        </>
+      )}
     </Box>
   );
 };

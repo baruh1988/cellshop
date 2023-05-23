@@ -25,12 +25,9 @@ import Header from "../../components/Header";
 import { useCallback, useEffect, useState } from "react";
 import Form from "./Form";
 import TestForm from "./TestForm";
-import { useSelector } from "react-redux";
 import AddIcon from "@mui/icons-material/Add";
 
 const CustomToolBar = (props) => {
-  //const { setRows, setRowModesModel } = props;
-
   const handleClick = () => {
     props.setFormType("create");
     props.setInventoryId(-1);
@@ -70,7 +67,6 @@ const Inventory = () => {
   const [inventoryId, setInventoryId] = useState(-1);
   const [models, setModels] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const loggedInUser = useSelector((state) => state.user);
 
   useEffect(() => {
     setIsLoading(true);

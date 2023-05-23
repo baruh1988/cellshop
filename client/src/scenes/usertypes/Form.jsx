@@ -1,31 +1,32 @@
-import { Box, Button, TextField, MenuItem } from "@mui/material";
-import { Formik, useField, useFormikContext } from "formik";
+import { Box, Button, TextField } from "@mui/material";
+import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
+import {
+  useAddUserTypeMutation,
+  useEditUserTypeMutation,
+} from "../../api/apiSlice";
 
 const Form = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
+
+  const [addUserType] = useAddUserTypeMutation();
+  const [editUserType] = useEditUserTypeMutation();
 
   const checkoutSchema = yup
     .object()
     .shape({ description: yup.string().required("required") });
 
-  const handleFormSubmit = async (values) => {
+  const handleFormSubmit = (values) => {
     if (props.formType === "edit") {
       values["newUserTypeDescription"] = values["description"];
       values = { id: props.userTypeId, ...values };
+      editUserType(values);
     } else {
       values["userTypeDescription"] = values["description"];
+      addUserType(values);
     }
-    const url = `http://localhost:3789/userType/${props.formType}UserType`;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(values),
-    });
     props.formCloseControl(false);
   };
 

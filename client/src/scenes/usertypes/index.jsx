@@ -1,10 +1,10 @@
 import {
   Box,
-  Typography,
   useTheme,
   Button,
   Dialog,
   DialogContent,
+  CircularProgress,
 } from "@mui/material";
 import {
   DataGrid,
@@ -15,18 +15,19 @@ import {
   GridToolbarDensitySelector,
   GridToolbarExport,
 } from "@mui/x-data-grid";
+import {
+  useGetUserTypesQuery,
+  useDeleteUserTypeMutation,
+} from "../../api/apiSlice";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import Form from "./Form";
 
 const CustomToolBar = (props) => {
-  //const { setRows, setRowModesModel } = props;
-
   const handleClick = () => {
     props.setFormType("create");
     props.setUserTypeId(-1);
@@ -39,7 +40,7 @@ const CustomToolBar = (props) => {
   return (
     <GridToolbarContainer>
       <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
-        Add record
+        Add user type
       </Button>
       <GridToolbarColumnsButton />
       <GridToolbarFilterButton />
@@ -52,47 +53,25 @@ const CustomToolBar = (props) => {
 const UserTypes = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [rows, setRows] = useState([]);
   const [open, setOpen] = useState(false);
   const [formType, setFormType] = useState("create");
   const [initialValues, setInitialValues] = useState(null);
   const [userTypeId, setUserTypeId] = useState(-1);
-  const loggedInUser = useSelector((state) => state.user);
 
-  useEffect(() => {
-    getUserTypesData();
-  }, [open, rows]);
+  const {
+    data: userTypes,
+    isLoading,
+    isSuccess,
+    isError,
+    error,
+  } = useGetUserTypesQuery();
 
-  const getUserTypesData = async () => {
-    const response = await fetch(
-      "http://localhost:3789/userType/getAllUserType"
-    );
-    const responseJson = await response.json();
-    if (responseJson.process) {
-      const userTypes = responseJson.data;
-      setRows(userTypes);
-    }
-  };
+  const [deleteUserType] = useDeleteUserTypeMutation();
 
   const handleDeleteClick = (id) => () => {
-    const toDelete = rows.find((obj) => obj.id === id);
-    setRows(rows.filter((row) => row.id !== id));
+    const toDelete = userTypes.data.find((obj) => obj.id === id);
     deleteUserType(toDelete);
   };
-
-  const deleteUserType = async (toDelete) => {
-    const response = await fetch(
-      "http://localhost:3789/userType/deleteUserType",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(toDelete),
-      }
-    );
-  };
-
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -108,7 +87,7 @@ const UserTypes = () => {
   const handleEditClick = (id) => () => {
     setFormType("edit");
     setUserTypeId(id);
-    const values = rows.find((obj) => obj.id === id);
+    const values = userTypes.data.find((obj) => obj.id === id);
     setInitialValues({ description: values.description });
     handleClickOpen();
   };
@@ -145,69 +124,77 @@ const UserTypes = () => {
   return (
     <Box m="20px">
       <Header title="USER TYPES" subtitle="Managing User Types" />
-      <Dialog open={open} onClose={handleClose}>
-        <DialogContent>
-          <Form
-            formType={formType}
-            initialValues={initialValues}
-            formCloseControl={setOpen}
-            userTypeId={userTypeId}
-          />
-        </DialogContent>
-        {/*
+      {isLoading ? (
+        <>
+          <CircularProgress />
+        </>
+      ) : (
+        <>
+          <Dialog open={open} onClose={handleClose}>
+            <DialogContent>
+              <Form
+                formType={formType}
+                initialValues={initialValues}
+                formCloseControl={setOpen}
+                userTypeId={userTypeId}
+              />
+            </DialogContent>
+            {/*
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
           <Button onClick={handleClose}>Ok</Button>
         </DialogActions>
         */}
-      </Dialog>
-      <Box
-        m="40px 0 0 0"
-        height="75vh"
-        sx={{
-          "& .MuiDataGrid-root": {
-            border: "none",
-          },
-          "& .MuiDataGrid-cell": {
-            borderBottom: "none",
-          },
-          "& .name-column--cell": {
-            color: colors.greenAccent[300],
-          },
-          "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: colors.blueAccent[700],
-            borderBottom: "none",
-          },
-          "& .MuiDataGrid-virtualScroller": {
-            backgroundColor: colors.primary[400],
-          },
-          "& .MuiDataGrid-footerContainer": {
-            borderTop: "none",
-            backgroundColor: colors.blueAccent[700],
-          },
-          "& .MuiCheckbox-root": {
-            color: `${colors.greenAccent[200]} !important`,
-          },
-          "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-            color: `${colors.grey[100]} !important`,
-          },
-        }}
-      >
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          components={{ Toolbar: CustomToolBar }}
-          componentsProps={{
-            toolbar: {
-              handleClickOpen,
-              handleInitialValues,
-              setFormType,
-              setUserTypeId,
-            },
-          }}
-          getRowId={(row) => row.id}
-        />
-      </Box>
+          </Dialog>
+          <Box
+            m="40px 0 0 0"
+            height="75vh"
+            sx={{
+              "& .MuiDataGrid-root": {
+                border: "none",
+              },
+              "& .MuiDataGrid-cell": {
+                borderBottom: "none",
+              },
+              "& .name-column--cell": {
+                color: colors.greenAccent[300],
+              },
+              "& .MuiDataGrid-columnHeaders": {
+                backgroundColor: colors.blueAccent[700],
+                borderBottom: "none",
+              },
+              "& .MuiDataGrid-virtualScroller": {
+                backgroundColor: colors.primary[400],
+              },
+              "& .MuiDataGrid-footerContainer": {
+                borderTop: "none",
+                backgroundColor: colors.blueAccent[700],
+              },
+              "& .MuiCheckbox-root": {
+                color: `${colors.greenAccent[200]} !important`,
+              },
+              "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
+                color: `${colors.grey[100]} !important`,
+              },
+            }}
+          >
+            <DataGrid
+              rows={userTypes.data}
+              columns={columns}
+              components={{ Toolbar: CustomToolBar }}
+              componentsProps={{
+                toolbar: {
+                  handleClickOpen,
+                  handleInitialValues,
+                  setFormType,
+                  setUserTypeId,
+                },
+              }}
+              getRowId={(row) => row.id}
+            />
+          </Box>
+        </>
+      )}
     </Box>
   );
 };

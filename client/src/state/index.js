@@ -4,8 +4,8 @@ const initialState = {
   user: null,
 };
 
-export const authSlice = createSlice({
-  name: "auth",
+export const globalSlice = createSlice({
+  name: "global",
   initialState,
   reducers: {
     setLogin: (state, action) => {
@@ -17,5 +17,5 @@ export const authSlice = createSlice({
   },
 });
 
-export const { setLogin, setLogout, getUser } = authSlice.actions;
-export default authSlice.reducer;
+export const { setLogin, setLogout, getUser } = globalSlice.actions;
+export default globalSlice.reducer;
