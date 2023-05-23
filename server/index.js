@@ -90,6 +90,9 @@ app.use("/shift", shiftRoute);
 const workScheduleRoute = require("./controllers/workSchedule");
 app.use("/workSchedule", workScheduleRoute);
 
+const timeSheetRoute = require("./controllers/timeSheet");
+app.use("/timeSheet", timeSheetRoute);
+
 // Connection
 const port = 3789;
 connection
