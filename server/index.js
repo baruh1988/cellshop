@@ -93,6 +93,9 @@ app.use("/workSchedule", workScheduleRoute);
 const timeSheetRoute = require("./controllers/timeSheet");
 app.use("/timeSheet", timeSheetRoute);
 
+const callRoute = require("./controllers/call");
+app.use("/call", callRoute);
+
 // Connection
 const port = 3789;
 connection
