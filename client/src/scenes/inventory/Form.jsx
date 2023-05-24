@@ -2,34 +2,36 @@ import {
   Box,
   Button,
   TextField,
-  MenuItem,
   InputAdornment,
   useTheme,
+  Stepper,
+  Step,
+  StepLabel,
+  Typography,
+  CircularProgress,
+  IconButton,
+  MenuItem,
 } from "@mui/material";
 import { Formik, useField, useFormikContext } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { tokens } from "../../theme";
 import {
   DataGrid,
-  GridToolbar,
   GridToolbarColumnsButton,
   GridToolbarContainer,
   GridToolbarDensitySelector,
   GridToolbarFilterButton,
 } from "@mui/x-data-grid";
-
-const CustomToolBar = () => {
-  return (
-    <GridToolbarContainer>
-      <GridToolbarColumnsButton />
-      <GridToolbarFilterButton />
-      <GridToolbarDensitySelector />
-    </GridToolbarContainer>
-  );
-};
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import {
+  useAddInventoryItemMutation,
+  useEditInventoryItemMutation,
+  useGetManufacturersQuery,
+  useGetModelsQuery,
+} from "../../api/apiSlice";
 
 const SelectWrapper = ({ name, options, ...otherProps }) => {
   const { setFieldValue } = useFormikContext();
@@ -67,31 +69,44 @@ const SelectWrapper = ({ name, options, ...otherProps }) => {
   );
 };
 
-const Form = (props) => {
-  const isNonMobile = useMediaQuery("(min-width:600px)");
+const CustomToolBar = () => {
+  return (
+    <GridToolbarContainer>
+      <GridToolbarColumnsButton />
+      <GridToolbarFilterButton />
+      <GridToolbarDensitySelector />
+    </GridToolbarContainer>
+  );
+};
+
+const TestForm = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [rows, setRows] = useState([]);
+  const [activeStep, setActiveStep] = useState(
+    props.formType === "create" ? 0 : 1
+  );
+  const [skipped, setSkipped] = useState(new Set());
   const [modelId, setModelId] = useState(props.initialValues.modelId);
-  const [rowSelectionModel, setRowSelectionModel] = useState([
-    props.initialValues.modelId,
-  ]);
+  const [options, setOptions] = useState(props.getOptions());
+  const isNonMobile = useMediaQuery("(min-width:600px)");
 
-  useEffect(() => {
-    //setIsLoading(true);
-    getModelsData();
-    //getManufacturerData();
-    //setIsLoading(false);
-  }, []);
+  const { data: manufacturers } = useGetManufacturersQuery();
+  const {
+    data: models,
+    isLoading,
+    isSuccess,
+    isError,
+    error,
+  } = useGetModelsQuery();
+  const [addInventoryItem] = useAddInventoryItemMutation();
+  const [editInventoryItem] = useEditInventoryItemMutation();
 
-  const getModelsData = async () => {
-    const response = await fetch("http://localhost:3789/model/getAllModels");
-    const responseJson = await response.json();
-    if (responseJson.process) {
-      const modelsData = responseJson.data;
-      setRows(modelsData);
-    }
-  };
+  const steps = [
+    "Select model",
+    props.formType === "create"
+      ? "Create inventory item"
+      : "Edit inventory item",
+  ];
 
   const checkoutSchema = yup.object().shape({
     modelId: yup.number().required("required!"),
@@ -104,29 +119,65 @@ const Form = (props) => {
   });
 
   const handleFormSubmit = async (values) => {
-    // test create inventory item
     values["modelId"] = modelId;
-    console.log(values);
-    /*
+    values.inventoryItemTypeId = parseInt(values.inventoryItemTypeId);
     if (props.formType === "edit") {
-      values["manufacturerName"] = props.options[values.manufacturerId];
-      values["modelName"] = props.initialValues.name;
-      values["modelNewName"] = values.name;
+      values["id"] = props.inventoryId;
+      values["newModelId"] = values.modelId;
+      values["newInventoryItemTypeId"] = values.inventoryItemTypeId;
+      values["newDescription"] = values.description;
+      values["newSerialNumber"] = values.serialNumber;
+      values["newQunatity"] = values.quantity;
+      values["newPrice"] = values.price;
+      values["newQunatityThreshold"] = values.quantityThreshold;
+      values["newImage"] = values.image;
+      editInventoryItem(values);
     } else {
-      values["manufacturerName"] = props.options[values.manufacturerId];
-      values["modelName"] = values.name;
+      addInventoryItem(values);
     }
-    console.log(values);
-    const url = `http://localhost:3789/model/${props.formType}Model`;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(values),
-    });
-    */
     props.formCloseControl(false);
+  };
+
+  const isStepOptional = (step) => {
+    return props.formType === "create" ? step === 5 : step === 0;
+  };
+
+  const isStepSkipped = (step) => {
+    return skipped.has(step);
+  };
+
+  const handleNext = () => {
+    let newSkipped = skipped;
+    if (isStepSkipped(activeStep)) {
+      newSkipped = new Set(newSkipped.values());
+      newSkipped.delete(activeStep);
+    }
+
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    setSkipped(newSkipped);
+  };
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  const handleSkip = () => {
+    if (!isStepOptional(activeStep)) {
+      // You probably want to guard against something like this,
+      // it should never occur unless someone's actively trying to break something.
+      throw new Error("You can't skip a step that isn't optional.");
+    }
+
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    setSkipped((prevSkipped) => {
+      const newSkipped = new Set(prevSkipped.values());
+      newSkipped.add(activeStep);
+      return newSkipped;
+    });
+  };
+
+  const handleReset = () => {
+    setActiveStep(0);
   };
 
   const columns = [
@@ -140,6 +191,11 @@ const Form = (props) => {
       field: "manufacturerId",
       headerName: "Manufacturer",
       flex: 1,
+      valueGetter: ({ row }) => {
+        return manufacturers.data.find((el) => {
+          return el.id === row.manufacturerId;
+        }).name;
+      },
     },
   ];
 
@@ -152,47 +208,34 @@ const Form = (props) => {
             : "EDIT INVENTORY ITEM"
         }
         subtitle={
-          props.formType === "create"
-            ? "Create a New Item"
-            : "Edit an Existing Item"
+          props.formType === "create" ? "Create an item" : "Edit an item"
         }
       />
-
-      <Formik
-        onSubmit={handleFormSubmit}
-        initialValues={props.initialValues}
-        validationSchema={checkoutSchema}
-      >
-        {({
-          values,
-          errors,
-          touched,
-          handleBlur,
-          handleChange,
-          handleSubmit,
-        }) => (
-          <form onSubmit={handleSubmit}>
-            <Box
-              display="grid"
-              gap="30px"
-              gridTemplateColumns="repeat(4, minmax(0, 1fr))"
-              sx={{
-                "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
-              }}
-            >
-              <TextField
-                fullWidth
-                variant="filled"
-                type="text"
-                label="Serial Number"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.serialNumber}
-                name="serialNumber"
-                error={!!touched.serialNumber && !!errors.serialNumber}
-                helperText={touched.serialNumber && errors.serialNumber}
-                sx={{ gridColumn: "span 4" }}
-              />
+      <Stepper activeStep={activeStep}>
+        {steps.map((label, index) => {
+          const stepProps = {};
+          const labelProps = {};
+          if (isStepOptional(index)) {
+            labelProps.optional = (
+              <Typography variant="caption">Optional</Typography>
+            );
+          }
+          if (isStepSkipped(index)) {
+            stepProps.completed = false;
+          }
+          return (
+            <Step key={label} {...stepProps}>
+              <StepLabel {...labelProps}>{label}</StepLabel>
+            </Step>
+          );
+        })}
+      </Stepper>
+      {activeStep === 0 ? (
+        <>
+          {isLoading ? (
+            <CircularProgress />
+          ) : (
+            <>
               <Box
                 //m="40px 0 0 0"
                 height="25vh"
@@ -223,123 +266,204 @@ const Form = (props) => {
                   "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
                     color: `${colors.grey[100]} !important`,
                   },
-                  gridColumn: "span 4",
+                  //gridColumn: "span 4",
                 }}
               >
                 <DataGrid
-                  rows={rows}
+                  rows={models.data}
                   columns={columns}
                   components={{ Toolbar: CustomToolBar }}
-                  //componentsProps={{toolbar: {handleClickOpen,handleInitialValues,setFormType,setInventoryId,models}}}
                   getRowId={(row) => row.id}
-                  //selectionModel={[rowSelectionModel]}
                   onSelectionModelChange={(ids) => setModelId(...ids)}
                 />
               </Box>
-              {/*
-              <SelectWrapper
-                name="modelId"
-                label="Model"
-                options={props.options}
-                sx={{ gridColumn: "span 1" }}
-              />*/}
-              <TextField
-                fullWidth
-                variant="filled"
-                multiline
-                rows={10}
-                //maxRows={10}
-                label="Description"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.description}
-                name="description"
-                error={!!touched.description && !!errors.description}
-                helperText={touched.description && errors.description}
-                sx={{ gridColumn: "span 4" }}
-              />
-              <TextField
-                fullWidth
-                variant="filled"
-                type="number"
-                inputProps={{
-                  step: 0.01,
-                  min: 0.0,
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">₪</InputAdornment>
-                  ),
-                }}
-                label="Price"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.price}
-                name="price"
-                error={!!touched.price && !!errors.price}
-                helperText={touched.price && errors.price}
-                sx={{ gridColumn: "span 2" }}
-              />
-              <TextField
-                fullWidth
-                variant="filled"
-                type="number"
-                inputProps={{
-                  min: 0,
-                }}
-                label="Quantity"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.quantity}
-                name="quantity"
-                error={!!touched.quantity && !!errors.quantity}
-                helperText={touched.quantity && errors.quantity}
-                sx={{ gridColumn: "span 1" }}
-              />
-              <TextField
-                fullWidth
-                variant="filled"
-                type="number"
-                inputProps={{
-                  min: 0,
-                }}
-                label="Quantity Threshold"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.quantityThreshold}
-                name="quantityThreshold"
-                error={
-                  !!touched.quantityThreshold && !!errors.quantityThreshold
-                }
-                helperText={
-                  touched.quantityThreshold && errors.quantityThreshold
-                }
-                sx={{ gridColumn: "span 1" }}
-              />
-              <TextField
-                fullWidth
-                variant="filled"
-                type="text"
-                label="Image"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.image}
-                name="image"
-                error={!!touched.image && !!errors.image}
-                helperText={touched.image && errors.image}
-                sx={{ gridColumn: "span 4" }}
-              />
-            </Box>
-            <Box display="flex" justifyContent="end" mt="20px">
-              <Button type="submit" color="secondary" variant="contained">
-                {props.formType === "create" ? "Add" : "Save"}
-              </Button>
-            </Box>
-          </form>
-        )}
-      </Formik>
+              <Box display="flex" justifyContent="end" mt="20px">
+                <Button
+                  onClick={handleNext}
+                  disabled={modelId === -1}
+                  color="secondary"
+                  variant="contained"
+                >
+                  {activeStep === steps.length - 1 ? "Finish" : "Next"}
+                </Button>
+              </Box>
+            </>
+          )}
+        </>
+      ) : (
+        <>
+          <Formik
+            onSubmit={handleFormSubmit}
+            initialValues={props.initialValues}
+            validationSchema={checkoutSchema}
+          >
+            {({
+              values,
+              errors,
+              touched,
+              handleBlur,
+              handleChange,
+              handleSubmit,
+            }) => (
+              <form onSubmit={handleSubmit}>
+                <Box
+                  display="grid"
+                  gap="30px"
+                  gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+                  sx={{
+                    "& > div": {
+                      gridColumn: isNonMobile ? undefined : "span 4",
+                    },
+                  }}
+                >
+                  <TextField
+                    fullWidth
+                    disabled
+                    variant="filled"
+                    type="text"
+                    label="Model"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={
+                      models.data.find((el) => {
+                        return el.id === modelId;
+                      }).name
+                    }
+                    name="modelId"
+                    error={!!touched.modelId && !!errors.modelId}
+                    helperText={touched.modelId && errors.modelId}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label="change model"
+                            onClick={handleBack}
+                            edge="end"
+                          >
+                            <EditOutlinedIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={{ gridColumn: "span 2" }}
+                  />
+                  <TextField
+                    fullWidth
+                    variant="filled"
+                    type="text"
+                    label="Serial Number"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.serialNumber}
+                    name="serialNumber"
+                    error={!!touched.serialNumber && !!errors.serialNumber}
+                    helperText={touched.serialNumber && errors.serialNumber}
+                    sx={{ gridColumn: "span 2" }}
+                  />
+                  <TextField
+                    fullWidth
+                    variant="filled"
+                    multiline
+                    rows={5}
+                    label="Description"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.description}
+                    name="description"
+                    error={!!touched.description && !!errors.description}
+                    helperText={touched.description && errors.description}
+                    sx={{ gridColumn: "span 4" }}
+                  />
+                  <TextField
+                    fullWidth
+                    variant="filled"
+                    type="number"
+                    inputProps={{
+                      step: 0.01,
+                      min: 0.0,
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">₪</InputAdornment>
+                      ),
+                    }}
+                    label="Price"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.price}
+                    name="price"
+                    error={!!touched.price && !!errors.price}
+                    helperText={touched.price && errors.price}
+                    sx={{ gridColumn: "span 1" }}
+                  />
+                  <TextField
+                    fullWidth
+                    variant="filled"
+                    type="number"
+                    inputProps={{
+                      min: 0,
+                    }}
+                    label="Quantity"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.quantity}
+                    name="quantity"
+                    error={!!touched.quantity && !!errors.quantity}
+                    helperText={touched.quantity && errors.quantity}
+                    sx={{ gridColumn: "span 1" }}
+                  />
+                  <TextField
+                    fullWidth
+                    variant="filled"
+                    type="number"
+                    inputProps={{
+                      min: 0,
+                    }}
+                    label="Quantity Threshold"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.quantityThreshold}
+                    name="quantityThreshold"
+                    error={
+                      !!touched.quantityThreshold && !!errors.quantityThreshold
+                    }
+                    helperText={
+                      touched.quantityThreshold && errors.quantityThreshold
+                    }
+                    sx={{ gridColumn: "span 1" }}
+                  />
+                  <SelectWrapper
+                    name="inventoryItemTypeId"
+                    label="Item Type"
+                    options={options}
+                    sx={{ gridColumn: "span 1" }}
+                  />
+                  <TextField
+                    fullWidth
+                    variant="filled"
+                    type="text"
+                    label="Image"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.image}
+                    name="image"
+                    error={!!touched.image && !!errors.image}
+                    helperText={touched.image && errors.image}
+                    sx={{ gridColumn: "span 4" }}
+                  />
+                </Box>
+                <Box display="flex" justifyContent="end" mt="20px">
+                  <Button type="submit" color="secondary" variant="contained">
+                    {props.formType === "create" ? "Add" : "Save"}
+                  </Button>
+                </Box>
+              </form>
+            )}
+          </Formik>
+        </>
+      )}
     </Box>
   );
 };
 
-export default Form;
+export default TestForm;

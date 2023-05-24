@@ -8,12 +8,15 @@ import {
   Step,
   StepLabel,
   Typography,
+  CircularProgress,
+  IconButton,
+  MenuItem,
 } from "@mui/material";
-import { Formik } from "formik";
+import { Formik, useField, useFormikContext } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { tokens } from "../../theme";
 import {
   DataGrid,
@@ -22,6 +25,49 @@ import {
   GridToolbarDensitySelector,
   GridToolbarFilterButton,
 } from "@mui/x-data-grid";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import {
+  useAddInventoryItemMutation,
+  useEditInventoryItemMutation,
+  useGetManufacturersQuery,
+  useGetModelsQuery,
+} from "../../api/apiSlice";
+
+const SelectWrapper = ({ name, options, ...otherProps }) => {
+  const { setFieldValue } = useFormikContext();
+  const [field, meta] = useField(name);
+
+  const handleChange = (event) => {
+    const { value } = event.target;
+    setFieldValue(name, value);
+  };
+
+  const configSelect = {
+    ...field,
+    ...otherProps,
+    select: true,
+    variant: "filled",
+    fullWidth: true,
+    onChange: handleChange,
+  };
+
+  if (meta && meta.touched && meta.error) {
+    configSelect.error = true;
+    configSelect.helperText = meta.error;
+  }
+
+  return (
+    <TextField {...configSelect}>
+      {Object.keys(options).map((item, pos) => {
+        return (
+          <MenuItem key={pos} value={item}>
+            {options[item]}
+          </MenuItem>
+        );
+      })}
+    </TextField>
+  );
+};
 
 const CustomToolBar = () => {
   return (
@@ -33,32 +79,34 @@ const CustomToolBar = () => {
   );
 };
 
-const steps = ["Select model", "Create inventory item", "Confirm"];
-
 const TestForm = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [rows, setRows] = useState([]);
-  const [activeStep, setActiveStep] = useState(0);
+  const [activeStep, setActiveStep] = useState(
+    props.formType === "create" ? 0 : 1
+  );
   const [skipped, setSkipped] = useState(new Set());
-  const [modelId, setModelId] = useState(-1);
+  const [modelId, setModelId] = useState(props.initialValues.modelId);
+  const [options, setOptions] = useState(props.getOptions());
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
-  useEffect(() => {
-    //setIsLoading(true);
-    getModelsData();
-    //getManufacturerData();
-    //setIsLoading(false);
-  }, []);
+  const { data: manufacturers } = useGetManufacturersQuery();
+  const {
+    data: models,
+    isLoading,
+    isSuccess,
+    isError,
+    error,
+  } = useGetModelsQuery();
+  const [addInventoryItem] = useAddInventoryItemMutation();
+  const [editInventoryItem] = useEditInventoryItemMutation();
 
-  const getModelsData = async () => {
-    const response = await fetch("http://localhost:3789/model/getAllModels");
-    const responseJson = await response.json();
-    if (responseJson.process) {
-      const modelsData = responseJson.data;
-      setRows(modelsData);
-    }
-  };
+  const steps = [
+    "Select model",
+    props.formType === "create"
+      ? "Create inventory item"
+      : "Edit inventory item",
+  ];
 
   const checkoutSchema = yup.object().shape({
     modelId: yup.number().required("required!"),
@@ -71,33 +119,27 @@ const TestForm = (props) => {
   });
 
   const handleFormSubmit = async (values) => {
-    // test create inventory item
     values["modelId"] = modelId;
-    console.log(values);
-    /*
+    values.inventoryItemTypeId = parseInt(values.inventoryItemTypeId);
     if (props.formType === "edit") {
-      values["manufacturerName"] = props.options[values.manufacturerId];
-      values["modelName"] = props.initialValues.name;
-      values["modelNewName"] = values.name;
+      values["id"] = props.inventoryId;
+      values["newModelId"] = values.modelId;
+      values["newInventoryItemTypeId"] = values.inventoryItemTypeId;
+      values["newDescription"] = values.description;
+      values["newSerialNumber"] = values.serialNumber;
+      values["newQunatity"] = values.quantity;
+      values["newPrice"] = values.price;
+      values["newQunatityThreshold"] = values.quantityThreshold;
+      values["newImage"] = values.image;
+      editInventoryItem(values);
     } else {
-      values["manufacturerName"] = props.options[values.manufacturerId];
-      values["modelName"] = values.name;
+      addInventoryItem(values);
     }
-    console.log(values);
-    const url = `http://localhost:3789/model/${props.formType}Model`;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(values),
-    });
-    */
     props.formCloseControl(false);
   };
 
   const isStepOptional = (step) => {
-    return step === 5;
+    return props.formType === "create" ? step === 5 : step === 0;
   };
 
   const isStepSkipped = (step) => {
@@ -149,11 +191,26 @@ const TestForm = (props) => {
       field: "manufacturerId",
       headerName: "Manufacturer",
       flex: 1,
+      valueGetter: ({ row }) => {
+        return manufacturers.data.find((el) => {
+          return el.id === row.manufacturerId;
+        }).name;
+      },
     },
   ];
 
   return (
     <Box m="20px">
+      <Header
+        title={
+          props.formType === "create"
+            ? "CREATE INVENTORY ITEM"
+            : "EDIT INVENTORY ITEM"
+        }
+        subtitle={
+          props.formType === "create" ? "Create an item" : "Edit an item"
+        }
+      />
       <Stepper activeStep={activeStep}>
         {steps.map((label, index) => {
           const stepProps = {};
@@ -175,54 +232,63 @@ const TestForm = (props) => {
       </Stepper>
       {activeStep === 0 ? (
         <>
-          <Box
-            //m="40px 0 0 0"
-            height="25vh"
-            sx={{
-              "& .MuiDataGrid-root": {
-                border: "none",
-              },
-              "& .MuiDataGrid-cell": {
-                borderBottom: "none",
-              },
-              "& .name-column--cell": {
-                color: colors.greenAccent[300],
-              },
-              "& .MuiDataGrid-columnHeaders": {
-                backgroundColor: colors.blueAccent[700],
-                borderBottom: "none",
-              },
-              "& .MuiDataGrid-virtualScroller": {
-                backgroundColor: colors.primary[400],
-              },
-              "& .MuiDataGrid-footerContainer": {
-                borderTop: "none",
-                backgroundColor: colors.blueAccent[700],
-              },
-              "& .MuiCheckbox-root": {
-                color: `${colors.greenAccent[200]} !important`,
-              },
-              "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-                color: `${colors.grey[100]} !important`,
-              },
-              gridColumn: "span 4",
-            }}
-          >
-            <DataGrid
-              rows={rows}
-              columns={columns}
-              components={{ Toolbar: CustomToolBar }}
-              //componentsProps={{toolbar: {handleClickOpen,handleInitialValues,setFormType,setInventoryId,models}}}
-              getRowId={(row) => row.id}
-              //selectionModel={[rowSelectionModel]}
-              onSelectionModelChange={(ids) => setModelId(...ids)}
-            />
-          </Box>
-          <Box display="flex" justifyContent="end" mt="20px">
-            <Button onClick={handleNext} disabled={modelId === -1}>
-              {activeStep === steps.length - 1 ? "Finish" : "Next"}
-            </Button>
-          </Box>
+          {isLoading ? (
+            <CircularProgress />
+          ) : (
+            <>
+              <Box
+                //m="40px 0 0 0"
+                height="25vh"
+                sx={{
+                  "& .MuiDataGrid-root": {
+                    border: "none",
+                  },
+                  "& .MuiDataGrid-cell": {
+                    borderBottom: "none",
+                  },
+                  "& .name-column--cell": {
+                    color: colors.greenAccent[300],
+                  },
+                  "& .MuiDataGrid-columnHeaders": {
+                    backgroundColor: colors.blueAccent[700],
+                    borderBottom: "none",
+                  },
+                  "& .MuiDataGrid-virtualScroller": {
+                    backgroundColor: colors.primary[400],
+                  },
+                  "& .MuiDataGrid-footerContainer": {
+                    borderTop: "none",
+                    backgroundColor: colors.blueAccent[700],
+                  },
+                  "& .MuiCheckbox-root": {
+                    color: `${colors.greenAccent[200]} !important`,
+                  },
+                  "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
+                    color: `${colors.grey[100]} !important`,
+                  },
+                  //gridColumn: "span 4",
+                }}
+              >
+                <DataGrid
+                  rows={models.data}
+                  columns={columns}
+                  components={{ Toolbar: CustomToolBar }}
+                  getRowId={(row) => row.id}
+                  onSelectionModelChange={(ids) => setModelId(...ids)}
+                />
+              </Box>
+              <Box display="flex" justifyContent="end" mt="20px">
+                <Button
+                  onClick={handleNext}
+                  disabled={modelId === -1}
+                  color="secondary"
+                  variant="contained"
+                >
+                  {activeStep === steps.length - 1 ? "Finish" : "Next"}
+                </Button>
+              </Box>
+            </>
+          )}
         </>
       ) : (
         <>
@@ -252,6 +318,37 @@ const TestForm = (props) => {
                 >
                   <TextField
                     fullWidth
+                    disabled
+                    variant="filled"
+                    type="text"
+                    label="Model"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={
+                      models.data.find((el) => {
+                        return el.id === modelId;
+                      }).name
+                    }
+                    name="modelId"
+                    error={!!touched.modelId && !!errors.modelId}
+                    helperText={touched.modelId && errors.modelId}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label="change model"
+                            onClick={handleBack}
+                            edge="end"
+                          >
+                            <EditOutlinedIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={{ gridColumn: "span 2" }}
+                  />
+                  <TextField
+                    fullWidth
                     variant="filled"
                     type="text"
                     label="Serial Number"
@@ -261,14 +358,13 @@ const TestForm = (props) => {
                     name="serialNumber"
                     error={!!touched.serialNumber && !!errors.serialNumber}
                     helperText={touched.serialNumber && errors.serialNumber}
-                    sx={{ gridColumn: "span 4" }}
+                    sx={{ gridColumn: "span 2" }}
                   />
                   <TextField
                     fullWidth
                     variant="filled"
                     multiline
-                    rows={10}
-                    //maxRows={10}
+                    rows={5}
                     label="Description"
                     onBlur={handleBlur}
                     onChange={handleChange}
@@ -298,7 +394,7 @@ const TestForm = (props) => {
                     name="price"
                     error={!!touched.price && !!errors.price}
                     helperText={touched.price && errors.price}
-                    sx={{ gridColumn: "span 2" }}
+                    sx={{ gridColumn: "span 1" }}
                   />
                   <TextField
                     fullWidth
@@ -334,6 +430,12 @@ const TestForm = (props) => {
                     helperText={
                       touched.quantityThreshold && errors.quantityThreshold
                     }
+                    sx={{ gridColumn: "span 1" }}
+                  />
+                  <SelectWrapper
+                    name="inventoryItemTypeId"
+                    label="Item Type"
+                    options={options}
                     sx={{ gridColumn: "span 1" }}
                   />
                   <TextField

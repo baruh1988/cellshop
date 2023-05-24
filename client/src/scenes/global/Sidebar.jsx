@@ -199,6 +199,13 @@ const Sidebar = () => {
             selected={selected}
             setSelected={setSelected}
           />
+          <Item
+            title="Item Types"
+            to="/itemTypes"
+            icon={<AbcOutlinedIcon />}
+            selected={selected}
+            setSelected={setSelected}
+          />
         </Menu>
       </ProSidebar>
     </Box>
