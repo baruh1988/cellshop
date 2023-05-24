@@ -12,10 +12,7 @@ const Call = connection.define("call", {
   callTypeId: Sequelize.INTEGER,
   customerId: Sequelize.INTEGER,
   userId: Sequelize.INTEGER,
-  imei: Sequelize.STRING,
   active: Sequelize.BOOLEAN,
-  openedAt: Sequelize.DATE,
-  updatedAt: Sequelize.DATE,
   note: Sequelize.TEXT,
 });
 
