@@ -9,9 +9,9 @@ const SaleCallDetail = connection.define("saleCallDetail", {
     allowNull: false,
     primaryKey: true,
   },
-  callId: sequelize.INTEGER,
+  callId: Sequelize.INTEGER,
   inventoryId: Sequelize.INTEGER,
-  newDeviceId: sequelize.INTEGER,
+  newDeviceId: Sequelize.INTEGER,
   quantity: Sequelize.INTEGER,
 });
 
