@@ -13,6 +13,7 @@ import Manufacturers from "../manufacturers";
 import Models from "../models";
 import FaultTypes from "../faulttypes";
 import FixTypes from "../fixtypes";
+import InventoryItemTypes from "../inventoryItemTypes";
 
 function Home() {
   const [theme, colorMode] = useMode();
@@ -36,6 +37,7 @@ function Home() {
               <Route path="/callTypes" element={<CallTypes />} />
               <Route path="/faultTypes" element={<FaultTypes />} />
               <Route path="/fixTypes" element={<FixTypes />} />
+              <Route path="/itemTypes" element={<InventoryItemTypes />} />
             </Routes>
           </main>
         </div>

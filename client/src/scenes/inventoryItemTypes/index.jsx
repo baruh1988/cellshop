@@ -4,46 +4,35 @@ import {
   Button,
   Dialog,
   DialogContent,
-  DialogActions,
   CircularProgress,
 } from "@mui/material";
 import {
   DataGrid,
-  GridActionsCellItem,
   GridToolbarContainer,
+  GridActionsCellItem,
   GridToolbarColumnsButton,
   GridToolbarFilterButton,
   GridToolbarDensitySelector,
   GridToolbarExport,
 } from "@mui/x-data-grid";
-import { tokens } from "../../theme";
-import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import Header from "../../components/Header";
-import { useEffect, useState } from "react";
-import Form from "./Form";
-import AddIcon from "@mui/icons-material/Add";
 import {
-  useDeleteInventoryItemMutation,
   useGetInventoryItemTypesQuery,
-  useGetInventoryQuery,
-  useGetModelsQuery,
+  useDeleteInventoryItemTypeMutation,
 } from "../../api/apiSlice";
+import { tokens } from "../../theme";
+import Header from "../../components/Header";
+import { useState } from "react";
+import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/DeleteOutlined";
+import Form from "./Form";
 
 const CustomToolBar = (props) => {
   const handleClick = () => {
     props.setFormType("create");
-    props.setInventoryId(-1);
+    props.setItemTypeId(-1);
     props.handleInitialValues({
-      //modelId: Math.min(...Object.keys(props.models)),
-      modelId: 0,
-      description: "",
-      serialNumber: "",
-      quantity: 0,
-      price: 0.0,
-      quantityThreshold: 0,
-      image: "",
-      inventoryItemTypeId: 1,
+      name: "",
     });
     props.handleClickOpen();
   };
@@ -51,7 +40,7 @@ const CustomToolBar = (props) => {
   return (
     <GridToolbarContainer>
       <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
-        Add inventory item
+        Add item type
       </Button>
       <GridToolbarColumnsButton />
       <GridToolbarFilterButton />
@@ -61,33 +50,28 @@ const CustomToolBar = (props) => {
   );
 };
 
-const Inventory = () => {
+const InventoryItemTypes = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [open, setOpen] = useState(false);
   const [formType, setFormType] = useState("create");
   const [initialValues, setInitialValues] = useState(null);
-  const [inventoryId, setInventoryId] = useState(-1);
+  const [itemTypeId, setItemTypeId] = useState(-1);
 
-  const { data: models } = useGetModelsQuery();
   const {
-    data: inventory,
+    data: itemTypes,
     isLoading,
     isSuccess,
     isError,
     error,
-  } = useGetInventoryQuery();
-  const { data: itemTypes } = useGetInventoryItemTypesQuery();
-  const [deleteInventoryItem] = useDeleteInventoryItemMutation();
+  } = useGetInventoryItemTypesQuery();
 
-  const getOptions = () => {
-    let opts = {};
-    itemTypes.data.forEach((el) => {
-      opts[el.id] = el.name;
-    });
-    return opts;
+  const [deleteItemType] = useDeleteInventoryItemTypeMutation();
+
+  const handleDeleteClick = (id) => () => {
+    const toDelete = itemTypes.data.find((obj) => obj.id === id);
+    deleteItemType(toDelete);
   };
-
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -96,87 +80,21 @@ const Inventory = () => {
     setInitialValues(values);
   };
 
-  const handleDeleteClick = (id) => () => {
-    const toDelete = inventory.data.find((obj) => obj.id === id);
-    deleteInventoryItem(toDelete);
-  };
-
-  const handleEditClick = (id) => () => {
-    setFormType("edit");
-    setInventoryId(id);
-    const values = inventory.data.find((obj) => obj.id === id);
-    setInitialValues({
-      modelId: values.modelId,
-      description: values.description,
-      serialNumber: values.serialNumber,
-      quantity: values.quantity,
-      price: values.price,
-      quantityThreshold: values.quantityThreshold,
-      image: values.image,
-      inventoryItemTypeId: values.inventoryItemTypeId,
-    });
-    handleClickOpen();
-  };
-
   const handleClose = () => {
     setOpen(false);
   };
 
+  const handleEditClick = (id) => () => {
+    setFormType("edit");
+    setItemTypeId(id);
+    const values = itemTypes.data.find((obj) => obj.id === id);
+    setInitialValues({ name: values.name });
+    handleClickOpen();
+  };
+
   const columns = [
     { field: "id", headerName: "ID", hide: true },
-    {
-      field: "serialNumber",
-      headerName: "Serial Number",
-      flex: 1,
-    },
-    {
-      field: "modelId",
-      headerName: "Model",
-      flex: 1,
-      valueGetter: ({ row }) => {
-        return models.data.find((el) => {
-          return el.id === row.modelId;
-        }).name;
-      },
-    },
-    {
-      field: "inventoryItemTypeId",
-      headerName: "Item Type",
-      flex: 1,
-      valueGetter: ({ row }) => {
-        return itemTypes.data.find((el) => {
-          return el.id === row.inventoryItemTypeId;
-        }).name;
-      },
-    },
-    {
-      field: "description",
-      headerName: "Description",
-      flex: 1,
-    },
-    {
-      field: "price",
-      headerName: "Price",
-      flex: 1,
-      valueGetter: (params) => {
-        return `${params.row.price} ₪`;
-      },
-    },
-    {
-      field: "quantity",
-      headerName: "Quantity",
-      flex: 1,
-    },
-    {
-      field: "quantityThreshold",
-      headerName: "Quantity Threshold",
-      flex: 1,
-    },
-    {
-      field: "image",
-      headerName: "Image",
-      flex: 1,
-    },
+    { field: "name", headerName: "Item Type", width: 180 },
     {
       field: "actions",
       type: "actions",
@@ -186,14 +104,14 @@ const Inventory = () => {
       getActions: ({ id }) => {
         return [
           <GridActionsCellItem
-            icon={<EditOutlinedIcon />}
+            icon={<EditIcon />}
             label="Edit"
             className="textPrimary"
             onClick={handleEditClick(id)}
             color="inherit"
           />,
           <GridActionsCellItem
-            icon={<DeleteForeverOutlinedIcon />}
+            icon={<DeleteIcon />}
             label="Delete"
             onClick={handleDeleteClick(id)}
             color="inherit"
@@ -205,9 +123,11 @@ const Inventory = () => {
 
   return (
     <Box m="20px">
-      <Header title="INVENTORY" subtitle="Managing Inventory" />
+      <Header title="ITEM TYPES" subtitle="Managing Item Types" />
       {isLoading ? (
-        <CircularProgress />
+        <>
+          <CircularProgress />
+        </>
       ) : (
         <>
           <Dialog open={open} onClose={handleClose}>
@@ -216,8 +136,7 @@ const Inventory = () => {
                 formType={formType}
                 initialValues={initialValues}
                 formCloseControl={setOpen}
-                getOptions={getOptions}
-                inventoryId={inventoryId}
+                itemTypeId={itemTypeId}
               />
             </DialogContent>
             {/*
@@ -260,7 +179,7 @@ const Inventory = () => {
             }}
           >
             <DataGrid
-              rows={inventory.data}
+              rows={itemTypes.data}
               columns={columns}
               components={{ Toolbar: CustomToolBar }}
               componentsProps={{
@@ -268,8 +187,7 @@ const Inventory = () => {
                   handleClickOpen,
                   handleInitialValues,
                   setFormType,
-                  setInventoryId,
-                  //models,
+                  setItemTypeId,
                 },
               }}
               getRowId={(row) => row.id}
@@ -281,4 +199,4 @@ const Inventory = () => {
   );
 };
 
-export default Inventory;
+export default InventoryItemTypes;

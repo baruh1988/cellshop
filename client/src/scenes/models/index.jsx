@@ -111,7 +111,6 @@ const Models = () => {
       field: "manufacturerId",
       headerName: "Manufacturer",
       flex: 1,
-
       valueGetter: ({ row }) => {
         return manufacturers.data.find((el) => {
           return el.id === row.manufacturerId;

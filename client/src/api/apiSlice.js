@@ -12,6 +12,7 @@ export const apiSlice = createApi({
     "FixTypes",
     "CallTypes",
     "FaultTypes",
+    "InventoryItemTypes",
   ],
   endpoints: (builder) => ({
     login: builder.mutation({
@@ -229,6 +230,63 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ["Models"],
     }),
+    getInventory: builder.query({
+      query: () => "/inventory/getAllInventoryItems",
+      providesTags: ["Inventory"],
+    }),
+    addInventoryItem: builder.mutation({
+      query: (data) => ({
+        url: "/inventory/createInventoryItem",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Inventory"],
+    }),
+    editInventoryItem: builder.mutation({
+      query: (data) => ({
+        url: "/inventory/editInventoryItem",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Inventory"],
+    }),
+    deleteInventoryItem: builder.mutation({
+      query: (data) => ({
+        url: "/inventory/deleteInventoryItem",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Inventory"],
+    }),
+    //
+    getInventoryItemTypes: builder.query({
+      query: () => "/inventoryItemType/getAllInventoryItemTypes",
+      providesTags: ["InventoryItemTypes"],
+    }),
+    addInventoryItemType: builder.mutation({
+      query: (data) => ({
+        url: "/inventoryItemType/createInventoryItemType",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["InventoryItemTypes"],
+    }),
+    editInventoryItemType: builder.mutation({
+      query: (data) => ({
+        url: "/inventoryItemType/editInventoryItemType",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["InventoryItemTypes"],
+    }),
+    deleteInventoryItemType: builder.mutation({
+      query: (data) => ({
+        url: "/inventoryItemType/deleteInventoryItemType",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["InventoryItemTypes"],
+    }),
   }),
 });
 
@@ -264,4 +322,12 @@ export const {
   useDeleteModelMutation,
   useEditModelMutation,
   useGetModelsQuery,
+  useAddInventoryItemMutation,
+  useDeleteInventoryItemMutation,
+  useEditInventoryItemMutation,
+  useGetInventoryQuery,
+  useAddInventoryItemTypeMutation,
+  useDeleteInventoryItemTypeMutation,
+  useEditInventoryItemTypeMutation,
+  useGetInventoryItemTypesQuery,
 } = apiSlice;
