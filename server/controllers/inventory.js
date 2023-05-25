@@ -21,15 +21,6 @@ router.post("/createInventoryItem", (request,response,next) => {
     InventoryItemType.findOne({where: {id:inventoryItemTypeId}})
     .then((findOneInventoryItemTypeResult) => {
         if(findOneInventoryItemTypeResult){
-            if(findOneInventoryItemTypeResult.name.toLowerCase() == "device"){
-                description = "Device";
-            }
-            else if(description.toLowerCase() == "device"){
-                return response.status(200).json({
-                    process: true,
-                    message: "`Device` is a reserved name for devices only"
-                })
-            }
             Model.findOne({where: {id: modelId}})
             .then((findOneModelResult) => {
                 if(findOneModelResult){
@@ -124,15 +115,6 @@ router.post('/editInventoryItem', (request,response,next) => {
     InventoryItemType.findOne({where: {id:newInventoryItemTypeId}})
     .then((findOneInventoryItemTypeResult) => {
         if(findOneInventoryItemTypeResult){
-            if(findOneInventoryItemTypeResult.name.toLowerCase() == "device"){
-                newDescription = "Device";
-            }
-            else if(newDescription.toLowerCase() == "device"){
-                return response.status(200).json({
-                    process: true,
-                    message: `"Device" is a reserved name for devices only`
-                })
-            }
             Inventory.findOne({where: {id:id}})
             .then((findOneInventoryItemResult) => {
                 if(findOneInventoryItemResult){
