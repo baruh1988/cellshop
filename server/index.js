@@ -96,6 +96,9 @@ app.use("/timeSheet", timeSheetRoute);
 const callRoute = require("./controllers/call");
 app.use("/call", callRoute);
 
+const saleCallDetailRoute = require("./controllers/saleCallDetail");
+app.use("/saleCallDetail", saleCallDetailRoute);
+
 // Connection
 const port = 3789;
 connection
