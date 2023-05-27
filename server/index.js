@@ -99,6 +99,9 @@ app.use("/call", callRoute);
 const saleCallDetailRoute = require("./controllers/saleCallDetail");
 app.use("/saleCallDetail", saleCallDetailRoute);
 
+const fixCallDetailRoute = require("./controllers/fixCallDetail");
+app.use("/fixCallDetail", fixCallDetailRoute);
+
 // Connection
 const port = 3789;
 connection
