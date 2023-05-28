@@ -314,7 +314,7 @@ router.get("/getAllFixCallDetails", (request,response,next) => {
     .then((findAllFixCallDetailsResult) => {
         return response.status(200).json({
             process: true,
-            message: `Found ${findAllFixCallDetailsResult} fix call detail/s`,
+            message: `Found ${findAllFixCallDetailsResult.length} fix call detail/s`,
             data: findAllFixCallDetailsResult
         })
     })
