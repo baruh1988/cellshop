@@ -6,6 +6,7 @@ const Sequelize = require("sequelize");
 const Inventory = require("../models/inventory")
 const NewDevice = require("../models/newDevice");
 const { response, request } = require("express");
+const InventoryItemType = require("../models/inventoryItemType");
 
 router.post("/createNewDevice", (request, response, next) => {
     const imei = request.body.imei;
@@ -22,31 +23,41 @@ router.post("/createNewDevice", (request, response, next) => {
             Inventory.findOne({where: {id:inventoryId}})
             .then((findOneInventoryItemResult) => {
                 if(findOneInventoryItemResult){
-                    if(findOneInventoryItemResult.description.toLowerCase() != "device"){
-                        return response.status(200).json({
-                            process: true,
-                            message: "Invetory item is not a device"
+                    InventoryItemType.findOne({where: {id:findOneInventoryItemResult.inventoryItemTypeId}})
+                    .then((findOneInventoryItemTypeResult) => {
+                        if(findOneInventoryItemTypeResult.name.toLowerCase() != "device"){
+                            return response.status(200).json({
+                                process: true,
+                                message: "Invetory item is not a device"
+                            });
+                        }
+                        NewDevice.create({
+                            imei: imei,
+                            inventoryId: inventoryId,
+                            inStock: true
+                        })
+                        .then((createResult) => {
+                            return response.status(200).json({
+                                process: true,
+                                message: "New device created",
+                                data: createResult,
+                            });
+                        })
+                        .catch((createError) => {
+                            return response.status(500).json({
+                                process: false,
+                                message: createError.message,
+                                level: 4
+                            });
                         });
-                    }
-                    NewDevice.create({
-                        imei: imei,
-                        inventoryId: inventoryId,
-                        inStock: true
                     })
-                    .then((createResult) => {
-                        return response.status(200).json({
-                            process: true,
-                            message: "New device created",
-                            data: createResult,
-                        });
-                    })
-                    .catch((createError) => {
+                    .catch((findOneInventoryItemTypeError) => {
                         return response.status(500).json({
                             process: false,
-                            message: createError.message,
+                            message: findOneInventoryItemTypeError.message,
                             level: 3
-                        });
-                    });
+                        })
+                    })
                 }
                 else{
                     return response.status(200).json({
@@ -93,32 +104,42 @@ router.post("/editNewDevice", (request, response, next) => {
                     Inventory.findOne({where: {id:newInventoryId}})
                     .then((findOneInventoryItemResult) => {
                         if(findOneInventoryItemResult){
-                            if(findOneInventoryItemResult.description.toLowerCase() != "device"){
-                                return response.status(200).json({
-                                    process: true,
-                                    message: "Invetory item is not a device"
+                            InventoryItemType.findOne({where: {id:findOneInventoryItemResult.inventoryItemTypeId}})
+                            .then((findOneInventoryItemTypeResult) => {
+                                if(findOneInventoryItemTypeResult.name.toLowerCase() != "device"){
+                                    return response.status(200).json({
+                                        process: true,
+                                        message: "Invetory item is not a device"
+                                    });
+                                }
+                                findOneNewDeviceResult.set({
+                                    imei: newImei,
+                                    inventoryId: newInventoryId,
+                                    inStock: newInStock
+                                })
+                                findOneNewDeviceResult.save()
+                                .then((saveResult) => {
+                                    return response.status(200).json({
+                                        process: true,
+                                        message: "New device updated",
+                                        data: saveResult,
+                                    });
+                                })
+                                .catch((saveError) => {
+                                    return response.status(500).json({
+                                        process: false,
+                                        message: saveError.message,
+                                        level: 5
+                                    });
                                 });
-                            }
-                            findOneNewDeviceResult.set({
-                                imei: newImei,
-                                inventoryId: newInventoryId,
-                                inStock: newInStock
                             })
-                            findOneNewDeviceResult.save()
-                            .then((saveResult) => {
-                                return response.status(200).json({
-                                    process: true,
-                                    message: "New device updated",
-                                    data: saveResult,
-                                });
-                            })
-                            .catch((saveError) => {
+                            .catch((findOneInventoryItemTypeError) => {
                                 return response.status(500).json({
                                     process: false,
-                                    message: saveError.message,
+                                    message: findOneInventoryItemTypeError.message,
                                     level: 4
                                 });
-                            });
+                            })
                         }
                         else{
                             return response.status(200).json({
