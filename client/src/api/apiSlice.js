@@ -13,6 +13,11 @@ export const apiSlice = createApi({
     "CallTypes",
     "FaultTypes",
     "InventoryItemTypes",
+    "Customers",
+    "Suppliers",
+    "Calls",
+    "SaleCallDetails",
+    "NewDevices",
   ],
   endpoints: (builder) => ({
     login: builder.mutation({
@@ -258,7 +263,6 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ["Inventory"],
     }),
-    //
     getInventoryItemTypes: builder.query({
       query: () => "/inventoryItemType/getAllInventoryItemTypes",
       providesTags: ["InventoryItemTypes"],
@@ -286,6 +290,149 @@ export const apiSlice = createApi({
         body: data,
       }),
       invalidatesTags: ["InventoryItemTypes"],
+    }),
+    getCustomers: builder.query({
+      query: () => "/customer/getAllCustomers",
+      providesTags: ["Customers"],
+    }),
+    addCustomer: builder.mutation({
+      query: (data) => ({
+        url: "/customer/createCustomer",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Customers"],
+    }),
+    editCustomer: builder.mutation({
+      query: (data) => ({
+        url: "/customer/editCustomer",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Customers"],
+    }),
+    deleteCustomer: builder.mutation({
+      query: (data) => ({
+        url: "/customer/deleteCustomer",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Customers"],
+    }),
+    getSuppliers: builder.query({
+      query: () => "/supplier/getAllSuppliers",
+      providesTags: ["Suppliers"],
+    }),
+    addSupplier: builder.mutation({
+      query: (data) => ({
+        url: "/supplier/createSupplier",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Suppliers"],
+    }),
+    editSupplier: builder.mutation({
+      query: (data) => ({
+        url: "/supplier/editSupplier",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Suppliers"],
+    }),
+    deleteSupplier: builder.mutation({
+      query: (data) => ({
+        url: "/supplier/deleteSupplier",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Suppliers"],
+    }),
+    //"Calls"
+    getCalls: builder.query({
+      query: () => "/call/getAllCalls",
+      providesTags: ["Calls"],
+    }),
+    addCall: builder.mutation({
+      query: (data) => ({
+        url: "/call/createCall",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Calls"],
+    }),
+    editCall: builder.mutation({
+      query: (data) => ({
+        url: "/call/editCall",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Calls"],
+    }),
+    deleteCall: builder.mutation({
+      query: (data) => ({
+        url: "/call/deleteCall",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Calls"],
+    }),
+    //"SaleCallDetails",
+    getSaleCallDetails: builder.query({
+      query: () => "/saleCallDetail/getAllSaleCallDetails",
+      providesTags: ["SaleCallDetails"],
+    }),
+    addSaleCallDetail: builder.mutation({
+      query: (data) => ({
+        url: "/saleCallDetail/createSaleCallDetail",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["SaleCallDetails"],
+    }),
+    editSaleCallDetail: builder.mutation({
+      query: (data) => ({
+        url: "/saleCallDetail/editSaleCallDetail",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["SaleCallDetails"],
+    }),
+    deleteSaleCallDetail: builder.mutation({
+      query: (data) => ({
+        url: "/saleCallDetail/deleteSaleCallDetail",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["SaleCallDetails"],
+    }),
+    //"NewDevices"
+    getNewDevices: builder.query({
+      query: () => "/newDevice/getAllNewDevices",
+      providesTags: ["NewDevices"],
+    }),
+    addNewDevice: builder.mutation({
+      query: (data) => ({
+        url: "/newDevice/createNewDevice",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["NewDevices"],
+    }),
+    editNewDevice: builder.mutation({
+      query: (data) => ({
+        url: "/newDevice/editNewDevice",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["NewDevices"],
+    }),
+    deleteNewDevice: builder.mutation({
+      query: (data) => ({
+        url: "/newDevice/deleteNewDevice",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["NewDevices"],
     }),
   }),
 });
@@ -330,4 +477,24 @@ export const {
   useDeleteInventoryItemTypeMutation,
   useEditInventoryItemTypeMutation,
   useGetInventoryItemTypesQuery,
+  useAddCustomerMutation,
+  useAddSupplierMutation,
+  useDeleteCustomerMutation,
+  useDeleteSupplierMutation,
+  useEditCustomerMutation,
+  useEditSupplierMutation,
+  useGetCustomersQuery,
+  useGetSuppliersQuery,
+  useAddCallMutation,
+  useAddNewDeviceMutation,
+  useAddSaleCallDetailMutation,
+  useDeleteCallMutation,
+  useDeleteNewDeviceMutation,
+  useDeleteSaleCallDetailMutation,
+  useEditCallMutation,
+  useEditNewDeviceMutation,
+  useEditSaleCallDetailMutation,
+  useGetCallsQuery,
+  useGetNewDevicesQuery,
+  useGetSaleCallDetailsQuery,
 } = apiSlice;

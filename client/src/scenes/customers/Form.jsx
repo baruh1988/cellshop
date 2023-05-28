@@ -1,58 +1,25 @@
 import { Box, Button, TextField, MenuItem } from "@mui/material";
-import { Formik, useField, useFormikContext } from "formik";
+import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
-import { useAddUserMutation, useEditUserMutation } from "../../api/apiSlice";
+import {
+  useAddCustomerMutation,
+  useEditCustomerMutation,
+} from "../../api/apiSlice";
 import { useState } from "react";
-
-const SelectWrapper = ({ name, options, ...otherProps }) => {
-  const { setFieldValue } = useFormikContext();
-  const [field, meta] = useField(name);
-
-  const handleChange = (event) => {
-    const { value } = event.target;
-    setFieldValue(name, value);
-  };
-
-  const configSelect = {
-    ...field,
-    ...otherProps,
-    select: true,
-    variant: "filled",
-    fullWidth: true,
-    onChange: handleChange,
-  };
-
-  if (meta && meta.touched && meta.error) {
-    configSelect.error = true;
-    configSelect.helperText = meta.error;
-  }
-
-  return (
-    <TextField {...configSelect}>
-      {Object.keys(options).map((item, pos) => {
-        return (
-          <MenuItem key={pos} value={item}>
-            {options[item]}
-          </MenuItem>
-        );
-      })}
-    </TextField>
-  );
-};
 
 const Form = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
-  const [addUser] = useAddUserMutation();
-  const [editUser] = useEditUserMutation();
-  const [options, setOptions] = useState(props.getOptions());
+  const [addCustomer] = useAddCustomerMutation();
+  const [editCustomer] = useEditCustomerMutation();
 
   const phoneRegExp =
     /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
   const idNumberRegExp = /^\d{9}/;
 
+  /*
   const checkoutSchema =
     props.formType === "create"
       ? yup.object().shape({
@@ -85,24 +52,31 @@ const Form = (props) => {
             .matches(phoneRegExp, "Phone number is not valid")
             .required("required"),
         });
+*/
+  const checkoutSchema = yup.object().shape({
+    idNumber: yup
+      .string()
+      .matches(idNumberRegExp, "ID number is not valid")
+      .required("required"),
+    firstName: yup.string().required("required"),
+    lastName: yup.string().required("required"),
+    email: yup.string().email("Email is not valid").required("required"),
+  });
 
   const handleFormSubmit = (values) => {
-    values.userType = parseInt(values.userType);
     if (props.formType === "edit") {
       delete values.password;
       values = {
-        id: props.userId,
+        id: props.customerId,
         newIdNumber: values.idNumber,
-        newUserType: values.userType,
         newFirstName: values.firstName,
         newLastName: values.lastName,
-        newAddress: values.address,
         newEmail: values.email,
-        newPhoneNumber: values.phoneNumber,
+        //newPhoneNumber: values.phoneNumber,
       };
-      editUser(values);
+      editCustomer(values);
     } else {
-      addUser(values);
+      addCustomer(values);
     }
     props.formCloseControl(false);
   };
@@ -110,11 +84,13 @@ const Form = (props) => {
   return (
     <Box m="20px">
       <Header
-        title={props.formType === "craete" ? "CREATE USER" : "EDIT USER"}
+        title={
+          props.formType === "craete" ? "CREATE CUSTOMER" : "EDIT CUSTOMER"
+        }
         subtitle={
           props.formType === "create"
-            ? "Create a New User Profile"
-            : "Edit an Existing User Profile"
+            ? "Create a New Customer Profile"
+            : "Edit an Existing Customer Profile"
         }
       />
       <Formik
@@ -150,33 +126,8 @@ const Form = (props) => {
                 name="idNumber"
                 error={!!touched.idNumber && !!errors.idNumber}
                 helperText={touched.idNumber && errors.idNumber}
-                sx={{ gridColumn: "span 3" }}
+                sx={{ gridColumn: "span 4" }}
               />
-              <SelectWrapper
-                name="userType"
-                label="Access Level"
-                options={options}
-                sx={{ gridColumn: "span 1" }}
-              />
-              {props.formType === "create" ? (
-                <>
-                  <TextField
-                    fullWidth
-                    variant="filled"
-                    type="text"
-                    label="Password"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    value={values.password}
-                    name="password"
-                    error={!!touched.password && !!errors.password}
-                    helperText={touched.password && errors.password}
-                    sx={{ gridColumn: "span 4" }}
-                  />
-                </>
-              ) : (
-                <></>
-              )}
               <TextField
                 fullWidth
                 variant="filled"
@@ -207,19 +158,6 @@ const Form = (props) => {
                 fullWidth
                 variant="filled"
                 type="text"
-                label="Address"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.address}
-                name="address"
-                error={!!touched.address && !!errors.address}
-                helperText={touched.address && errors.address}
-                sx={{ gridColumn: "span 4" }}
-              />
-              <TextField
-                fullWidth
-                variant="filled"
-                type="text"
                 label="Email"
                 onBlur={handleBlur}
                 onChange={handleChange}
@@ -227,20 +165,7 @@ const Form = (props) => {
                 name="email"
                 error={!!touched.email && !!errors.email}
                 helperText={touched.email && errors.email}
-                sx={{ gridColumn: "span 2" }}
-              />
-              <TextField
-                fullWidth
-                variant="filled"
-                type="text"
-                label="Phone Number"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.phoneNumber}
-                name="phoneNumber"
-                error={!!touched.phoneNumber && !!errors.phoneNumber}
-                helperText={touched.phoneNumber && errors.phoneNumber}
-                sx={{ gridColumn: "span 2" }}
+                sx={{ gridColumn: "span 4" }}
               />
             </Box>
             <Box display="flex" justifyContent="end" mt="20px">

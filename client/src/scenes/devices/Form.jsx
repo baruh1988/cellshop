@@ -11,6 +11,8 @@ import {
   CircularProgress,
   IconButton,
   MenuItem,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import { Formik, useField, useFormikContext } from "formik";
 import * as yup from "yup";
@@ -28,46 +30,13 @@ import {
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import {
   useAddInventoryItemMutation,
+  useAddNewDeviceMutation,
   useEditInventoryItemMutation,
+  useEditNewDeviceMutation,
+  useGetInventoryQuery,
   useGetManufacturersQuery,
   useGetModelsQuery,
 } from "../../api/apiSlice";
-
-const SelectWrapper = ({ name, options, ...otherProps }) => {
-  const { setFieldValue } = useFormikContext();
-  const [field, meta] = useField(name);
-
-  const handleChange = (event) => {
-    const { value } = event.target;
-    setFieldValue(name, value);
-  };
-
-  const configSelect = {
-    ...field,
-    ...otherProps,
-    select: true,
-    variant: "filled",
-    fullWidth: true,
-    onChange: handleChange,
-  };
-
-  if (meta && meta.touched && meta.error) {
-    configSelect.error = true;
-    configSelect.helperText = meta.error;
-  }
-
-  return (
-    <TextField {...configSelect}>
-      {Object.keys(options).map((item, pos) => {
-        return (
-          <MenuItem key={pos} value={item}>
-            {options[item]}
-          </MenuItem>
-        );
-      })}
-    </TextField>
-  );
-};
 
 const CustomToolBar = () => {
   return (
@@ -86,55 +55,47 @@ const Form = (props) => {
     props.formType === "create" ? 0 : 1
   );
   const [skipped, setSkipped] = useState(new Set());
-  const [modelId, setModelId] = useState(props.initialValues.modelId);
-  const [options, setOptions] = useState(props.getOptions());
+  const [inventoryId, setInventoryId] = useState(
+    props.initialValues.inventoryId
+  );
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
   const { data: manufacturers, isLoading: isLoadingManufacturers } =
     useGetManufacturersQuery();
   const {
     data: models,
-    isLoading,
+    isLoading: isLoadingModels,
     isSuccess,
     isError,
     error,
   } = useGetModelsQuery();
-  const [addInventoryItem] = useAddInventoryItemMutation();
-  const [editInventoryItem] = useEditInventoryItemMutation();
+  const { data: inventory, isLoading } = useGetInventoryQuery();
+  const [addNewDevice] = useAddNewDeviceMutation();
+  const [editNewDvice] = useEditNewDeviceMutation();
+
+  const [checked, setChecked] = useState(props.initialValues.inStock);
 
   const steps = [
     "Select model",
-    props.formType === "create"
-      ? "Create inventory item"
-      : "Edit inventory item",
+    props.formType === "create" ? "Create device" : "Edit device",
   ];
 
   const checkoutSchema = yup.object().shape({
-    modelId: yup.number().required("required!"),
-    description: yup.string().required("required!"),
-    serialNumber: yup.string().required("required!"),
-    quantity: yup.number().min(0).required("required!"),
-    price: yup.number().min(0).required("required!"),
-    quantityThreshold: yup.number().min(0).required("required!"),
-    //image: yup.string().required("required!"),
+    imei: yup.number().required("required!"),
+    inventoryId: yup.number().required("required!"),
   });
 
   const handleFormSubmit = async (values) => {
-    values["modelId"] = modelId;
-    values.inventoryItemTypeId = parseInt(values.inventoryItemTypeId);
+    values["inventoryId"] = inventoryId;
+    values["inStock"] = checked;
     if (props.formType === "edit") {
-      values["id"] = props.inventoryId;
-      values["newModelId"] = values.modelId;
-      values["newInventoryItemTypeId"] = values.inventoryItemTypeId;
-      values["newDescription"] = values.description;
-      values["newSerialNumber"] = values.serialNumber;
-      values["newQunatity"] = values.quantity;
-      values["newPrice"] = values.price;
-      values["newQunatityThreshold"] = values.quantityThreshold;
-      values["newImage"] = values.image;
-      editInventoryItem(values);
+      values["id"] = props.deviceId;
+      values["newImei"] = values.imei;
+      values["newInventoryId"] = inventoryId;
+      values["newInStock"] = checked;
+      editNewDvice(values);
     } else {
-      addInventoryItem(values);
+      addNewDevice(values);
     }
     props.formCloseControl(false);
   };
@@ -184,33 +145,61 @@ const Form = (props) => {
   const columns = [
     { field: "id", headerName: "ID", hide: true },
     {
-      field: "name",
-      headerName: "Model",
+      field: "serialNumber",
+      headerName: "Serial Number",
       flex: 1,
     },
     {
-      field: "manufacturerId",
-      headerName: "Manufacturer",
+      field: "modelId",
+      headerName: "Model",
       flex: 1,
       valueGetter: ({ row }) => {
-        return manufacturers.data.find((el) => {
-          return el.id === row.manufacturerId;
+        return models.data.find((el) => {
+          return el.id === row.modelId;
         }).name;
       },
+    },
+    /*
+    {
+      field: "inventoryItemTypeId",
+      headerName: "Item Type",
+      flex: 1,
+      valueGetter: ({ row }) => {
+        return itemTypes.data.find((el) => {
+          return el.id === row.inventoryItemTypeId;
+        }).name;
+      },
+    },*/
+    {
+      field: "description",
+      headerName: "Description",
+      flex: 1,
+    },
+    {
+      field: "price",
+      headerName: "Price",
+      flex: 1,
+      valueGetter: (params) => {
+        return `${params.row.price} ₪`;
+      },
+    },
+    {
+      field: "quantity",
+      headerName: "Quantity",
+      flex: 1,
+    },
+    {
+      field: "quantityThreshold",
+      headerName: "Quantity Threshold",
+      flex: 1,
     },
   ];
 
   return (
     <Box m="20px">
       <Header
-        title={
-          props.formType === "create"
-            ? "CREATE INVENTORY ITEM"
-            : "EDIT INVENTORY ITEM"
-        }
-        subtitle={
-          props.formType === "create" ? "Create an item" : "Edit an item"
-        }
+        title={props.formType === "create" ? "CREATE DEVICE" : "EDIT DEVICE"}
+        subtitle={props.formType === "create" ? "Create device" : "Edit device"}
       />
       <Stepper activeStep={activeStep}>
         {steps.map((label, index) => {
@@ -233,7 +222,7 @@ const Form = (props) => {
       </Stepper>
       {activeStep === 0 ? (
         <>
-          {isLoading || isLoadingManufacturers ? (
+          {isLoading || isLoadingManufacturers || isLoadingModels ? (
             <CircularProgress />
           ) : (
             <>
@@ -271,17 +260,19 @@ const Form = (props) => {
                 }}
               >
                 <DataGrid
-                  rows={models.data}
+                  rows={inventory.data.filter(
+                    (el) => el.inventoryItemTypeId === 1
+                  )}
                   columns={columns}
                   components={{ Toolbar: CustomToolBar }}
                   getRowId={(row) => row.id}
-                  onSelectionModelChange={(ids) => setModelId(...ids)}
+                  onSelectionModelChange={(ids) => setInventoryId(...ids)}
                 />
               </Box>
               <Box display="flex" justifyContent="end" mt="20px">
                 <Button
                   onClick={handleNext}
-                  disabled={modelId === -1}
+                  disabled={inventoryId === -1}
                   color="secondary"
                   variant="contained"
                 >
@@ -327,7 +318,10 @@ const Form = (props) => {
                     onChange={handleChange}
                     value={
                       models.data.find((el) => {
-                        return el.id === modelId;
+                        const tmp = inventory.data.find((el) => {
+                          return el.id === inventoryId;
+                        });
+                        return el.id === tmp.modelId;
                       }).name
                     }
                     name="modelId"
@@ -346,114 +340,29 @@ const Form = (props) => {
                         </InputAdornment>
                       ),
                     }}
-                    sx={{ gridColumn: "span 2" }}
-                  />
-                  <TextField
-                    fullWidth
-                    variant="filled"
-                    type="text"
-                    label="Serial Number"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    value={values.serialNumber}
-                    name="serialNumber"
-                    error={!!touched.serialNumber && !!errors.serialNumber}
-                    helperText={touched.serialNumber && errors.serialNumber}
-                    sx={{ gridColumn: "span 2" }}
-                  />
-                  <TextField
-                    fullWidth
-                    variant="filled"
-                    multiline
-                    rows={5}
-                    label="Description"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    value={values.description}
-                    name="description"
-                    error={!!touched.description && !!errors.description}
-                    helperText={touched.description && errors.description}
                     sx={{ gridColumn: "span 4" }}
                   />
                   <TextField
                     fullWidth
                     variant="filled"
-                    type="number"
-                    inputProps={{
-                      step: 0.01,
-                      min: 0.0,
-                    }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          {" "}
-                          <InputAdornment position="start">₪</InputAdornment>
-                        </InputAdornment>
-                      ),
-                    }}
-                    label="Price"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    value={values.price}
-                    name="price"
-                    error={!!touched.price && !!errors.price}
-                    helperText={touched.price && errors.price}
-                    sx={{ gridColumn: "span 1" }}
-                  />
-                  <TextField
-                    fullWidth
-                    variant="filled"
-                    type="number"
-                    inputProps={{
-                      min: 0,
-                    }}
-                    label="Quantity"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    value={values.quantity}
-                    name="quantity"
-                    error={!!touched.quantity && !!errors.quantity}
-                    helperText={touched.quantity && errors.quantity}
-                    sx={{ gridColumn: "span 1" }}
-                  />
-                  <TextField
-                    fullWidth
-                    variant="filled"
-                    type="number"
-                    inputProps={{
-                      min: 0,
-                    }}
-                    label="Quantity Threshold"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    value={values.quantityThreshold}
-                    name="quantityThreshold"
-                    error={
-                      !!touched.quantityThreshold && !!errors.quantityThreshold
-                    }
-                    helperText={
-                      touched.quantityThreshold && errors.quantityThreshold
-                    }
-                    sx={{ gridColumn: "span 1" }}
-                  />
-                  <SelectWrapper
-                    name="inventoryItemTypeId"
-                    label="Item Type"
-                    options={options}
-                    sx={{ gridColumn: "span 1" }}
-                  />
-                  <TextField
-                    fullWidth
-                    variant="filled"
                     type="text"
-                    label="Image"
+                    label="imei"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    value={values.image}
-                    name="image"
-                    error={!!touched.image && !!errors.image}
-                    helperText={touched.image && errors.image}
+                    value={values.imei}
+                    name="imei"
+                    error={!!touched.imei && !!errors.imei}
+                    helperText={touched.imei && errors.imei}
                     sx={{ gridColumn: "span 4" }}
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={checked}
+                        onChange={(event) => setChecked(event.target.checked)}
+                      />
+                    }
+                    label="In stock"
                   />
                 </Box>
                 <Box display="flex" justifyContent="end" mt="20px">

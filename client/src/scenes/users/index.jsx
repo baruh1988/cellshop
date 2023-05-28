@@ -80,7 +80,8 @@ const Users = () => {
     isError,
     error,
   } = useGetUsersQuery();
-  const { data: userTypes } = useGetUserTypesQuery();
+  const { data: userTypes, isLoading: isLoadingUserTypes } =
+    useGetUserTypesQuery();
   const [deleteUser] = useDeleteUserMutation();
 
   const getOptions = () => {
@@ -221,7 +222,7 @@ const Users = () => {
   return (
     <Box m="20px">
       <Header title="USERS" subtitle="Managing users" />
-      {isLoading ? (
+      {isLoading || isLoadingUserTypes ? (
         <>
           <CircularProgress />
         </>
