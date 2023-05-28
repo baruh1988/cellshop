@@ -11,6 +11,8 @@ import {
   CircularProgress,
   IconButton,
   MenuItem,
+  Avatar,
+  Divider,
 } from "@mui/material";
 import { Formik, useField, useFormikContext } from "formik";
 import * as yup from "yup";
@@ -101,6 +103,37 @@ const Cart = (props) => {
     setActiveStep(0);
   };
 
+  const cartContent = cart.map((item, index) => (
+    <Box key={index}>
+      <Box
+        display="flex"
+        sx={{ pt: 2, pb: 2 }}
+        alignItems="start"
+        justifyContent="space-between"
+      >
+        <img
+          src="../../../../public/assets/placeholderImg.png"
+          alt="img"
+          sx={{ width: 96, height: 96 }}
+        />
+        <Box display="flex" flexDirection="column">
+          <Typography variant="h5">
+            {
+              models.data.find((el) => {
+                return el.id === item.modelId;
+              }).name
+            }
+          </Typography>
+          <Typography variant="subtitle2">{item.description}</Typography>
+        </Box>
+        <Typography variant="body1" justifyContent="end">
+          {item.price}₪
+        </Typography>
+      </Box>
+      <Divider variant="insert" />
+    </Box>
+  ));
+
   return (
     <Box m="20px">
       <Header title="CART" subtitle="Sell items" />
@@ -123,7 +156,7 @@ const Cart = (props) => {
           );
         })}
       </Stepper>
-      {activeStep === 0 && <></>}
+      {activeStep === 0 && <>{cartContent}</>}
       {activeStep === 1 && <></>}
     </Box>
   );
