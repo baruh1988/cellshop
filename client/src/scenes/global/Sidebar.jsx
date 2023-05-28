@@ -118,9 +118,9 @@ const Sidebar = () => {
                   {user.firstName}
                 </Typography>
                 <Typography variant="h5" color={colors.greenAccent[500]}>
-                  {user.userType === 0
+                  {user.userType === 1
                     ? "Admin"
-                    : user.userType === 1
+                    : user.userType === 2
                     ? "Manager"
                     : "Employee"}
                 </Typography>
@@ -143,6 +143,9 @@ const Sidebar = () => {
           >
             Databases
           </Typography>
+          {/* Admin menu options */}
+          {/* Manager menu options */}
+          {/* Employee menu options */}
           <Item
             title="Users"
             to="/users"
@@ -160,6 +163,13 @@ const Sidebar = () => {
           <Item
             title="Inventory"
             to="/inventory"
+            icon={<WarehouseOutlinedIcon />}
+            selected={selected}
+            setSelected={setSelected}
+          />
+          <Item
+            title="Devices"
+            to="/devices"
             icon={<WarehouseOutlinedIcon />}
             selected={selected}
             setSelected={setSelected}
@@ -202,6 +212,20 @@ const Sidebar = () => {
           <Item
             title="Item Types"
             to="/itemTypes"
+            icon={<AbcOutlinedIcon />}
+            selected={selected}
+            setSelected={setSelected}
+          />
+          <Item
+            title="Suppliers"
+            to="/suppliers"
+            icon={<AbcOutlinedIcon />}
+            selected={selected}
+            setSelected={setSelected}
+          />
+          <Item
+            title="Customers"
+            to="/customers"
             icon={<AbcOutlinedIcon />}
             selected={selected}
             setSelected={setSelected}

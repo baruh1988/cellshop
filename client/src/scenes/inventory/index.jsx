@@ -6,7 +6,9 @@ import {
   DialogContent,
   DialogActions,
   CircularProgress,
+  Badge,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import {
   DataGrid,
   GridActionsCellItem,
@@ -17,10 +19,12 @@ import {
   GridToolbarExport,
 } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
+import AddShoppingCartOutlinedIcon from "@mui/icons-material/AddShoppingCartOutlined";
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import Header from "../../components/Header";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Form from "./Form";
 import AddIcon from "@mui/icons-material/Add";
 import {
@@ -29,6 +33,16 @@ import {
   useGetInventoryQuery,
   useGetModelsQuery,
 } from "../../api/apiSlice";
+import Cart from "./Cart";
+
+const StyledBadge = styled(Badge)(({ theme }) => ({
+  "& .MuiBadge-badge": {
+    right: 5,
+    top: -10,
+    border: `2px solid ${theme.palette.background.paper}`,
+    padding: "0 4px",
+  },
+}));
 
 const CustomToolBar = (props) => {
   const handleClick = () => {
@@ -48,10 +62,26 @@ const CustomToolBar = (props) => {
     props.handleClickOpen();
   };
 
+  const handleCartClick = () => {
+    props.setFormType("cart");
+    props.handleClickOpen();
+  };
+
   return (
     <GridToolbarContainer>
       <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
         Add inventory item
+      </Button>
+      <Button
+        color="primary"
+        startIcon={<ShoppingCartOutlinedIcon />}
+        onClick={handleCartClick}
+      >
+        <StyledBadge
+          badgeContent={props.cart.length}
+          color="secondary"
+        ></StyledBadge>
+        Go to cart
       </Button>
       <GridToolbarColumnsButton />
       <GridToolbarFilterButton />
@@ -68,8 +98,9 @@ const Inventory = () => {
   const [formType, setFormType] = useState("create");
   const [initialValues, setInitialValues] = useState(null);
   const [inventoryId, setInventoryId] = useState(-1);
+  const [cart, setCart] = useState([]);
 
-  const { data: models } = useGetModelsQuery();
+  const { data: models, isLoading: isLoadingModels } = useGetModelsQuery();
   const {
     data: inventory,
     isLoading,
@@ -77,7 +108,8 @@ const Inventory = () => {
     isError,
     error,
   } = useGetInventoryQuery();
-  const { data: itemTypes } = useGetInventoryItemTypesQuery();
+  const { data: itemTypes, isLoading: isLoadingItemTypes } =
+    useGetInventoryItemTypesQuery();
   const [deleteInventoryItem] = useDeleteInventoryItemMutation();
 
   const getOptions = () => {
@@ -99,6 +131,13 @@ const Inventory = () => {
   const handleDeleteClick = (id) => () => {
     const toDelete = inventory.data.find((obj) => obj.id === id);
     deleteInventoryItem(toDelete);
+  };
+
+  const handleAddCartClick = (id) => () => {
+    let newCart = [...cart];
+    const toAdd = inventory.data.find((obj) => obj.id === id);
+    newCart.push(toAdd);
+    setCart(newCart);
   };
 
   const handleEditClick = (id) => () => {
@@ -172,11 +211,13 @@ const Inventory = () => {
       headerName: "Quantity Threshold",
       flex: 1,
     },
+    /*
     {
       field: "image",
       headerName: "Image",
       flex: 1,
     },
+    */
     {
       field: "actions",
       type: "actions",
@@ -185,6 +226,19 @@ const Inventory = () => {
       cellClassName: "actions",
       getActions: ({ id }) => {
         return [
+          inventory.data.find((obj) => obj.id === id).quantity &&
+          cart.filter((obj) => obj.id === id).length <
+            inventory.data.find((obj) => obj.id === id).quantity ? (
+            <GridActionsCellItem
+              icon={<AddShoppingCartOutlinedIcon />}
+              label="AddCart"
+              className="textPrimary"
+              onClick={handleAddCartClick(id)}
+              color="inherit"
+            />
+          ) : (
+            <></>
+          ),
           <GridActionsCellItem
             icon={<EditOutlinedIcon />}
             label="Edit"
@@ -206,19 +260,27 @@ const Inventory = () => {
   return (
     <Box m="20px">
       <Header title="INVENTORY" subtitle="Managing Inventory" />
-      {isLoading ? (
+      {isLoading || isLoadingModels || isLoadingItemTypes ? (
         <CircularProgress />
       ) : (
         <>
           <Dialog open={open} onClose={handleClose}>
             <DialogContent>
-              <Form
-                formType={formType}
-                initialValues={initialValues}
-                formCloseControl={setOpen}
-                getOptions={getOptions}
-                inventoryId={inventoryId}
-              />
+              {formType === "cart" ? (
+                <Cart
+                  formType={formType}
+                  cart={cart}
+                  formCloseControl={setOpen}
+                />
+              ) : (
+                <Form
+                  formType={formType}
+                  initialValues={initialValues}
+                  formCloseControl={setOpen}
+                  getOptions={getOptions}
+                  inventoryId={inventoryId}
+                />
+              )}
             </DialogContent>
             {/*
         <DialogActions>
@@ -269,7 +331,7 @@ const Inventory = () => {
                   handleInitialValues,
                   setFormType,
                   setInventoryId,
-                  //models,
+                  cart,
                 },
               }}
               getRowId={(row) => row.id}

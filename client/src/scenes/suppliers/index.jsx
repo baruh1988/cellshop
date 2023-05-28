@@ -4,35 +4,39 @@ import {
   Button,
   Dialog,
   DialogContent,
+  DialogActions,
   CircularProgress,
 } from "@mui/material";
 import {
   DataGrid,
-  GridToolbarContainer,
   GridActionsCellItem,
+  GridToolbarContainer,
   GridToolbarColumnsButton,
   GridToolbarFilterButton,
   GridToolbarDensitySelector,
   GridToolbarExport,
 } from "@mui/x-data-grid";
-import {
-  useGetUserTypesQuery,
-  useDeleteUserTypeMutation,
-} from "../../api/apiSlice";
 import { tokens } from "../../theme";
+import {
+  useDeleteSupplierMutation,
+  useGetSuppliersQuery,
+} from "../../api/apiSlice";
+import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import Header from "../../components/Header";
 import { useState } from "react";
-import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import Form from "./Form";
+import AddIcon from "@mui/icons-material/Add";
 
 const CustomToolBar = (props) => {
   const handleClick = () => {
     props.setFormType("create");
-    props.setUserTypeId(-1);
+    props.setSupplierId(-1);
     props.handleInitialValues({
-      description: "",
+      idNumber: "",
+      name: "",
+      email: "",
+      phoneNumber: "",
     });
     props.handleClickOpen();
   };
@@ -40,7 +44,7 @@ const CustomToolBar = (props) => {
   return (
     <GridToolbarContainer>
       <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
-        Add user type
+        Add user
       </Button>
       <GridToolbarColumnsButton />
       <GridToolbarFilterButton />
@@ -50,33 +54,29 @@ const CustomToolBar = (props) => {
   );
 };
 
-const UserTypes = () => {
+const Suppliers = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [open, setOpen] = useState(false);
   const [formType, setFormType] = useState("create");
   const [initialValues, setInitialValues] = useState(null);
-  const [userTypeId, setUserTypeId] = useState(-1);
+  const [supplierId, setSupplierId] = useState(-1);
 
   const {
-    data: userTypes,
+    data: suppliers,
     isLoading,
     isSuccess,
     isError,
     error,
-  } = useGetUserTypesQuery();
-  const [deleteUserType] = useDeleteUserTypeMutation();
-
-  const handleDeleteClick = (id) => () => {
-    const toDelete = userTypes.data.find((obj) => obj.id === id);
-    deleteUserType(toDelete);
-  };
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
+  } = useGetSuppliersQuery();
+  const [deleteSupplier] = useDeleteSupplierMutation();
 
   const handleInitialValues = (values) => {
     setInitialValues(values);
+  };
+
+  const handleClickOpen = () => {
+    setOpen(true);
   };
 
   const handleClose = () => {
@@ -85,15 +85,46 @@ const UserTypes = () => {
 
   const handleEditClick = (id) => () => {
     setFormType("edit");
-    setUserTypeId(id);
-    const values = userTypes.data.find((obj) => obj.id === id);
-    setInitialValues({ description: values.description });
+    setSupplierId(id);
+    const values = suppliers.data.find((obj) => obj.id === id);
+    setInitialValues({
+      idNumber: values.idNumber,
+      name: values.name,
+      email: values.email,
+      phoneNumber: values.phoneNumber,
+    });
     handleClickOpen();
+  };
+
+  const handleDeleteClick = (id) => () => {
+    const supplierToDelete = suppliers.data.find((obj) => obj.id === id);
+    deleteSupplier(supplierToDelete);
   };
 
   const columns = [
     { field: "id", headerName: "ID", hide: true },
-    { field: "description", headerName: "User Type", width: 180 },
+    {
+      field: "idNumber",
+      headerName: "ID Number",
+      flex: 1,
+      cellClassName: "idNumber-column--cell",
+    },
+    {
+      field: "name",
+      headerName: "Name",
+      flex: 1,
+      cellClassName: "name-column--cell",
+    },
+    {
+      field: "email",
+      headerName: "Email",
+      flex: 1,
+    },
+    {
+      field: "phoneNumber",
+      headerName: "Phone Number",
+      flex: 1,
+    },
     {
       field: "actions",
       type: "actions",
@@ -103,14 +134,14 @@ const UserTypes = () => {
       getActions: ({ id }) => {
         return [
           <GridActionsCellItem
-            icon={<EditIcon />}
+            icon={<EditOutlinedIcon />}
             label="Edit"
             className="textPrimary"
             onClick={handleEditClick(id)}
             color="inherit"
           />,
           <GridActionsCellItem
-            icon={<DeleteIcon />}
+            icon={<DeleteForeverOutlinedIcon />}
             label="Delete"
             onClick={handleDeleteClick(id)}
             color="inherit"
@@ -122,7 +153,7 @@ const UserTypes = () => {
 
   return (
     <Box m="20px">
-      <Header title="USER TYPES" subtitle="Managing User Types" />
+      <Header title="SUPPLIERS" subtitle="Managing Suppliers" />
       {isLoading ? (
         <>
           <CircularProgress />
@@ -135,7 +166,7 @@ const UserTypes = () => {
                 formType={formType}
                 initialValues={initialValues}
                 formCloseControl={setOpen}
-                userTypeId={userTypeId}
+                supplierId={supplierId}
               />
             </DialogContent>
             {/*
@@ -178,7 +209,7 @@ const UserTypes = () => {
             }}
           >
             <DataGrid
-              rows={userTypes.data}
+              rows={suppliers.data}
               columns={columns}
               components={{ Toolbar: CustomToolBar }}
               componentsProps={{
@@ -186,7 +217,7 @@ const UserTypes = () => {
                   handleClickOpen,
                   handleInitialValues,
                   setFormType,
-                  setUserTypeId,
+                  setSupplierId,
                 },
               }}
               getRowId={(row) => row.id}
@@ -198,4 +229,4 @@ const UserTypes = () => {
   );
 };
 
-export default UserTypes;
+export default Suppliers;

@@ -14,6 +14,10 @@ import Models from "../models";
 import FaultTypes from "../faulttypes";
 import FixTypes from "../fixtypes";
 import InventoryItemTypes from "../inventoryItemTypes";
+import Suppliers from "../suppliers";
+import Customers from "../customers";
+import Products from "../products";
+import Devices from "../devices";
 
 function Home() {
   const [theme, colorMode] = useMode();
@@ -32,12 +36,16 @@ function Home() {
               <Route path="/users" element={<Users />} />
               <Route path="/userTypes" element={<UserTypes />} />
               <Route path="/inventory" element={<Inventory />} />
+              <Route path="/devices" element={<Devices />} />
+              <Route path="/products" element={<Products />} />
               <Route path="/manufacturers" element={<Manufacturers />} />
               <Route path="/models" element={<Models />} />
               <Route path="/callTypes" element={<CallTypes />} />
               <Route path="/faultTypes" element={<FaultTypes />} />
               <Route path="/fixTypes" element={<FixTypes />} />
               <Route path="/itemTypes" element={<InventoryItemTypes />} />
+              <Route path="/suppliers" element={<Suppliers />} />
+              <Route path="/customers" element={<Customers />} />
             </Routes>
           </main>
         </div>
