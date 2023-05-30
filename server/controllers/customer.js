@@ -11,6 +11,12 @@ router.post("/createCustomer", (request,response,next) => {
     const firstName = request.body.firstName;
     const lastName = request.body.lastName;
     const email = request.body.email;
+    if(idNumber == ""){
+        return response.status(200).json({
+            process: true,
+            message: "ID number can't be empty"
+        })
+    }
     Customer.findOne({where: {idNumber:idNumber}})
     .then((findOneCustomerResult) => {
         if(findOneCustomerResult){
@@ -102,6 +108,12 @@ router.post("/editCustomer", (request,response,next) => {
     const newFirstName = request.body.newFirstName;
     const newLastName = request.body.newLastName;
     const newEmail = request.body.newEmail;
+    if(newIdNumber == ""){
+        return response.status(200).json({
+            process: true,
+            message: "ID number can't be empty"
+        })
+    }
     Customer.findOne({where: {id:id}})
     .then((findOneCustomerResult) => {
         if(findOneCustomerResult){
