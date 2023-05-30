@@ -18,7 +18,12 @@ router.post("/createUser", async (request, response) => {
   const address = request.body.address;
   const email = request.body.email;
   const phoneNumber = request.body.phoneNumber;
-
+  if(idNumber == ""){
+    return response.status(200).json({
+      process: true,
+      message: "ID number can't be empty"
+    })
+  }
   User.findOne({where: {idNumber: idNumber}})
     .then((findOneUserResult) => {
       if (findOneUserResult) {
@@ -188,6 +193,12 @@ router.post("/editUser", (request, response, next) => {
   const newAddress = request.body.newAddress;
   const newEmail = request.body.newEmail;
   const newPhoneNumber = request.body.newPhoneNumber;
+  if(newIdNumber == ""){
+    return response.status(200).json({
+      process: true,
+      message: "ID number can't be empty"
+    })
+  }
   User.findOne({where: {id:id}})
   .then((findOneUserResult) => {
     if(findOneUserResult){
