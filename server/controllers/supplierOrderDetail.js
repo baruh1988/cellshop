@@ -12,47 +12,61 @@ router.post("/createSupplierOrderDetail", (request,response,next) => {
     const supplierOrderId = request.body.supplierOrderId;
     const inventoryItemId = request.body.inventoryItemId;
     const quantity = request.body.quantity;
+    if(quantity < 1){
+        return response.status(200).json({
+          process: true,
+          message: "Quantity can't be less than 1"
+        })
+    }
     SupplierOrder.findOne({where: {id:supplierOrderId}})
     .then((findOneSupplierOrderResult) => {
         if(findOneSupplierOrderResult){
-            Inventory.findOne({where: {id:inventoryItemId}})
-            .then((findOneInventoryItemResult) => {
-                if(findOneInventoryItemResult){
-                    SupplierOrderDetail.create({
-                        supplierOrderId: supplierOrderId,
-                        inventoryItemId: inventoryItemId,
-                        quantity: quantity,
-                        received: false
-                    })
-                    .then((createResult) => {
+            if(findOneSupplierOrderResult.isOpen){
+                Inventory.findOne({where: {id:inventoryItemId}})
+                .then((findOneInventoryItemResult) => {
+                    if(findOneInventoryItemResult){
+                        SupplierOrderDetail.create({
+                            supplierOrderId: supplierOrderId,
+                            inventoryItemId: inventoryItemId,
+                            quantity: quantity,
+                            received: false
+                        })
+                        .then((createResult) => {
+                            return response.status(200).json({
+                                process: true,
+                                message: "Supplier order detail created",
+                                data: createResult
+                            })
+                        })
+                        .catch((createError) => {
+                            return response.status(500).json({
+                                process: false,
+                                message: createError.message,
+                                level: 3
+                            })
+                        })
+                    }
+                    else{
                         return response.status(200).json({
                             process: true,
-                            message: "Supplier order detail created",
-                            data: createResult
+                            message: "Inventory item not found"
                         })
-                    })
-                    .catch((createError) => {
-                        return response.status(500).json({
-                            process: false,
-                            message: createError.message,
-                            level: 3
-                        })
-                    })
-                }
-                else{
-                    return response.status(200).json({
-                        process: true,
-                        message: "Inventory item not found"
-                    })
-                }
-            })
-            .catch((findOneInventoryItemError) => {
-                return response.status(500).json({
-                    process: false,
-                    message: findOneInventoryItemError.message,
-                    level: 2
+                    }
                 })
-            })
+                .catch((findOneInventoryItemError) => {
+                    return response.status(500).json({
+                        process: false,
+                        message: findOneInventoryItemError.message,
+                        level: 2
+                    })
+                })
+            }
+            else{
+                return response.status(200).json({
+                    process: true,
+                    message: "Supplier order is closed"
+                  })
+            }
         }
         else{
             return response.status(200).json({
@@ -121,56 +135,94 @@ router.post("/editSupplierOrderDetail", (request,response,next) => {
     const newInventoryItemId = request.body.newInventoryItemId;
     const newQuantity = request.body.newQuantity;
     const newReceived = request.body.newReceived;
+    if(newQuantity < 1){
+        return response.status(200).json({
+            process: true,
+            message: "Quantity can't be less than 1"
+        })
+    }
     SupplierOrderDetail.findOne({where: {id:id}})
     .then((findOneSupplierOrderDetailResult) => {
         if(findOneSupplierOrderDetailResult){
-            SupplierOrder.findOne({where: {id:newSupplierOrderId}})
+            SupplierOrder.findOne({where: {id:findOneSupplierOrderDetailResult.supplierOrderId}})
             .then((findOneSupplierOrderResult) => {
                 if(findOneSupplierOrderResult){
-                    Inventory.findOne({where: {id:newInventoryItemId}})
-                    .then((findOneInventoryItemResult) => {
-                        if(findOneInventoryItemResult){
-                            findOneSupplierOrderDetailResult.set({
-                                supplierOrderId: newSupplierOrderId,
-                                inventoryItemId: newInventoryItemId,
-                                quantity: newQuantity,
-                                received: newReceived
-                            })
-                            findOneSupplierOrderDetailResult.save()
-                            .then((saveResult) => {
+                    if(findOneSupplierOrderResult.isOpen){
+                        SupplierOrder.findOne({where: {id:newSupplierOrderId}})
+                        .then((findOneNewSupplierOrderResult) => {
+                            if(findOneNewSupplierOrderResult){
+                                if(findOneNewSupplierOrderResult.isOpen){
+                                    Inventory.findOne({where: {id:newInventoryItemId}})
+                                    .then((findOneInventoryItemResult) => {
+                                        if(findOneInventoryItemResult){
+                                            findOneSupplierOrderDetailResult.set({
+                                                supplierOrderId: newSupplierOrderId,
+                                                inventoryItemId: newInventoryItemId,
+                                                quantity: newQuantity,
+                                                received: newReceived
+                                            })
+                                            findOneSupplierOrderDetailResult.save()
+                                            .then((saveResult) => {
+                                                return response.status(200).json({
+                                                    process: true,
+                                                    message: "Supplier order detail updated",
+                                                    data: saveResult
+                                                })
+                                            })
+                                            .catch((saveError) => {
+                                                return response.status(500).json({
+                                                    process: false,
+                                                    message: saveError.message,
+                                                    level: 5
+                                                })
+                                            })
+                                        }
+                                        else{
+                                            return response.status(200).json({
+                                                process: true,
+                                                message: "Inventory item not found"
+                                            })
+                                        }
+                                    })
+                                    .catch((findOneInventoryItemError) => {
+                                        return response.status(500).json({
+                                            process: false,
+                                            message: findOneInventoryItemError.message,
+                                            level: 4
+                                        })
+                                    })
+                                }
+                                else{
+                                    return response.status(200).json({
+                                        process: true,
+                                        message: "New supplier order is closed"
+                                    })
+                                }
+                            }
+                            else{
                                 return response.status(200).json({
                                     process: true,
-                                    message: "Supplier order detail updated",
-                                    data: saveResult
+                                    message: "New supplier order not found"
                                 })
-                            })
-                            .catch((saveError) => {
-                                return response.status(500).json({
-                                    process: false,
-                                    message: saveError.message,
-                                    level: 4
-                                })
-                            })
-                        }
-                        else{
-                            return response.status(200).json({
-                                process: true,
-                                message: "Inventory item not found"
-                            })
-                        }
-                    })
-                    .catch((findOneInventoryItemError) => {
-                        return response.status(500).json({
-                            process: false,
-                            message: findOneInventoryItemError.message,
-                            level: 3
+                            }
                         })
-                    })
+                        .catch((findOneNewSupplierOrderError) => {
+                            return response.status(500).json({
+                                process: false,
+                                message: findOneNewSupplierOrderError.message,
+                                level: 3
+                            })
+                        })
+                    }
+                    else{return response.status(200).json({
+                        process: true,
+                        message: "Current supplier order is closed"
+                    })}
                 }
                 else{
                     return response.status(200).json({
                         process: true,
-                        message: "Supplier order not found"
+                        message: "Current supplier order not found"
                     })
                 }
             })
