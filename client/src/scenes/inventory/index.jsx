@@ -34,6 +34,7 @@ import {
   useGetModelsQuery,
 } from "../../api/apiSlice";
 import Cart from "./Cart";
+import Device from "./Device";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -99,6 +100,7 @@ const Inventory = () => {
   const [initialValues, setInitialValues] = useState(null);
   const [inventoryId, setInventoryId] = useState(-1);
   const [cart, setCart] = useState([]);
+  const [hasDevice, setHasDevice] = useState(false);
 
   const { data: models, isLoading: isLoadingModels } = useGetModelsQuery();
   const {
@@ -134,10 +136,30 @@ const Inventory = () => {
   };
 
   const handleAddCartClick = (id) => () => {
-    let newCart = [...cart];
     const toAdd = inventory.data.find((obj) => obj.id === id);
-    newCart.push(toAdd);
+    if (toAdd.inventoryItemTypeId === 1) {
+      setFormType("device");
+      setInventoryId(id);
+      handleClickOpen();
+    } else {
+      let newCart = [...cart];
+      newCart.push({ item: toAdd, device: null });
+      setCart(newCart);
+      setHasDevice(newCart.some((obj) => obj.item.inventoryItemTypeId === 1));
+    }
+  };
+
+  const handleRemoveItem = (index) => () => {
+    let newCart = [...cart];
+    newCart.splice(index, 1);
     setCart(newCart);
+    setHasDevice(newCart.some((obj) => obj.item.inventoryItemTypeId === 1));
+  };
+
+  const handleResetCart = () => () => {
+    setOpen(false);
+    setCart([]);
+    setHasDevice(cart.some((obj) => obj.item.inventoryItemTypeId === 1));
   };
 
   const handleEditClick = (id) => () => {
@@ -266,11 +288,22 @@ const Inventory = () => {
         <>
           <Dialog open={open} onClose={handleClose}>
             <DialogContent>
-              {formType === "cart" ? (
+              {formType === "device" ? (
+                <Device
+                  inventoryId={inventoryId}
+                  setOpen={setOpen}
+                  cart={cart}
+                  setCart={setCart}
+                />
+              ) : formType === "cart" ? (
                 <Cart
                   formType={formType}
                   cart={cart}
+                  setCart={setCart}
+                  handleRemoveItem={handleRemoveItem}
+                  handleResetCart={handleResetCart}
                   formCloseControl={setOpen}
+                  hasDevice={hasDevice}
                 />
               ) : (
                 <Form
