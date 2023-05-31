@@ -12,13 +12,10 @@ const Dashboard = () => {
   const user = useSelector((state) => state.global.user);
 
   return (
-    <Box m="20px">
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Header title="DASHBOARD" subtitle="" />
-        {user.userType === 1 && <AdminDashboard />}
-        {user.userType === 2 && <ManagerDashboard />}
-        {user.userType === 3 && <EmployeeDashboard />}
-      </Box>
+    <Box>
+      {user.userType === 1 && <AdminDashboard />}
+      {user.userType === 2 && <ManagerDashboard />}
+      {user.userType === 3 && <EmployeeDashboard />}
     </Box>
   );
 };
