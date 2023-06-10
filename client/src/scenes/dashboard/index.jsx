@@ -13,9 +13,12 @@ const Dashboard = () => {
 
   return (
     <Box>
+      <EmployeeDashboard />
+      {/*
       {user.userType === 1 && <AdminDashboard />}
       {user.userType === 2 && <ManagerDashboard />}
       {user.userType === 3 && <EmployeeDashboard />}
+      */}
     </Box>
   );
 };
