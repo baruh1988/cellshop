@@ -8,6 +8,9 @@ const Customer = require("../models/customer");
 const User = require("../models/user");
 const Call = require("../models/call");
 const { response, request } = require("express");
+const SaleCallDetail = require("../models/saleCallDetail");
+const FixCallDetail = require("../models/fixCallDetail");
+
 
 router.post("/createCall", (request,response,next) => {
     const callTypeId = request.body.callTypeId;
@@ -107,82 +110,146 @@ router.post("/editCall", (request,response,next) => {
     Call.findOne({where: {id:id}})
     .then((findOneCallResult) => {
         if(findOneCallResult){
-            CallType.findOne({where: {id:newCallTypeId}})
-            .then((findOneCallTypeResult) => {
-                if(findOneCallTypeResult){
-                    Customer.findOne({where: {id:newCustomerId}})
-                    .then((findOneCustomerResult) => {
-                        if(findOneCustomerResult){
-                            User.findOne({where: {id:newUserId}})
-                            .then((findOneUserResult) => {
-                                if(findOneUserResult){
-                                    findOneCallResult.set({
-                                        callTypeId: newCallTypeId,
-                                        customerId: newCustomerId,
-                                        userId: newUserId,
-                                        active: newActive,
-                                        note: newNote
-                                    })
-                                    findOneCallResult.save()
-                                    .then((saveResult) => {
-                                        return response.status(200).json({
-                                            process: true,
-                                            message: "Call updated",
-                                            data: saveResult
-                                        })
-                                    })
-                                    .catch((saveError) => {
-                                        return response.status(500).json({
-                                            process: false,
-                                            message: saveError.message,
-                                            level: 5
-                                        })
-                                    })
-                                }
-                                else{
+            if(findOneCallResult.callTypeId != newCallTypeId){
+                CallType.findOne({where: {id:findOneCallResult.callTypeId}})
+                .then((findOneCallTypeResult) => {
+                    if(findOneCallTypeResult){
+                        if(findOneCallTypeResult.name.toLowerCase() == "sale"){
+                            SaleCallDetail.findOne({where: {callId:id}})
+                            .then((findOneSaleCallDetailResult) => {
+                                if(findOneSaleCallDetailResult){
                                     return response.status(200).json({
                                         process: true,
-                                        message: "User not found"
+                                        message: "Can't change call type when call detail records exist"
                                     })
                                 }
                             })
-                            .catch((findOneUserError) => {
+                            .catch((findOneSaleCallDetailError) => {
                                 return response.status(500).json({
                                     process: false,
-                                    message: findOneUserError.message,
+                                    message: findOneSaleCallDetailError.message,
                                     level: 4
+                                })
+                            })
+                        }
+                        else if(findOneCallTypeResult.name.toLowerCase() == "fix"){
+                            FixCallDetail.findOne({where: {callId:id}})
+                            .then((findOneFixCallDetailResult) => {
+                                if(findOneFixCallDetailResult){
+                                    return response.status(200).json({
+                                        process: true,
+                                        message: "Can't change call type when call detail records exist"
+                                    })
+                                }
+                            })
+                            .catch((findOneFixCallDetailError) => {
+                                return response.status(500).json({
+                                    process: false,
+                                    message: findOneFixCallDetailError.message,
+                                    level: 4.1
                                 })
                             })
                         }
                         else{
                             return response.status(200).json({
                                 process: true,
-                                message: "Customer not found"
+                                message: "Current call type not known"
                             })
                         }
-                    })
-                    .catch((findOneCustomerError) => {
-                        return response.status(500).json({
-                            process: false,
-                            message: findOneCustomerError.message,
-                            level: 3
+                    }
+                    else{
+                        return response.status(200).json({
+                            process: true,
+                            message: "Current call type not found"
                         })
-                    })
-                }
-                else{
-                    return response.status(200).json({
-                        process: true,
-                        message: "Call type not found"
-                    })
-                }
-            })
-            .catch((findOneCallTypeError) => {
-                return response.status(500).json({
-                    process: false,
-                    message: findOneCallTypeError.message,
-                    level: 2
+                    }
                 })
-            })
+                .catch((findOneCallTypeError) => {
+                    return response.status(500).json({
+                        process: false,
+                        message: findOneCallTypeError.message,
+                        level: 2
+                    })
+                })
+            }
+            else{
+                CallType.findOne({where: {id:newCallTypeId}})
+                .then((findOneNewCallTypeResult) => {
+                    if(findOneNewCallTypeResult){
+                        Customer.findOne({where: {id:newCustomerId}})
+                        .then((findOneCustomerResult) => {
+                            if(findOneCustomerResult){
+                                User.findOne({where: {id:newUserId}})
+                                .then((findOneUserResult) => {
+                                    if(findOneUserResult){
+                                        findOneCallResult.set({
+                                            callTypeId: newCallTypeId,
+                                            customerId: newCustomerId,
+                                            userId: newUserId,
+                                            active: newActive,
+                                            note: newNote
+                                        })
+                                        findOneCallResult.save()
+                                        .then((saveResult) => {
+                                            return response.status(200).json({
+                                                process: true,
+                                                message: "Call updated",
+                                                data: saveResult
+                                            })
+                                        })
+                                        .catch((saveError) => {
+                                            return response.status(500).json({
+                                                process: false,
+                                                message: saveError.message,
+                                                level: 6
+                                            })
+                                        })
+                                    }
+                                    else{
+                                        return response.status(200).json({
+                                            process: true,
+                                            message: "User not found"
+                                        })
+                                    }
+                                })
+                                .catch((findOneUserError) => {
+                                    return response.status(500).json({
+                                        process: false,
+                                        message: findOneUserError.message,
+                                        level: 5
+                                    })
+                                })
+                            }
+                            else{
+                                return response.status(200).json({
+                                    process: true,
+                                    message: "Customer not found"
+                                })
+                            }
+                        })
+                        .catch((findOneCustomerError) => {
+                            return response.status(500).json({
+                                process: false,
+                                message: findOneCustomerError.message,
+                                level: 3
+                            })
+                        })
+                    }
+                    else{
+                        return response.status(200).json({
+                            process: true,
+                            message: "New call type not found"
+                        })
+                    }
+                })
+                .catch((findOneNewCallTypeError) => {
+                    return response.status(500).json({
+                        process: false,
+                        message: findOneNewCallTypeError.message,
+                        level: 2.1
+                    })
+                })
+            }
         }
         else{
             return response.status(200).json({
