@@ -85,7 +85,7 @@ const Form = (props) => {
     <Box m="20px">
       <Header
         title={
-          props.formType === "craete" ? "CREATE CUSTOMER" : "EDIT CUSTOMER"
+          props.formType === "create" ? "CREATE CUSTOMER" : "EDIT CUSTOMER"
         }
         subtitle={
           props.formType === "create"

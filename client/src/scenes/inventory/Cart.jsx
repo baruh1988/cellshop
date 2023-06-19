@@ -17,6 +17,7 @@ import {
   ListItem,
   Checkbox,
   FormControlLabel,
+  Hidden,
 } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -35,6 +36,7 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
 import {
   useAddCallMutation,
+  useAddFixDeviceMutation,
   useAddNewDeviceMutation,
   useAddSaleCallDetailMutation,
   useEditCallMutation,
@@ -72,6 +74,8 @@ const Cart = (props) => {
   const [editNewDevice] = useEditNewDeviceMutation();
   const [addSaleCallDetail] = useAddSaleCallDetailMutation();
   const [editInventoryItem] = useEditInventoryItemMutation();
+  const [addFixDevice] = useAddFixDeviceMutation();
+
   const {
     data: customers,
     isLoading: isLoadingCustomers,
@@ -128,19 +132,6 @@ const Cart = (props) => {
   };
 
   const handleFormSubmit = (values) => {
-    //console.log(values);
-    /*
-    console.log({
-      callTypeId: 1,
-      customerId: customerId,
-      userId: user.id,
-      active: !checked,
-      note: values.note,
-    });
-    props.cart.forEach((el) => {
-      console.log(el);
-    });
-    */
     addCall({
       callTypeId: 1,
       customerId: customerId,
@@ -220,43 +211,49 @@ const Cart = (props) => {
     props.formCloseControl(false);
   };
 
-  const cartContent = props.cart.map((item, index) => (
-    <Box key={index}>
-      <Box
-        display="flex"
-        sx={{ pt: 2, pb: 2 }}
-        alignItems="start"
-        justifyContent="space-between"
-      >
-        <Avatar
-          src="../../../assets/placeholderImg.png"
-          sx={{ width: 95, height: 95, mr: 2 }}
-        />
-        <Box display="flex" flexDirection="column">
-          <Typography variant="h5">
-            {
-              models.data.find((el) => {
-                return el.id === item.item.modelId;
-              }).name
-            }
-          </Typography>
-          <Typography variant="subtitle2">{item.item.description}</Typography>
-          {item.device && (
-            <Typography variant="subtitle2">
-              imei: {item.device.imei}
+  const cartContent = (
+    <Box gridColumn="span 1" gridRow="span 2" overflow="auto">
+      {props.cart.map((item, index) => (
+        <Box key={index}>
+          <Box
+            display="flex"
+            sx={{ pt: 2, pb: 2 }}
+            alignItems="start"
+            justifyContent="space-between"
+          >
+            <Avatar
+              src="../../../assets/placeholderImg.png"
+              sx={{ width: 95, height: 95, mr: 2 }}
+            />
+            <Box display="flex" flexDirection="column">
+              <Typography variant="h5">
+                {
+                  models.data.find((el) => {
+                    return el.id === item.item.modelId;
+                  }).name
+                }
+              </Typography>
+              <Typography variant="subtitle2">
+                {item.item.description}
+              </Typography>
+              {item.device && (
+                <Typography variant="subtitle2">
+                  imei: {item.device.imei}
+                </Typography>
+              )}
+            </Box>
+            <Typography variant="body1" justifyContent="end">
+              {item.item.price}₪
             </Typography>
-          )}
+            <IconButton onClick={props.handleRemoveItem(index)}>
+              <DeleteForeverOutlinedIcon />
+            </IconButton>
+          </Box>
+          <Divider variant="insert" />
         </Box>
-        <Typography variant="body1" justifyContent="end">
-          {item.item.price}₪
-        </Typography>
-        <IconButton onClick={props.handleRemoveItem(index)}>
-          <DeleteForeverOutlinedIcon />
-        </IconButton>
-      </Box>
-      <Divider variant="insert" />
+      ))}
     </Box>
-  ));
+  );
 
   const columns = [
     { field: "id", headerName: "ID", hide: true },
@@ -294,7 +291,13 @@ const Cart = (props) => {
 
   return (
     <Box m="20px">
-      <Header title="CART" subtitle="Sell items" />
+      <Header
+        title="CART"
+        subtitle={`Total: ${props.cart.reduce(
+          (sum, el) => sum + el.item.price,
+          0
+        )}₪`}
+      />
       <Stepper activeStep={activeStep}>
         {steps.map((label, index) => {
           const stepProps = {};
@@ -316,7 +319,13 @@ const Cart = (props) => {
       </Stepper>
       {activeStep === 0 && (
         <>
-          {cartContent}
+          <Box
+            display="grid"
+            gridTemplateColumns="repeat(1, 1fr)"
+            gridAutoRows="120px"
+          >
+            {cartContent}
+          </Box>
           <Box display="flex" justifyContent="end" mt="20px">
             <Button
               onClick={props.handleResetCart()}

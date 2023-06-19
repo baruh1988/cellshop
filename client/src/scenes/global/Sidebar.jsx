@@ -7,6 +7,7 @@ import { tokens } from "../../theme";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
+import PhoneAndroidOutlinedIcon from "@mui/icons-material/PhoneAndroidOutlined";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 // Placehodler icon
@@ -136,6 +137,7 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
           </Box>
+          {/*
           <Typography
             variant="h6"
             color={colors.grey[300]}
@@ -143,23 +145,28 @@ const Sidebar = () => {
           >
             Databases
           </Typography>
+          */}
           {/* Admin menu options */}
           {/* Manager menu options */}
           {/* Employee menu options */}
-          <Item
-            title="Users"
-            to="/users"
-            icon={<PeopleOutlinedIcon />}
-            selected={selected}
-            setSelected={setSelected}
-          />
-          <Item
-            title="User Types"
-            to="/userTypes"
-            icon={<AdminPanelSettingsOutlinedIcon />}
-            selected={selected}
-            setSelected={setSelected}
-          />
+          {user.userType !== 3 && (
+            <Item
+              title="Users"
+              to="/users"
+              icon={<PeopleOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+          )}
+          {user.userType === 1 && (
+            <Item
+              title="User Types"
+              to="/userTypes"
+              icon={<AdminPanelSettingsOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+          )}
           <Item
             title="Inventory"
             to="/inventory"
@@ -170,17 +177,19 @@ const Sidebar = () => {
           <Item
             title="Devices"
             to="/devices"
-            icon={<WarehouseOutlinedIcon />}
+            icon={<PhoneAndroidOutlinedIcon />}
             selected={selected}
             setSelected={setSelected}
           />
-          <Item
-            title="Manufacturers"
-            to="/manufacturers"
-            icon={<AbcOutlinedIcon />}
-            selected={selected}
-            setSelected={setSelected}
-          />
+          {user.userType === 1 && (
+            <Item
+              title="Manufacturers"
+              to="/manufacturers"
+              icon={<AbcOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+          )}
           <Item
             title="Models"
             to="/models"
@@ -188,45 +197,55 @@ const Sidebar = () => {
             selected={selected}
             setSelected={setSelected}
           />
-          <Item
-            title="Call Types"
-            to="/callTypes"
-            icon={<AbcOutlinedIcon />}
-            selected={selected}
-            setSelected={setSelected}
-          />
-          <Item
-            title="Fault Types"
-            to="/faultTypes"
-            icon={<AbcOutlinedIcon />}
-            selected={selected}
-            setSelected={setSelected}
-          />
-          <Item
-            title="Fix Types"
-            to="/fixTypes"
-            icon={<AbcOutlinedIcon />}
-            selected={selected}
-            setSelected={setSelected}
-          />
-          <Item
-            title="Item Types"
-            to="/itemTypes"
-            icon={<AbcOutlinedIcon />}
-            selected={selected}
-            setSelected={setSelected}
-          />
-          <Item
-            title="Suppliers"
-            to="/suppliers"
-            icon={<AbcOutlinedIcon />}
-            selected={selected}
-            setSelected={setSelected}
-          />
+          {user.userType === 1 && (
+            <Item
+              title="Call Types"
+              to="/callTypes"
+              icon={<AbcOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+          )}
+          {user.userType === 1 && (
+            <Item
+              title="Fault Types"
+              to="/faultTypes"
+              icon={<AbcOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+          )}
+          {user.userType === 1 && (
+            <Item
+              title="Fix Types"
+              to="/fixTypes"
+              icon={<AbcOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+          )}
+          {user.userType === 1 && (
+            <Item
+              title="Item Types"
+              to="/itemTypes"
+              icon={<AbcOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+          )}
+          {user.userType === 1 && (
+            <Item
+              title="Suppliers"
+              to="/suppliers"
+              icon={<AbcOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+          )}
           <Item
             title="Customers"
             to="/customers"
-            icon={<AbcOutlinedIcon />}
+            icon={<PeopleOutlinedIcon />}
             selected={selected}
             setSelected={setSelected}
           />

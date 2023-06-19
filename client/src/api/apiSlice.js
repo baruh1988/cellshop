@@ -18,6 +18,9 @@ export const apiSlice = createApi({
     "Calls",
     "SaleCallDetails",
     "NewDevices",
+    "FixCallDetails",
+    "FixDevice",
+    "FixCallDetailInventory",
   ],
   endpoints: (builder) => ({
     login: builder.mutation({
@@ -26,6 +29,14 @@ export const apiSlice = createApi({
     getUsers: builder.query({
       query: () => "/user/getAllUsers",
       providesTags: ["Users"],
+    }),
+    getUserById: builder.mutation({
+      query: (data) => ({
+        url: "user/getUserById",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Users"],
     }),
     addUser: builder.mutation({
       query: (data) => ({
@@ -71,6 +82,14 @@ export const apiSlice = createApi({
       query: () => "/userType/getAllUserType",
       providesTags: ["UserTypes"],
     }),
+    getUserTypeById: builder.mutation({
+      query: (data) => ({
+        url: "userType/getUserTypeById",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["UserTypes"],
+    }),
     addUserType: builder.mutation({
       query: (data) => ({
         url: "/userType/createUserType",
@@ -98,6 +117,14 @@ export const apiSlice = createApi({
     getManufacturers: builder.query({
       query: () => "/manufacturer/getAllManufacturers",
       providesTags: ["Manufacturers"],
+    }),
+    getManufacturerById: builder.mutation({
+      query: (data) => ({
+        url: "manufacturer/getManufacturerById",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Manufacturers"],
     }),
     addManufacturer: builder.mutation({
       query: (data) => ({
@@ -127,6 +154,14 @@ export const apiSlice = createApi({
       query: () => "/fixType/getAllFixType",
       providesTags: ["FixTypes"],
     }),
+    getFixTypeById: builder.mutation({
+      query: (data) => ({
+        url: "fixType/getFixTypeById",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["FixTypes"],
+    }),
     addFixType: builder.mutation({
       query: (data) => ({
         url: "/fixType/createFixType",
@@ -154,6 +189,14 @@ export const apiSlice = createApi({
     getFaultTypes: builder.query({
       query: () => "/faultType/getAllFaultType",
       providesTags: ["FaultTypes"],
+    }),
+    getFaultTypeById: builder.mutation({
+      query: (data) => ({
+        url: "user/getFaultTypeById",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["FaultTypes"],
     }),
     addFaultType: builder.mutation({
       query: (data) => ({
@@ -183,6 +226,14 @@ export const apiSlice = createApi({
       query: () => "/callType/getAllCallType",
       providesTags: ["CallTypes"],
     }),
+    getCallTypeById: builder.mutation({
+      query: (data) => ({
+        url: "user/getCallTypeById",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["CallTypes"],
+    }),
     addCallType: builder.mutation({
       query: (data) => ({
         url: "/callType/createCallType",
@@ -210,6 +261,14 @@ export const apiSlice = createApi({
     getModels: builder.query({
       query: () => "/model/getAllModels",
       providesTags: ["Models"],
+    }),
+    getModelById: builder.mutation({
+      query: (data) => ({
+        url: "user/getModelById",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Models"],
     }),
     addModel: builder.mutation({
       query: (data) => ({
@@ -239,6 +298,14 @@ export const apiSlice = createApi({
       query: () => "/inventory/getAllInventoryItems",
       providesTags: ["Inventory"],
     }),
+    getInventoryItemById: builder.mutation({
+      query: (data) => ({
+        url: "inventory/getInventoryItemById",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Inventory"],
+    }),
     addInventoryItem: builder.mutation({
       query: (data) => ({
         url: "/inventory/createInventoryItem",
@@ -266,6 +333,14 @@ export const apiSlice = createApi({
     getInventoryItemTypes: builder.query({
       query: () => "/inventoryItemType/getAllInventoryItemTypes",
       providesTags: ["InventoryItemTypes"],
+    }),
+    getInventoryItemTypeById: builder.mutation({
+      query: (data) => ({
+        url: "inventoryItemType/getInventoryItemTypeById",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["InventoryItemTypes"],
     }),
     addInventoryItemType: builder.mutation({
       query: (data) => ({
@@ -295,6 +370,14 @@ export const apiSlice = createApi({
       query: () => "/customer/getAllCustomers",
       providesTags: ["Customers"],
     }),
+    getCustomerById: builder.mutation({
+      query: (data) => ({
+        url: "customer/getCustomerById",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Customers"],
+    }),
     addCustomer: builder.mutation({
       query: (data) => ({
         url: "/customer/createCustomer",
@@ -322,6 +405,14 @@ export const apiSlice = createApi({
     getSuppliers: builder.query({
       query: () => "/supplier/getAllSuppliers",
       providesTags: ["Suppliers"],
+    }),
+    getSupplierById: builder.mutation({
+      query: (data) => ({
+        url: "supplier/getSupplierById",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Suppliers"],
     }),
     addSupplier: builder.mutation({
       query: (data) => ({
@@ -352,6 +443,14 @@ export const apiSlice = createApi({
       query: () => "/call/getAllCalls",
       providesTags: ["Calls"],
     }),
+    getCallById: builder.mutation({
+      query: (data) => ({
+        url: "call/getCallById",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Calls"],
+    }),
     addCall: builder.mutation({
       query: (data) => ({
         url: "/call/createCall",
@@ -380,6 +479,14 @@ export const apiSlice = createApi({
     getSaleCallDetails: builder.query({
       query: () => "/saleCallDetail/getAllSaleCallDetails",
       providesTags: ["SaleCallDetails"],
+    }),
+    getSaleCallDetailById: builder.mutation({
+      query: (data) => ({
+        url: "saleCallDetail/getSaleCallDetailById",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["SaleCallDetails"],
     }),
     addSaleCallDetail: builder.mutation({
       query: (data) => ({
@@ -410,6 +517,14 @@ export const apiSlice = createApi({
       query: () => "/newDevice/getAllNewDevices",
       providesTags: ["NewDevices"],
     }),
+    getNewDeviceById: builder.mutation({
+      query: (data) => ({
+        url: "newDevice/getNewDeviceById",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["newDevice"],
+    }),
     addNewDevice: builder.mutation({
       query: (data) => ({
         url: "/newDevice/createNewDevice",
@@ -433,6 +548,117 @@ export const apiSlice = createApi({
         body: data,
       }),
       invalidatesTags: ["NewDevices"],
+    }),
+    //"FixCallDetails"
+    getFixCallDetails: builder.query({
+      query: () => "/fixCallDetail/getAllFixCallDetails",
+      providesTags: ["FixCallDetails"],
+    }),
+    getFixCallDetailById: builder.mutation({
+      query: (data) => ({
+        url: "fixCallDetail/getFixCallDetailById",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["FixCallDetails"],
+    }),
+    addFixCallDetail: builder.mutation({
+      query: (data) => ({
+        url: "/fixCallDetail/createFixCallDetail",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["FixCallDetails"],
+    }),
+    editFixCallDetail: builder.mutation({
+      query: (data) => ({
+        url: "/fixCallDetail/editFixCallDetail",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["FixCallDetails"],
+    }),
+    deleteFixCallDetail: builder.mutation({
+      query: (data) => ({
+        url: "/fixCallDetail/deleteFixCallDetail",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["FixCallDetails"],
+    }),
+    //"FixDevice"
+    getFixDevices: builder.query({
+      query: () => "/fixDevice/getAllFixDevices",
+      providesTags: ["FixDevice"],
+    }),
+    getFixDeviceById: builder.mutation({
+      query: (data) => ({
+        url: "fixDevice/getFixDeviceById",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["FixDevices"],
+    }),
+    addFixDevice: builder.mutation({
+      query: (data) => ({
+        url: "/fixDevice/createFixDevice",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["FixDevice"],
+    }),
+    editFixDevice: builder.mutation({
+      query: (data) => ({
+        url: "/fixDevice/editFixDevice",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["FixDevice"],
+    }),
+    deleteFixDevice: builder.mutation({
+      query: (data) => ({
+        url: "/fixCallDetail/deleteFixDevice",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["FixDevice"],
+    }),
+    //"FixCallDetailInventory"
+    getFixCallDetailInventoryItems: builder.query({
+      query: () => "/fixCallDetailInventory/getAllFixCallDetailInventoryItems",
+      providesTags: ["FixCallDetailInventory"],
+    }),
+    getFixCallDetailInventoryItemById: builder.mutation({
+      query: (data) => ({
+        url: "fixCallDetailInventoryItems/getFixCallDetailInventoryItemById",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["FixCallDetailInventory"],
+    }),
+    addFixCallDetailInventoryItem: builder.mutation({
+      query: (data) => ({
+        url: "/fixCallDetailInventory/createFixCallDetailInventoryItem",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["FixCallDetailInventory"],
+    }),
+    editFixCallDetailInventoryItem: builder.mutation({
+      query: (data) => ({
+        url: "/fixCallDetailInventory/editFixCallDetailInventoryItem",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["FixCallDetailInventory"],
+    }),
+    deleteFixCallDetailInventoryItem: builder.mutation({
+      query: (data) => ({
+        url: "/fixCallDetailInventory/deleteFixCallDetailInventoryItem",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["FixCallDetailInventory"],
     }),
   }),
 });
@@ -497,4 +723,33 @@ export const {
   useGetCallsQuery,
   useGetNewDevicesQuery,
   useGetSaleCallDetailsQuery,
+  useAddFixCallDetailInventoryItemMutation,
+  useAddFixCallDetailMutation,
+  useAddFixDeviceMutation,
+  useDeleteFixCallDetailInventoryItemMutation,
+  useDeleteFixCallDetailMutation,
+  useDeleteFixDeviceMutation,
+  useEditFixCallDetailInventoryItemMutation,
+  useEditFixCallDetailMutation,
+  useEditFixDeviceMutation,
+  useGetFixDevicesQuery,
+  useGetFixCallDetailsQuery,
+  useGetFixCallDetailInventoryItemsQuery,
+  useGetUserByIdMutation,
+  useGetCallByIdMutation,
+  useGetCallTypeByIdMutation,
+  useGetCustomerByIdMutation,
+  useGetFaultTypeByIdMutation,
+  useGetFixCallDetailByIdMutation,
+  useGetFixCallDetailInventoryItemByIdMutation,
+  useGetFixDeviceByIdMutation,
+  useGetFixTypeByIdMutation,
+  useGetInventoryItemByIdMutation,
+  useGetInventoryItemTypeByIdMutation,
+  useGetManufacturerByIdMutation,
+  useGetModelByIdMutation,
+  useGetNewDeviceByIdMutation,
+  useGetSaleCallDetailByIdMutation,
+  useGetSupplierByIdMutation,
+  useGetUserTypeByIdMutation,
 } = apiSlice;
