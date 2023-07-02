@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import Home from "./scenes/home";
 import Login from "./scenes/login";
 
+// entry point to the application. Renders Login page or the dashboard based on the user type that logs in
 function App() {
   const [theme, colorMode] = useMode();
   const isLoggedIn = Boolean(useSelector((state) => state.global.user));

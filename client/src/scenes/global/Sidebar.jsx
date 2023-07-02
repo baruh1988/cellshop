@@ -12,19 +12,9 @@ import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 // Placehodler icon
 import AbcOutlinedIcon from "@mui/icons-material/AbcOutlined";
-/*
-import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
-import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
-import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
-import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
-import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
-import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutlined";
-import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
-import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
-*/
 import { useSelector } from "react-redux";
 
+// Render the side navigation bar
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -137,18 +127,6 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
           </Box>
-          {/*
-          <Typography
-            variant="h6"
-            color={colors.grey[300]}
-            sx={{ m: "15px 0 5px 20px" }}
-          >
-            Databases
-          </Typography>
-          */}
-          {/* Admin menu options */}
-          {/* Manager menu options */}
-          {/* Employee menu options */}
           {user.userType !== 3 && (
             <Item
               title="Users"

@@ -27,6 +27,7 @@ import {
   useGetFixTypesQuery,
 } from "../../api/apiSlice";
 
+// Toolbar component for data table, for adding and filtering data
 const CustomToolBar = (props) => {
   const handleClick = () => {
     props.setFormType("create");
@@ -50,6 +51,7 @@ const CustomToolBar = (props) => {
   );
 };
 
+// FixTypes page for rendering
 const FixTypes = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -58,6 +60,7 @@ const FixTypes = () => {
   const [initialValues, setInitialValues] = useState(null);
   const [fixTypeId, setFixTypeId] = useState(-1);
 
+  // fetch data from server
   const {
     data: fixTypes,
     isLoading,
@@ -67,23 +70,28 @@ const FixTypes = () => {
   } = useGetFixTypesQuery();
   const [deleteFixType] = useDeleteFixTypeMutation();
 
+  // Delete row from table and corresponding data from server
   const handleDeleteClick = (id) => () => {
     const toDelete = fixTypes.data.find((obj) => obj.id === id);
     deleteFixType(toDelete);
   };
 
+  // Open form window
   const handleClickOpen = () => {
     setOpen(true);
   };
 
+  // Set initial values for form
   const handleInitialValues = (values) => {
     setInitialValues(values);
   };
 
+  // Close form window
   const handleClose = () => {
     setOpen(false);
   };
 
+  // Open form in edit mode
   const handleEditClick = (id) => () => {
     setFormType("edit");
     setFixTypeId(id);
@@ -92,6 +100,7 @@ const FixTypes = () => {
     handleClickOpen();
   };
 
+  // Data columns definition for data table
   const columns = [
     { field: "id", headerName: "ID", hide: true },
     { field: "description", headerName: "Fault Type", width: 180 },
@@ -121,6 +130,7 @@ const FixTypes = () => {
     },
   ];
 
+  // Render the fixTypes component
   return (
     <Box m="20px">
       <Header title="FIX TYPES" subtitle="Managing Fix Types" />
@@ -139,12 +149,6 @@ const FixTypes = () => {
                 fixTypeId={fixTypeId}
               />
             </DialogContent>
-            {/*
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose}>Ok</Button>
-        </DialogActions>
-        */}
           </Dialog>
           <Box
             m="40px 0 0 0"

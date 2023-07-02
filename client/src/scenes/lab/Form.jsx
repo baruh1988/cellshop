@@ -51,6 +51,7 @@ import {
 } from "../../api/apiSlice";
 import { useSelector } from "react-redux";
 
+// Toolbar component for data table, for filtering data
 const CustomToolBar = () => {
   return (
     <GridToolbarContainer>
@@ -61,14 +62,17 @@ const CustomToolBar = () => {
   );
 };
 
+// Filter unique items from 2 arrays. return the result array
 const not = (a, b) => {
   return a.filter((value) => b.indexOf(value) === -1);
 };
 
+// Filter intersection between two arrays. return the result array
 const intersection = (a, b) => {
   return a.filter((value) => b.indexOf(value) !== -1);
 };
 
+// Service call form component for rendering
 const Form = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -89,6 +93,7 @@ const Form = (props) => {
   const [editFixDevice] = useEditFixDeviceMutation();
   const [addFixCallDetail] = useAddFixCallDetailMutation();
 
+  // fetch data from the server
   const {
     data: customers,
     isLoading: isLoadingCustomers,
@@ -109,13 +114,14 @@ const Form = (props) => {
     isSuccess: isSuccessFaultTypes,
   } = useGetFaultTypesQuery();
 
+  // Display faultTypes on component load and every time there is a change to faultTypes array
   useEffect(() => {
-    //console.log(faultTypes);
     if (isSuccessFaultTypes) {
       setLeft(faultTypes.data);
     }
   }, [isSuccessFaultTypes]);
 
+  // Move faultTypes between available and selected
   const handleToggle = (value) => () => {
     const currentIndex = checked.indexOf(value);
     const newChecked = [...checked];
@@ -150,6 +156,7 @@ const Form = (props) => {
     setRight([]);
   };
 
+  // List component to show and select faultTypes when opening a service call
   const customList = (items) => (
     <Paper sx={{ width: 200, height: 230, overflow: "auto" }}>
       <List dense component="div" role="list">
@@ -181,16 +188,20 @@ const Form = (props) => {
     </Paper>
   );
 
+  // Define steps for opening a service call
   const steps = ["Select customer", "Select device", "Select fault types"];
 
+  // check if step is optional
   const isStepOptional = (step) => {
     return step === 5;
   };
 
+  // check if step was skipped
   const isStepSkipped = (step) => {
     return skipped.has(step);
   };
 
+  // move to next step
   const handleNext = () => {
     let newSkipped = skipped;
     if (isStepSkipped(activeStep)) {
@@ -202,6 +213,7 @@ const Form = (props) => {
     setSkipped(newSkipped);
   };
 
+  // move to previous step
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
@@ -221,6 +233,7 @@ const Form = (props) => {
     });
   };
 
+  // Create new service call in the database with the values entered in the from
   const handleFormSubmit = (values) => {
     addCall({
       callTypeId: 2,
@@ -230,9 +243,7 @@ const Form = (props) => {
     })
       .unwrap()
       .then((result) => {
-        //console.log(result);
         const device = fixDevices.data.find((el) => el.id === deviceId);
-        //console.log(deviceId);
         editFixDevice({
           id: deviceId,
           newImei: device.imei,
@@ -253,6 +264,7 @@ const Form = (props) => {
     props.formCloseControl(false);
   };
 
+  // Data columns definition for data table
   const columns =
     activeStep === 0
       ? [

@@ -8,16 +8,19 @@ import {
   useEditManufacturerMutation,
 } from "../../api/apiSlice";
 
+// Add/Edit manufacturers form component for rendering
 const Form = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
   const [addManufacturer] = useAddManufacturerMutation();
   const [editManufacturer] = useEditManufacturerMutation();
 
+  // Validation for form inputs
   const checkoutSchema = yup
     .object()
     .shape({ name: yup.string().required("required") });
 
+  // Add/Edit manufacturers Api calls
   const handleFormSubmit = async (values) => {
     if (props.formType === "edit") {
       values["newManufacturerName"] = values["name"];
@@ -30,6 +33,7 @@ const Form = (props) => {
     props.formCloseControl(false);
   };
 
+  // Render component to screen
   return (
     <Box m="20px">
       <Header

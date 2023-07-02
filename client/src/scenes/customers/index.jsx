@@ -1,11 +1,9 @@
 import {
   Box,
-  Typography,
   useTheme,
   Button,
   Dialog,
   DialogContent,
-  DialogActions,
   CircularProgress,
 } from "@mui/material";
 import {
@@ -30,6 +28,7 @@ import Form from "./Form";
 import { useSelector } from "react-redux";
 import AddIcon from "@mui/icons-material/Add";
 
+// Toolbar component for data table, for adding and filtering data
 const CustomToolBar = (props) => {
   const handleClick = () => {
     props.setFormType("create");
@@ -39,7 +38,6 @@ const CustomToolBar = (props) => {
       firstName: "",
       lastName: "",
       email: "",
-      //phoneNumber: "",
     });
     props.handleClickOpen();
   };
@@ -57,6 +55,7 @@ const CustomToolBar = (props) => {
   );
 };
 
+// Customers page for rendering
 const Customers = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -65,6 +64,7 @@ const Customers = () => {
   const [initialValues, setInitialValues] = useState(null);
   const [customerId, setCustomerId] = useState(-1);
 
+  // Fetch data from server
   const {
     data: customers,
     isLoading,
@@ -74,18 +74,22 @@ const Customers = () => {
   } = useGetCustomersQuery();
   const [deleteCustomer] = useDeleteCustomerMutation();
 
+  // Set initial values for form
   const handleInitialValues = (values) => {
     setInitialValues(values);
   };
 
+  // Open form window
   const handleClickOpen = () => {
     setOpen(true);
   };
 
+  // Close form window
   const handleClose = () => {
     setOpen(false);
   };
 
+  // Open form in edit mode
   const handleEditClick = (id) => () => {
     setFormType("edit");
     setCustomerId(id);
@@ -95,16 +99,17 @@ const Customers = () => {
       firstName: values.firstName,
       lastName: values.lastName,
       email: values.email,
-      //phoneNumber: values.phoneNumber,
     });
     handleClickOpen();
   };
 
+  // Delete row from table and corresponding data from server
   const handleDeleteClick = (id) => () => {
     const toDelete = customers.data.find((obj) => obj.id === id);
     deleteCustomer(toDelete);
   };
 
+  // Data columns definition for data table
   const columns = [
     { field: "id", headerName: "ID", hide: true },
     {
@@ -130,13 +135,6 @@ const Customers = () => {
       headerName: "Email",
       flex: 1,
     },
-    /*
-    {
-      field: "phoneNumber",
-      headerName: "Phone Number",
-      flex: 1,
-    },
-    */
     {
       field: "actions",
       type: "actions",
@@ -163,6 +161,7 @@ const Customers = () => {
     },
   ];
 
+  // Render the customers component
   return (
     <Box m="20px">
       <Header title="CUSTOMERS" subtitle="Managing Customers" />
@@ -181,12 +180,6 @@ const Customers = () => {
                 customerId={customerId}
               />
             </DialogContent>
-            {/*
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose}>Ok</Button>
-        </DialogActions>
-        */}
           </Dialog>
           <Box
             m="40px 0 0 0"

@@ -8,6 +8,7 @@ import jwt_decode from "jwt-decode";
 import { tokens } from "../../theme";
 import { useLoginMutation } from "../../api/apiSlice";
 
+// Validation for form inputs
 const loginSchema = yup.object().shape({
   idNumber: yup.string().required("required"),
   password: yup.string().required("required"),
@@ -18,6 +19,7 @@ const loginInitialValues = {
   password: "",
 };
 
+// Login form component for rendering
 const Form = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -26,6 +28,7 @@ const Form = (props) => {
   const isNonMobile = useMediaQuery("(min-width: 600px)");
   const [login] = useLoginMutation();
 
+  // Send login data to server for validation. If OK go to dashboard. If NOT OK show error message
   const handleFormSubmit = async (values, onSubmitProps) => {
     login(values)
       .unwrap()
@@ -47,6 +50,7 @@ const Form = (props) => {
       });
   };
 
+  // Render the form
   return (
     <Formik
       onSubmit={handleFormSubmit}

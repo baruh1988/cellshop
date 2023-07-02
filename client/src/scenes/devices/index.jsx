@@ -38,6 +38,7 @@ import {
   useGetNewDevicesQuery,
 } from "../../api/apiSlice";
 
+// Toolbar component for data table, for adding and filtering data
 const CustomToolBar = (props) => {
   const handleClick = () => {
     props.setFormType("create");
@@ -63,6 +64,7 @@ const CustomToolBar = (props) => {
   );
 };
 
+// Devices page for rendering
 const Devices = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -70,8 +72,8 @@ const Devices = () => {
   const [formType, setFormType] = useState("create");
   const [initialValues, setInitialValues] = useState(null);
   const [deviceId, setDeviceId] = useState(-1);
-  //const [cart, setCart] = useState([]);
 
+  // fetch data from server
   const { data: models, isLoading: isLoadingModels } = useGetModelsQuery();
   const { data: inventory, isLoading } = useGetInventoryQuery();
   const { data: itemTypes, isLoading: isLoadingItemTypes } =
@@ -80,27 +82,23 @@ const Devices = () => {
     useGetNewDevicesQuery();
   const [deleteDevice] = useDeleteNewDeviceMutation();
 
+  // Open form window
   const handleClickOpen = () => {
     setOpen(true);
   };
 
+  // Set initial values for form
   const handleInitialValues = (values) => {
     setInitialValues(values);
   };
 
+  // Delete row from table and corresponding data from server
   const handleDeleteClick = (id) => () => {
     const toDelete = devices.data.find((obj) => obj.id === id);
     deleteDevice(toDelete);
   };
 
-  /*
-  const handleAddCartClick = (id) => () => {
-    let newCart = [...cart];
-    const toAdd = inventory.data.find((obj) => obj.id === id);
-    newCart.push(toAdd);
-    setCart(newCart);
-  };
-  */
+  // Open form in edit mode
   const handleEditClick = (id) => () => {
     setFormType("edit");
     setDeviceId(id);
@@ -113,10 +111,12 @@ const Devices = () => {
     handleClickOpen();
   };
 
+  // Close form window
   const handleClose = () => {
     setOpen(false);
   };
 
+  // Data columns definition for data table
   const columns = [
     { field: "id", headerName: "ID", hide: true },
     {
@@ -137,38 +137,6 @@ const Devices = () => {
         }).name;
       },
     },
-    /*
-    {
-      field: "description",
-      headerName: "Description",
-      flex: 1,
-    },
-    {
-      field: "price",
-      headerName: "Price",
-      flex: 1,
-      valueGetter: (params) => {
-        return `${params.row.price} ₪`;
-      },
-    },
-    {
-      field: "quantity",
-      headerName: "Quantity",
-      flex: 1,
-    },
-    {
-      field: "quantityThreshold",
-      headerName: "Quantity Threshold",
-      flex: 1,
-    },
-    */
-    /*
-    {
-      field: "image",
-      headerName: "Image",
-      flex: 1,
-    },
-    */
     {
       field: "inStock",
       headerName: "In stock",
@@ -200,21 +168,6 @@ const Devices = () => {
       cellClassName: "actions",
       getActions: ({ id }) => {
         return [
-          /*
-          inventory.data.find((obj) => obj.id === id).quantity &&
-          cart.filter((obj) => obj.id === id).length <
-            inventory.data.find((obj) => obj.id === id).quantity ? (
-            <GridActionsCellItem
-              icon={<AddShoppingCartOutlinedIcon />}
-              label="AddCart"
-              className="textPrimary"
-              onClick={handleAddCartClick(id)}
-              color="inherit"
-            />
-          ) : (
-            <></>
-          ),
-          */
           <GridActionsCellItem
             icon={<EditOutlinedIcon />}
             label="Edit"
@@ -233,6 +186,7 @@ const Devices = () => {
     },
   ];
 
+  // Render the devicess component
   return (
     <Box m="20px">
       <Header title="DEVICES" subtitle="Managing Devices" />
@@ -252,12 +206,6 @@ const Devices = () => {
                 deviceId={deviceId}
               />
             </DialogContent>
-            {/*
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose}>Ok</Button>
-        </DialogActions>
-        */}
           </Dialog>
           <Box
             m="40px 0 0 0"
@@ -301,7 +249,6 @@ const Devices = () => {
                   handleInitialValues,
                   setFormType,
                   setDeviceId,
-                  //cart,
                 },
               }}
               getRowId={(row) => row.id}

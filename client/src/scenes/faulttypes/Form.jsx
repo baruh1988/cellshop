@@ -8,16 +8,19 @@ import {
   useEditFaultTypeMutation,
 } from "../../api/apiSlice";
 
+// Add/Edit faultTypes form component for rendering
 const Form = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
   const [addFaultType] = useAddFaultTypeMutation();
   const [editFaultType] = useEditFaultTypeMutation();
 
+  // Validation for form inputs
   const checkoutSchema = yup
     .object()
     .shape({ description: yup.string().required("required") });
 
+  // Add/Edit faultType Api calls
   const handleFormSubmit = async (values) => {
     if (props.formType === "edit") {
       values["newFaultTypeDescription"] = values["description"];
@@ -30,6 +33,7 @@ const Form = (props) => {
     props.formCloseControl(false);
   };
 
+  // Render the form on screen
   return (
     <Box m="20px">
       <Header

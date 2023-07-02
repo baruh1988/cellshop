@@ -38,6 +38,7 @@ import {
   useGetModelsQuery,
 } from "../../api/apiSlice";
 
+// Toolbar component for data table, for filtering data
 const CustomToolBar = () => {
   return (
     <GridToolbarContainer>
@@ -48,6 +49,7 @@ const CustomToolBar = () => {
   );
 };
 
+// Add/Edit device form component for rendering
 const Form = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -60,6 +62,7 @@ const Form = (props) => {
   );
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
+  // fetch manufacturers models data from database
   const { data: manufacturers, isLoading: isLoadingManufacturers } =
     useGetManufacturersQuery();
   const {
@@ -75,16 +78,19 @@ const Form = (props) => {
 
   const [checked, setChecked] = useState(props.initialValues.inStock);
 
+  // definition of the number of step the add/edit proccess will take
   const steps = [
     "Select model",
     props.formType === "create" ? "Create device" : "Edit device",
   ];
 
+  // Validation for form inputs
   const checkoutSchema = yup.object().shape({
     imei: yup.number().required("required!"),
     inventoryId: yup.number().required("required!"),
   });
 
+  // Add/Edit device Api calls
   const handleFormSubmit = async (values) => {
     values["inventoryId"] = inventoryId;
     values["inStock"] = checked;
@@ -100,14 +106,17 @@ const Form = (props) => {
     props.formCloseControl(false);
   };
 
+  // define which steps are optional
   const isStepOptional = (step) => {
     return props.formType === "create" ? step === 5 : step === 0;
   };
 
+  // check if a step was skipped
   const isStepSkipped = (step) => {
     return skipped.has(step);
   };
 
+  // move to next step
   const handleNext = () => {
     let newSkipped = skipped;
     if (isStepSkipped(activeStep)) {
@@ -119,10 +128,12 @@ const Form = (props) => {
     setSkipped(newSkipped);
   };
 
+  // move to previous step
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
+  // skip current step
   const handleSkip = () => {
     if (!isStepOptional(activeStep)) {
       // You probably want to guard against something like this,
@@ -138,10 +149,12 @@ const Form = (props) => {
     });
   };
 
+  // reset form
   const handleReset = () => {
     setActiveStep(0);
   };
 
+  // Data columns definition for data table
   const columns = [
     { field: "id", headerName: "ID", hide: true },
     {
@@ -159,17 +172,6 @@ const Form = (props) => {
         }).name;
       },
     },
-    /*
-    {
-      field: "inventoryItemTypeId",
-      headerName: "Item Type",
-      flex: 1,
-      valueGetter: ({ row }) => {
-        return itemTypes.data.find((el) => {
-          return el.id === row.inventoryItemTypeId;
-        }).name;
-      },
-    },*/
     {
       field: "description",
       headerName: "Description",
@@ -195,6 +197,7 @@ const Form = (props) => {
     },
   ];
 
+  // render the devices form
   return (
     <Box m="20px">
       <Header

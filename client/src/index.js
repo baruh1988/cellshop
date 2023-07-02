@@ -19,6 +19,7 @@ import {
 import storage from "redux-persist/lib/storage";
 import { PersistGate } from "redux-persist/integration/react";
 
+// creation of global state to store data localy and handle Api calls
 const persistConfig = { key: "root", storage, version: 1 };
 const persistedReducer = persistReducer(persistConfig, globalReducer);
 const store = configureStore({

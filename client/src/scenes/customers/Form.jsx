@@ -9,50 +9,18 @@ import {
 } from "../../api/apiSlice";
 import { useState } from "react";
 
+// Add/Edit customer form component for rendering
 const Form = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
   const [addCustomer] = useAddCustomerMutation();
   const [editCustomer] = useEditCustomerMutation();
 
+  // Validation for form inputs
   const phoneRegExp =
     /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
   const idNumberRegExp = /^\d{9}/;
 
-  /*
-  const checkoutSchema =
-    props.formType === "create"
-      ? yup.object().shape({
-          idNumber: yup
-            .string()
-            .matches(idNumberRegExp, "ID number is not valid")
-            .required("required"),
-          firstName: yup.string().required("required"),
-          lastName: yup.string().required("required"),
-          password: yup.string().required("required"),
-
-          address: yup.string().required("required"),
-          email: yup.string().email("Email is not valid").required("required"),
-          phoneNumber: yup
-            .string()
-            .matches(phoneRegExp, "Phone number is not valid")
-            .required("required"),
-        })
-      : yup.object().shape({
-          idNumber: yup
-            .string()
-            .matches(idNumberRegExp, "ID number is not valid")
-            .required("required"),
-          firstName: yup.string().required("required"),
-          lastName: yup.string().required("required"),
-          address: yup.string().required("required"),
-          email: yup.string().email("Email is not valid").required("required"),
-          phoneNumber: yup
-            .string()
-            .matches(phoneRegExp, "Phone number is not valid")
-            .required("required"),
-        });
-*/
   const checkoutSchema = yup.object().shape({
     idNumber: yup
       .string()
@@ -63,6 +31,7 @@ const Form = (props) => {
     email: yup.string().email("Email is not valid").required("required"),
   });
 
+  // Add/Edit user Api calls
   const handleFormSubmit = (values) => {
     if (props.formType === "edit") {
       delete values.password;
@@ -72,7 +41,6 @@ const Form = (props) => {
         newFirstName: values.firstName,
         newLastName: values.lastName,
         newEmail: values.email,
-        //newPhoneNumber: values.phoneNumber,
       };
       editCustomer(values);
     } else {
@@ -81,6 +49,7 @@ const Form = (props) => {
     props.formCloseControl(false);
   };
 
+  // Render the form on screen
   return (
     <Box m="20px">
       <Header

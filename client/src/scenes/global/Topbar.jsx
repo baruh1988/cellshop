@@ -12,6 +12,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useDispatch, useSelector } from "react-redux";
 import { setLogout } from "../../state";
 
+// Render the top navigation bar
 const Topbar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -22,10 +23,12 @@ const Topbar = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
+  // Expend side navigation bar
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
+  // Close side navigation bar
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -105,11 +108,6 @@ const Topbar = () => {
           <MenuItem onClick={handleClose}>Edit details</MenuItem>
           <MenuItem onClick={handleClose}>Change password</MenuItem>
         </Menu>
-        {/*
-        <IconButton>
-          <PersonOutlinedIcon />
-        </IconButton>
-          */}
         <IconButton onClick={() => dispatch(setLogout())}>
           <LogoutOutlinedIcon />
         </IconButton>

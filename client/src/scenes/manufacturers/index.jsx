@@ -139,12 +139,6 @@ const Manufacturers = () => {
                 manufacturerId={manufacturerId}
               />
             </DialogContent>
-            {/*
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose}>Ok</Button>
-        </DialogActions>
-        */}
           </Dialog>
           <Box
             m="40px 0 0 0"

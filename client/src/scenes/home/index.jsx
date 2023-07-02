@@ -19,6 +19,7 @@ import Customers from "../customers";
 import Products from "../products";
 import Devices from "../devices";
 
+// Route definition for in app navigation between pages
 function Home() {
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);

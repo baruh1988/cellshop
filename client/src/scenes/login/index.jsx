@@ -9,12 +9,14 @@ import {
 import Form from "./Form";
 import { useState } from "react";
 
+// Render login page
 const Login = () => {
   const theme = useTheme();
   const isNonMobile = useMediaQuery("(min-width: 1000px)");
   const [open, setOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  // prevent closing error message by clicking anywhere on screen
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;

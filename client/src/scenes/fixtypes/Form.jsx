@@ -8,16 +8,19 @@ import {
   useEditFixTypeMutation,
 } from "../../api/apiSlice";
 
+// Add/Edit fixType form component for rendering
 const Form = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
   const [addFixType] = useAddFixTypeMutation();
   const [editFixType] = useEditFixTypeMutation();
 
+  // Validation for form inputs
   const checkoutSchema = yup
     .object()
     .shape({ description: yup.string().required("required") });
 
+  // Add/Edit fixType Api calls
   const handleFormSubmit = async (values) => {
     if (props.formType === "edit") {
       values["newFixTypeDescription"] = values["description"];
@@ -30,6 +33,7 @@ const Form = (props) => {
     props.formCloseControl(false);
   };
 
+  // Render the form on screen
   return (
     <Box m="20px">
       <Header

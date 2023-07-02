@@ -28,6 +28,7 @@ import AddCustomer from "../customers/Form";
 import OpenLabCall from "../lab/Form";
 import CloseSaleCall from "../sale/Form";
 
+// Dashboard component for rendering
 const EmployeeDashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -36,6 +37,7 @@ const EmployeeDashboard = () => {
   const [dialogBoxContent, setDialogBoxContent] = useState();
   const [content, setContent] = useState();
 
+  // Fetch service/sale calls data from the server
   const {
     data: calls,
     isLoading: isLoadingCalls,
@@ -51,44 +53,24 @@ const EmployeeDashboard = () => {
   const { data: inventory, isLoading: isLoadingInventory } =
     useGetInventoryQuery();
 
+  // open form
   const handleClickOpen = () => {
     setOpen(true);
   };
 
+  // close form
   const handleClose = () => {
     setOpen(false);
   };
 
+  // render the Dashboard component
   return (
     <Box m="20px">
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header title="DASHBOARD" subtitle="" />
       </Box>
       <Dialog open={open} onClose={handleClose}>
-        <DialogContent>
-          {/*{dialogBoxContent === "addCustomer" && (
-            <AddCustomer
-              formType="create"
-              initialValues={{
-                idNumber: "",
-                firstName: "",
-                lastName: "",
-                email: "",
-                //phoneNumber: "",
-              }}
-              formCloseControl={setOpen}
-              customerId={-1}
-            />
-          )}
-            {dialogBoxContent === "closeSaleCall" && content}*/}
-          {dialogBoxContent}
-        </DialogContent>
-        {/*
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose}>Ok</Button>
-        </DialogActions>
-        */}
+        <DialogContent>{dialogBoxContent}</DialogContent>
       </Dialog>
       <Box
         display="grid"
@@ -163,7 +145,6 @@ const EmployeeDashboard = () => {
                         firstName: "",
                         lastName: "",
                         email: "",
-                        //phoneNumber: "",
                       }}
                       formCloseControl={setOpen}
                       customerId={-1}

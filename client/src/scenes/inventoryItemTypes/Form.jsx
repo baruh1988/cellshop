@@ -8,16 +8,19 @@ import {
   useEditInventoryItemTypeMutation,
 } from "../../api/apiSlice";
 
+// Add/Edit inventoryItemTypes form component for rendering
 const Form = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
   const [addItemType] = useAddInventoryItemTypeMutation();
   const [editItemType] = useEditInventoryItemTypeMutation();
 
+  // Validation for form inputs
   const checkoutSchema = yup
     .object()
     .shape({ name: yup.string().required("required") });
 
+  // Add/Edit inventoryItemType Api calls
   const handleFormSubmit = (values) => {
     if (props.formType === "edit") {
       values["newName"] = values["name"];
@@ -29,6 +32,7 @@ const Form = (props) => {
     props.formCloseControl(false);
   };
 
+  // Render the form on screen
   return (
     <Box m="20px">
       <Header
