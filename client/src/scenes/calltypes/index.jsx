@@ -27,6 +27,7 @@ import {
   useGetCallTypesQuery,
 } from "../../api/apiSlice";
 
+// Toolbar component for data table, for adding and filtering data
 const CustomToolBar = (props) => {
   const handleClick = () => {
     props.setFormType("create");
@@ -51,6 +52,7 @@ const CustomToolBar = (props) => {
   );
 };
 
+// CallTypes page for rendering
 const CallTypes = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -59,6 +61,7 @@ const CallTypes = () => {
   const [initialValues, setInitialValues] = useState(null);
   const [callTypeId, setCallTypeId] = useState(-1);
 
+  // Fetch data from server
   const {
     data: callTypes,
     isLoading,
@@ -68,23 +71,28 @@ const CallTypes = () => {
   } = useGetCallTypesQuery();
   const [deleteCallType] = useDeleteCallTypeMutation();
 
+  // Delete row from table and corresponding data from server
   const handleDeleteClick = (id) => () => {
     const toDelete = callTypes.data.find((obj) => obj.id === id);
     deleteCallType(toDelete);
   };
 
+  // Open form window
   const handleClickOpen = () => {
     setOpen(true);
   };
 
+  // Set initial values for form
   const handleInitialValues = (values) => {
     setInitialValues(values);
   };
 
+  // Close form window
   const handleClose = () => {
     setOpen(false);
   };
 
+  // Open form in edit mode
   const handleEditClick = (id) => () => {
     setFormType("edit");
     setCallTypeId(id);
@@ -93,6 +101,7 @@ const CallTypes = () => {
     handleClickOpen();
   };
 
+  // Data columns definition for data table
   const columns = [
     { field: "id", headerName: "ID", hide: true },
     { field: "name", headerName: "Name", width: 180 },
@@ -123,6 +132,7 @@ const CallTypes = () => {
     },
   ];
 
+  // Render the callTypes component
   return (
     <Box m="20px">
       <Header title="CALL TYPES" subtitle="Managing Call Types" />

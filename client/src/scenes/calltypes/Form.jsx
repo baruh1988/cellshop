@@ -8,17 +8,20 @@ import {
   useEditCallTypeMutation,
 } from "../../api/apiSlice";
 
+// CallType Form component for rendering on screen
 const Form = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
   const [addCallType] = useAddCallTypeMutation();
   const [editCallType] = useEditCallTypeMutation();
 
+  // Validation for form inputs
   const checkoutSchema = yup.object().shape({
     name: yup.string().required("required"),
     description: yup.string().required("required"),
   });
 
+  // Api call for adding a new callType or editing existing callType
   const handleFormSubmit = async (values) => {
     if (props.formType === "edit") {
       values["newCallTypeName"] = values["name"];
@@ -33,6 +36,7 @@ const Form = (props) => {
     props.formCloseControl(false);
   };
 
+  // Render the form on screen
   return (
     <Box m="20px">
       <Header
