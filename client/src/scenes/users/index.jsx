@@ -34,6 +34,7 @@ import Form from "./Form";
 import { useSelector } from "react-redux";
 import AddIcon from "@mui/icons-material/Add";
 
+// Toolbar component for data table, for adding and filtering data
 const CustomToolBar = (props) => {
   const handleClick = () => {
     props.setFormType("create");
@@ -64,6 +65,7 @@ const CustomToolBar = (props) => {
   );
 };
 
+// Users page for rendering
 const Users = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -73,6 +75,7 @@ const Users = () => {
   const [userId, setUserId] = useState(-1);
   const loggedInUser = useSelector((state) => state.global.user);
 
+  // fetch data from server
   const {
     data: users,
     isLoading,
@@ -84,6 +87,7 @@ const Users = () => {
     useGetUserTypesQuery();
   const [deleteUser] = useDeleteUserMutation();
 
+  // Create user types object from data retrieved from server
   const getOptions = () => {
     let opts = {};
     userTypes.data.forEach((el) => {
@@ -92,18 +96,22 @@ const Users = () => {
     return opts;
   };
 
+  // Set initial values for form
   const handleInitialValues = (values) => {
     setInitialValues(values);
   };
 
+  // Open form window
   const handleClickOpen = () => {
     setOpen(true);
   };
 
+  // Close form window
   const handleClose = () => {
     setOpen(false);
   };
 
+  // Open form in edit mode
   const handleEditClick = (id) => () => {
     setFormType("edit");
     setUserId(id);
@@ -122,11 +130,13 @@ const Users = () => {
     handleClickOpen();
   };
 
+  // Delete row from table and corresponding data from server
   const handleDeleteClick = (id) => () => {
     const userToDelete = users.data.find((obj) => obj.id === id);
     deleteUser(userToDelete);
   };
 
+  // Data columns definition for data table
   const columns = [
     { field: "id", headerName: "ID", hide: true },
     {
@@ -219,6 +229,7 @@ const Users = () => {
     },
   ];
 
+  // Render the users component
   return (
     <Box m="20px">
       <Header title="USERS" subtitle="Managing users" />
@@ -238,12 +249,6 @@ const Users = () => {
                 getOptions={getOptions}
               />
             </DialogContent>
-            {/*
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose}>Ok</Button>
-        </DialogActions>
-        */}
           </Dialog>
           <Box
             m="40px 0 0 0"

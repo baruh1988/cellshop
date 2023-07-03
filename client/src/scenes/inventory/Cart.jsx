@@ -172,14 +172,12 @@ const Cart = (props) => {
                 });
             });
             const other = props.cart.filter((el) => el.device === null);
-            //console.log(other);
             const groupedById = other.reduce((group, product) => {
               const { id } = product.item;
               group[id] = group[id] ?? [];
               group[id].push(product);
               return group;
             }, {});
-            //console.log(groupedById);
             Object.keys(groupedById).forEach((el) => {
               addSaleCallDetail({
                 callId: result.data.id,
@@ -280,13 +278,6 @@ const Cart = (props) => {
       headerName: "Email",
       flex: 1,
     },
-    /*
-    {
-      field: "phoneNumber",
-      headerName: "Phone Number",
-      flex: 1,
-    },
-  */
   ];
 
   return (

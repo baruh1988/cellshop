@@ -33,10 +33,12 @@ import {
   useGetModelsQuery,
 } from "../../api/apiSlice";
 
+// Custom select drop down menu to select item type
 const SelectWrapper = ({ name, options, ...otherProps }) => {
   const { setFieldValue } = useFormikContext();
   const [field, meta] = useField(name);
 
+  // Change selected menu item
   const handleChange = (event) => {
     const { value } = event.target;
     setFieldValue(name, value);
@@ -69,6 +71,7 @@ const SelectWrapper = ({ name, options, ...otherProps }) => {
   );
 };
 
+// Toolbar component for data table, for filtering data
 const CustomToolBar = () => {
   return (
     <GridToolbarContainer>
@@ -79,6 +82,7 @@ const CustomToolBar = () => {
   );
 };
 
+// Add/Edit inventoryItem form component for rendering
 const Form = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -90,6 +94,7 @@ const Form = (props) => {
   const [options, setOptions] = useState(props.getOptions());
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
+  // fetch data from server
   const { data: manufacturers, isLoading: isLoadingManufacturers } =
     useGetManufacturersQuery();
   const {
@@ -102,6 +107,7 @@ const Form = (props) => {
   const [addInventoryItem] = useAddInventoryItemMutation();
   const [editInventoryItem] = useEditInventoryItemMutation();
 
+  // Define steps for add/edit inventoryItem process
   const steps = [
     "Select model",
     props.formType === "create"
@@ -109,6 +115,7 @@ const Form = (props) => {
       : "Edit inventory item",
   ];
 
+  // Validation for form inputs
   const checkoutSchema = yup.object().shape({
     modelId: yup.number().required("required!"),
     description: yup.string().required("required!"),
@@ -119,6 +126,7 @@ const Form = (props) => {
     //image: yup.string().required("required!"),
   });
 
+  // Add/Edit inventory Api calls
   const handleFormSubmit = async (values) => {
     values["modelId"] = modelId;
     values.inventoryItemTypeId = parseInt(values.inventoryItemTypeId);
@@ -139,14 +147,17 @@ const Form = (props) => {
     props.formCloseControl(false);
   };
 
+  // Check if step is optional
   const isStepOptional = (step) => {
     return props.formType === "create" ? step === 5 : step === 0;
   };
 
+  // Check if step was skipped
   const isStepSkipped = (step) => {
     return skipped.has(step);
   };
 
+  // Move to next step in the process
   const handleNext = () => {
     let newSkipped = skipped;
     if (isStepSkipped(activeStep)) {
@@ -158,6 +169,7 @@ const Form = (props) => {
     setSkipped(newSkipped);
   };
 
+  // Move to previous step in the process
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
@@ -177,10 +189,12 @@ const Form = (props) => {
     });
   };
 
+  // Reset form
   const handleReset = () => {
     setActiveStep(0);
   };
 
+  // Data columns definition for data table
   const columns = [
     { field: "id", headerName: "ID", hide: true },
     {
@@ -200,6 +214,7 @@ const Form = (props) => {
     },
   ];
 
+  // Render the form on screen
   return (
     <Box m="20px">
       <Header

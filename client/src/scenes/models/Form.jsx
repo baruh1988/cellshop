@@ -31,6 +31,7 @@ import {
   useGetManufacturersQuery,
 } from "../../api/apiSlice";
 
+// Toolbar component for data table, for filtering data
 const CustomToolBar = () => {
   return (
     <GridToolbarContainer>
@@ -41,6 +42,7 @@ const CustomToolBar = () => {
   );
 };
 
+// Add/Edit manufacturers form component for rendering
 const Form = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -53,6 +55,7 @@ const Form = (props) => {
   );
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
+  // fetch data from server
   const {
     data: manufacturers,
     isLoading,
@@ -63,15 +66,19 @@ const Form = (props) => {
   const [addModel] = useAddModelMutation();
   const [editModel] = useEditModelMutation();
 
+  // Definition of steps for create/edit manufacturer process
   const steps = [
     "Select manufacturer",
     props.formType === "create" ? "Create model" : "Edit model",
   ];
+
+  // Validation for form inputs
   const checkoutSchema = yup.object().shape({
     //manufacturerId: yup.number().required("required!"),
     name: yup.string().required("required!"),
   });
 
+  // Add/Edit manufacturer Api calls
   const handleFormSubmit = async (values) => {
     values.manufacturerId = parseInt(manufacturerId);
     if (props.formType === "edit") {
@@ -86,14 +93,17 @@ const Form = (props) => {
     props.formCloseControl(false);
   };
 
+  // Check if step is optional
   const isStepOptional = (step) => {
     return props.formType === "create" ? step === 5 : step === 0;
   };
 
+  // Check if step was skipped
   const isStepSkipped = (step) => {
     return skipped.has(step);
   };
 
+  // Move to next step in process
   const handleNext = () => {
     let newSkipped = skipped;
     if (isStepSkipped(activeStep)) {
@@ -105,6 +115,7 @@ const Form = (props) => {
     setSkipped(newSkipped);
   };
 
+  // Move to previous step in process
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
@@ -123,15 +134,18 @@ const Form = (props) => {
     });
   };
 
+  // Reset form
   const handleReset = () => {
     setActiveStep(0);
   };
 
+  // Data columns definition for data table
   const columns = [
     { field: "id", headerName: "ID", hide: true },
     { field: "name", headerName: "Name", width: 180 },
   ];
 
+  // Render the form on screen
   return (
     <Box m="20px">
       <Header

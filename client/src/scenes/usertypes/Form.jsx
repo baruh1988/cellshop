@@ -8,16 +8,19 @@ import {
   useEditUserTypeMutation,
 } from "../../api/apiSlice";
 
+// Add/Edit userTypes form component for rendering
 const Form = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
   const [addUserType] = useAddUserTypeMutation();
   const [editUserType] = useEditUserTypeMutation();
 
+  // Validation for form inputs
   const checkoutSchema = yup
     .object()
     .shape({ description: yup.string().required("required") });
 
+  // Add/Edit userType Api calls
   const handleFormSubmit = (values) => {
     if (props.formType === "edit") {
       values["newUserTypeDescription"] = values["description"];
@@ -30,6 +33,7 @@ const Form = (props) => {
     props.formCloseControl(false);
   };
 
+  // Render the form on screen
   return (
     <Box m="20px">
       <Header

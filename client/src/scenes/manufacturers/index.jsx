@@ -27,6 +27,7 @@ import {
   useGetManufacturersQuery,
 } from "../../api/apiSlice";
 
+// Toolbar component for data table, for adding and filtering data
 const CustomToolBar = (props) => {
   const handleClick = () => {
     props.setFormType("create");
@@ -50,6 +51,7 @@ const CustomToolBar = (props) => {
   );
 };
 
+// Manufacturers page for rendering
 const Manufacturers = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -58,6 +60,7 @@ const Manufacturers = () => {
   const [initialValues, setInitialValues] = useState(null);
   const [manufacturerId, setManufacturerId] = useState(-1);
 
+  // fetch data from server
   const {
     data: manufacturers,
     isLoading,
@@ -67,23 +70,28 @@ const Manufacturers = () => {
   } = useGetManufacturersQuery();
   const [deleteManufacturer] = useDeleteManufacturerMutation();
 
+  // Delete row from table and corresponding data from server
   const handleDeleteClick = (id) => () => {
     const toDelete = manufacturers.data.find((obj) => obj.id === id);
     deleteManufacturer(toDelete);
   };
 
+  // Open form window
   const handleClickOpen = () => {
     setOpen(true);
   };
 
+  // Set initial values for form
   const handleInitialValues = (values) => {
     setInitialValues(values);
   };
 
+  // Close form window
   const handleClose = () => {
     setOpen(false);
   };
 
+  // Open form in edit mode
   const handleEditClick = (id) => () => {
     setFormType("edit");
     setManufacturerId(id);
@@ -92,6 +100,7 @@ const Manufacturers = () => {
     handleClickOpen();
   };
 
+  // Data columns definition for data table
   const columns = [
     { field: "id", headerName: "ID", hide: true },
     { field: "name", headerName: "Name", width: 180 },
@@ -121,6 +130,7 @@ const Manufacturers = () => {
     },
   ];
 
+  // Render the menufacturers component
   return (
     <Box m="20px">
       <Header title="MANUFACTURERS" subtitle="Managing manufacturers" />

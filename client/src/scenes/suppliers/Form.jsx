@@ -8,12 +8,14 @@ import {
   useEditSupplierMutation,
 } from "../../api/apiSlice";
 
+// Add/Edit supplier form component for rendering
 const Form = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
   const [addSupplier] = useAddSupplierMutation();
   const [editSupplier] = useEditSupplierMutation();
 
+  // Validation for form inputs
   const phoneRegExp =
     /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
   const idNumberRegExp = /^\d{9}/;
@@ -31,6 +33,7 @@ const Form = (props) => {
       .required("required"),
   });
 
+  // Add/Edit supplier Api calls
   const handleFormSubmit = (values) => {
     if (props.formType === "edit") {
       values = {
@@ -47,6 +50,7 @@ const Form = (props) => {
     props.formCloseControl(false);
   };
 
+  // Render the form on screen
   return (
     <Box m="20px">
       <Header

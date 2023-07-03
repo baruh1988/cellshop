@@ -28,6 +28,7 @@ import { useState } from "react";
 import Form from "./Form";
 import AddIcon from "@mui/icons-material/Add";
 
+// Toolbar component for data table, for adding and filtering data
 const CustomToolBar = (props) => {
   const handleClick = () => {
     props.setFormType("create");
@@ -54,6 +55,7 @@ const CustomToolBar = (props) => {
   );
 };
 
+// Suppliers page for rendering
 const Suppliers = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -62,6 +64,7 @@ const Suppliers = () => {
   const [initialValues, setInitialValues] = useState(null);
   const [supplierId, setSupplierId] = useState(-1);
 
+  // fetch data from server
   const {
     data: suppliers,
     isLoading,
@@ -71,18 +74,22 @@ const Suppliers = () => {
   } = useGetSuppliersQuery();
   const [deleteSupplier] = useDeleteSupplierMutation();
 
+  // Set initial values for form
   const handleInitialValues = (values) => {
     setInitialValues(values);
   };
 
+  // Open form window
   const handleClickOpen = () => {
     setOpen(true);
   };
 
+  // Close form window
   const handleClose = () => {
     setOpen(false);
   };
 
+  // Open form in edit mode
   const handleEditClick = (id) => () => {
     setFormType("edit");
     setSupplierId(id);
@@ -96,11 +103,13 @@ const Suppliers = () => {
     handleClickOpen();
   };
 
+  // Delete row from table and corresponding data from server
   const handleDeleteClick = (id) => () => {
     const supplierToDelete = suppliers.data.find((obj) => obj.id === id);
     deleteSupplier(supplierToDelete);
   };
 
+  // Data columns definition for data table
   const columns = [
     { field: "id", headerName: "ID", hide: true },
     {
@@ -151,6 +160,7 @@ const Suppliers = () => {
     },
   ];
 
+  // Render the suppliers component
   return (
     <Box m="20px">
       <Header title="SUPPLIERS" subtitle="Managing Suppliers" />
@@ -169,12 +179,6 @@ const Suppliers = () => {
                 supplierId={supplierId}
               />
             </DialogContent>
-            {/*
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose}>Ok</Button>
-        </DialogActions>
-        */}
           </Dialog>
           <Box
             m="40px 0 0 0"

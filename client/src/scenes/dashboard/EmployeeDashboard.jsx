@@ -26,7 +26,7 @@ import {
 import { useState } from "react";
 import AddCustomer from "../customers/Form";
 import OpenLabCall from "../lab/Form";
-import CloseSaleCall from "../sale/Form";
+//import CloseSaleCall from "../sale/Form";
 
 // Dashboard component for rendering
 const EmployeeDashboard = () => {

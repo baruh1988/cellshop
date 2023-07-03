@@ -17,6 +17,7 @@ import {
   useGetNewDevicesQuery,
 } from "../../api/apiSlice";
 
+// Toolbar component for data table, for filtering data
 const CustomToolBar = () => {
   return (
     <GridToolbarContainer>
@@ -27,12 +28,14 @@ const CustomToolBar = () => {
   );
 };
 
+// Pick device for sale call form component for rendering
 const Device = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [deviceId, setDeviceId] = useState();
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
+  // fetch data from server
   const { data: manufacturers, isLoading: isLoadingManufacturers } =
     useGetManufacturersQuery();
   const {
@@ -46,16 +49,17 @@ const Device = (props) => {
     useGetNewDevicesQuery();
   const { data: inventory, isLoading } = useGetInventoryQuery();
 
+  // Add the device to the cart
   const handlePickDevice = () => {
     let tmp = [...props.cart];
     const toAdd = inventory.data.find((obj) => obj.id === deviceId);
     const device = devices.data.find((el) => el.inventoryId === deviceId);
-    //console.log(device);
     tmp.push({ item: toAdd, device: device });
     props.setCart(tmp);
     props.setOpen(false);
   };
 
+  // Data columns definition for data table
   const columns = [
     { field: "id", headerName: "ID", hide: true },
     {
@@ -78,6 +82,7 @@ const Device = (props) => {
     },
   ];
 
+  // Render the form on screen
   return (
     <Box m="20px">
       <Header title="PICK DEVICE" subtitle="" />

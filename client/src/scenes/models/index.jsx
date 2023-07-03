@@ -29,13 +29,13 @@ import {
   useGetModelsQuery,
 } from "../../api/apiSlice";
 
+// Toolbar component for data table, for adding and filtering data
 const CustomToolBar = (props) => {
   const handleClick = () => {
     props.setFormType("create");
     props.setModelId(-1);
     props.handleInitialValues({
       manufacturerId: -1,
-      //manufacturerId: Math.min(...Object.keys(props.manufacturers)),
       name: "",
     });
     props.handleClickOpen();
@@ -54,6 +54,7 @@ const CustomToolBar = (props) => {
   );
 };
 
+// Models page for rendering
 const Models = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -62,6 +63,7 @@ const Models = () => {
   const [initialValues, setInitialValues] = useState(null);
   const [modelId, setModelId] = useState(-1);
 
+  // fetch data from server
   const { data: manufacturers, isLoading: isLoadingManufacturers } =
     useGetManufacturersQuery();
   const {
@@ -73,19 +75,23 @@ const Models = () => {
   } = useGetModelsQuery();
   const [deleteModel] = useDeleteModelMutation();
 
+  // Open form window
   const handleClickOpen = () => {
     setOpen(true);
   };
 
+  // Set initial values for form
   const handleInitialValues = (values) => {
     setInitialValues(values);
   };
 
+  // Delete row from table and corresponding data from server
   const handleDeleteClick = (id) => () => {
     const toDelete = models.data.find((obj) => obj.id === id);
     deleteModel(toDelete);
   };
 
+  // Open form in edit mode
   const handleEditClick = (id) => () => {
     setFormType("edit");
     setModelId(id);
@@ -97,10 +103,12 @@ const Models = () => {
     handleClickOpen();
   };
 
+  // Close form window
   const handleClose = () => {
     setOpen(false);
   };
 
+  // Data columns definition for data table
   const columns = [
     { field: "id", headerName: "ID", hide: true },
     {
@@ -144,6 +152,7 @@ const Models = () => {
     },
   ];
 
+  // Render the devicess component
   return (
     <Box m="20px">
       <Header title="MODELS" subtitle="Managing Models" />
@@ -160,12 +169,6 @@ const Models = () => {
                 modelId={modelId}
               />
             </DialogContent>
-            {/*
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose}>Ok</Button>
-        </DialogActions>
-        */}
           </Dialog>
           <Box
             m="40px 0 0 0"
@@ -209,7 +212,6 @@ const Models = () => {
                   handleInitialValues,
                   setFormType,
                   setModelId,
-                  //manufacturers,
                 },
               }}
               getRowId={(row) => row.id}

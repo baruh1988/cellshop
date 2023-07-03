@@ -36,6 +36,7 @@ import {
 import Cart from "./Cart";
 import Device from "./Device";
 
+// Show number of item in cart next to cart icon
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
     right: 5,
@@ -45,12 +46,13 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
   },
 }));
 
+// Toolbar component for data table, for adding and filtering data
 const CustomToolBar = (props) => {
+  // Open form to create new inventory item
   const handleClick = () => {
     props.setFormType("create");
     props.setInventoryId(-1);
     props.handleInitialValues({
-      //modelId: Math.min(...Object.keys(props.models)),
       modelId: 0,
       description: "",
       serialNumber: "",
@@ -63,6 +65,7 @@ const CustomToolBar = (props) => {
     props.handleClickOpen();
   };
 
+  // Open cart to proceed to checkout
   const handleCartClick = () => {
     props.setFormType("cart");
     props.handleClickOpen();
@@ -92,6 +95,7 @@ const CustomToolBar = (props) => {
   );
 };
 
+// Inventory page for rendering
 const Inventory = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -102,6 +106,7 @@ const Inventory = () => {
   const [cart, setCart] = useState([]);
   const [hasDevice, setHasDevice] = useState(false);
 
+  // fetch data from server
   const { data: models, isLoading: isLoadingModels } = useGetModelsQuery();
   const {
     data: inventory,
@@ -114,6 +119,7 @@ const Inventory = () => {
     useGetInventoryItemTypesQuery();
   const [deleteInventoryItem] = useDeleteInventoryItemMutation();
 
+  // Create item types options object from data retrieved from server
   const getOptions = () => {
     let opts = {};
     itemTypes.data.forEach((el) => {
@@ -122,19 +128,23 @@ const Inventory = () => {
     return opts;
   };
 
+  // Open form window
   const handleClickOpen = () => {
     setOpen(true);
   };
 
+  // Set initial values for form\
   const handleInitialValues = (values) => {
     setInitialValues(values);
   };
 
+  // Delete row from table and corresponding data from server
   const handleDeleteClick = (id) => () => {
     const toDelete = inventory.data.find((obj) => obj.id === id);
     deleteInventoryItem(toDelete);
   };
 
+  // Add item to the cart, if item is device open form to pick device from available to sell
   const handleAddCartClick = (id) => () => {
     const toAdd = inventory.data.find((obj) => obj.id === id);
     if (toAdd.inventoryItemTypeId === 1) {
@@ -149,6 +159,7 @@ const Inventory = () => {
     }
   };
 
+  // Remove item from cart
   const handleRemoveItem = (index) => () => {
     let newCart = [...cart];
     newCart.splice(index, 1);
@@ -156,12 +167,14 @@ const Inventory = () => {
     setHasDevice(newCart.some((obj) => obj.item.inventoryItemTypeId === 1));
   };
 
+  // Reset the cart
   const handleResetCart = () => () => {
     setOpen(false);
     setCart([]);
     setHasDevice(cart.some((obj) => obj.item.inventoryItemTypeId === 1));
   };
 
+  // Open form in edit mode
   const handleEditClick = (id) => () => {
     setFormType("edit");
     setInventoryId(id);
@@ -179,10 +192,12 @@ const Inventory = () => {
     handleClickOpen();
   };
 
+  // Close form
   const handleClose = () => {
     setOpen(false);
   };
 
+  // Data columns definition for data table
   const columns = [
     { field: "id", headerName: "ID", hide: true },
     {
@@ -233,13 +248,6 @@ const Inventory = () => {
       headerName: "Quantity Threshold",
       flex: 1,
     },
-    /*
-    {
-      field: "image",
-      headerName: "Image",
-      flex: 1,
-    },
-    */
     {
       field: "actions",
       type: "actions",
@@ -279,6 +287,7 @@ const Inventory = () => {
     },
   ];
 
+  // Render the inventory component
   return (
     <Box m="20px">
       <Header title="INVENTORY" subtitle="Managing Inventory" />
@@ -315,12 +324,6 @@ const Inventory = () => {
                 />
               )}
             </DialogContent>
-            {/*
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose}>Ok</Button>
-        </DialogActions>
-        */}
           </Dialog>
           <Box
             m="40px 0 0 0"

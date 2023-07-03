@@ -27,6 +27,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import Form from "./Form";
 
+// Toolbar component for data table, for adding and filtering data
 const CustomToolBar = (props) => {
   const handleClick = () => {
     props.setFormType("create");
@@ -50,6 +51,7 @@ const CustomToolBar = (props) => {
   );
 };
 
+// UserTypes page for rendering
 const UserTypes = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -58,6 +60,7 @@ const UserTypes = () => {
   const [initialValues, setInitialValues] = useState(null);
   const [userTypeId, setUserTypeId] = useState(-1);
 
+  // fetch data from server
   const {
     data: userTypes,
     isLoading,
@@ -67,22 +70,28 @@ const UserTypes = () => {
   } = useGetUserTypesQuery();
   const [deleteUserType] = useDeleteUserTypeMutation();
 
+  // Delete row from table and corresponding data from server
   const handleDeleteClick = (id) => () => {
     const toDelete = userTypes.data.find((obj) => obj.id === id);
     deleteUserType(toDelete);
   };
+
+  // Open form window
   const handleClickOpen = () => {
     setOpen(true);
   };
 
+  // Set initial values for form
   const handleInitialValues = (values) => {
     setInitialValues(values);
   };
 
+  // Close form window
   const handleClose = () => {
     setOpen(false);
   };
 
+  // Open form in edit mode
   const handleEditClick = (id) => () => {
     setFormType("edit");
     setUserTypeId(id);
@@ -91,6 +100,7 @@ const UserTypes = () => {
     handleClickOpen();
   };
 
+  // Data columns definition for data table
   const columns = [
     { field: "id", headerName: "ID", hide: true },
     { field: "description", headerName: "User Type", width: 180 },
@@ -120,6 +130,7 @@ const UserTypes = () => {
     },
   ];
 
+  // Render the userTypes component
   return (
     <Box m="20px">
       <Header title="USER TYPES" subtitle="Managing User Types" />
@@ -138,12 +149,6 @@ const UserTypes = () => {
                 userTypeId={userTypeId}
               />
             </DialogContent>
-            {/*
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose}>Ok</Button>
-        </DialogActions>
-        */}
           </Dialog>
           <Box
             m="40px 0 0 0"

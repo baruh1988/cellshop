@@ -6,10 +6,12 @@ import Header from "../../components/Header";
 import { useAddUserMutation, useEditUserMutation } from "../../api/apiSlice";
 import { useState } from "react";
 
+// Custom select drop down menu to select user type
 const SelectWrapper = ({ name, options, ...otherProps }) => {
   const { setFieldValue } = useFormikContext();
   const [field, meta] = useField(name);
 
+  // Change selected user type
   const handleChange = (event) => {
     const { value } = event.target;
     setFieldValue(name, value);
@@ -42,6 +44,7 @@ const SelectWrapper = ({ name, options, ...otherProps }) => {
   );
 };
 
+// Add/Edit user form component for rendering
 const Form = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
@@ -49,6 +52,7 @@ const Form = (props) => {
   const [editUser] = useEditUserMutation();
   const [options, setOptions] = useState(props.getOptions());
 
+  // Validation for form inputs
   const phoneRegExp =
     /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
   const idNumberRegExp = /^\d{9}/;
@@ -86,6 +90,7 @@ const Form = (props) => {
             .required("required"),
         });
 
+  // Add/Edit user Api calls
   const handleFormSubmit = (values) => {
     values.userType = parseInt(values.userType);
     if (props.formType === "edit") {
@@ -107,6 +112,7 @@ const Form = (props) => {
     props.formCloseControl(false);
   };
 
+  // Render the form on screen
   return (
     <Box m="20px">
       <Header
